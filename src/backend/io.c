@@ -36,57 +36,49 @@ int get_int_from_char_arr(const char *d) {
 
 enum AniCurrentFieldState {
     ID = 0,
-    TYPE = 1,
-    NAME = 2,
-    YEAR = 3,
-    TAGS = 4,
-    SCORE = 5,
-    EP_TOT = 6,
-    EP_WAT = 7,
-    NOTE = 8,
-    STAT = 9,
-    DATEUP = 10,
-    DATEADD = 11
+    NAME = 1,
+    YEAR = 2,
+    TAGS = 3,
+    SCORE = 4,
+    EP_TOT = 5,
+    EP_WAT = 6,
+    NOTE = 7,
+    STAT = 8,
+    DATEUPD = 9
 };
 
 char *anifield_enum_to_str(enum AniCurrentFieldState a) {
     char *field_name;
     switch (a) {
-        case ID: // 0
+        case ID:
             field_name = "Id";
             break;
-        case TYPE: // 1
-            field_name = "Type";
-            break;
-        case NAME: // 2
+        case NAME:
             field_name = "Name";
             break;
-        case TAGS: // 2
+        case TAGS:
             field_name = "Tags";
             break;
-        case YEAR: // 3
+        case YEAR:
             field_name = "Year";
             break;
-        case SCORE: // 4
+        case SCORE:
             field_name = "Score";
             break;
-        case EP_TOT: // 5
+        case EP_TOT:
             field_name = "Ep total";
             break;
-        case EP_WAT: // 6
+        case EP_WAT:
             field_name = "Ep watched";
             break;
-        case NOTE: // 7
+        case NOTE:
             field_name = "Note";
             break;
-        case STAT: // 8
+        case STAT:
             field_name = "Status";
             break;
-        case DATEUP: // 9
+        case DATEUPD:
             field_name = "Last updated";
-            break;
-        case DATEADD: // 10
-            field_name = "Added";
             break;
         default:
             field_name = "??????";

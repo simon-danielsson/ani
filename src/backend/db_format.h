@@ -3,11 +3,6 @@
 #include "../main.h"
 
 typedef enum {
-  SHOW = 0,
-  MOVIE = 1,
-} AniEntryType;
-
-typedef enum {
   WATCHING = 0,
   COMPLETED = 1,
   ON_HOLD = 2,
@@ -16,16 +11,14 @@ typedef enum {
 } AniEntryStatus;
 
 typedef struct {
-  AniEntryType type;
   char *name;
-  int year;
   char **tags;
   int score;
   int ep_total;
   int ep_watched;
   AniEntryStatus status;
-  char *date_updated;
-  char *date_added;
+  time_t released;
+  time_t *last_updated;
 } AniEntry;
 
 typedef struct {
