@@ -3,3 +3,5 @@ nvim.log
 /build/*
 .DS_Store
 *.o
+notes.md
+test.ani

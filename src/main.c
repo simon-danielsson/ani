@@ -1,6 +1,14 @@
 #include "main.h"
+#include "backend/io.h"
 
-int main(int argc, char **argv) {
-    printf("%s\n", ENV_NAME);
+int main(void) {
+    FILE *f = fopen("test.ani", "rw");
+    // AniFile af = read_anifile(f);
+    read_anifile(f);
+
+    // do stuff with the intermediate representation using api functions
+
+    // write_anifile(f);
+
     return 0;
 }
