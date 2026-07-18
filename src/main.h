@@ -29,6 +29,11 @@
 #include <string.h>
 #include <time.h>
 
+static void panic(const char *s) {
+  printf("Panic: %s\n", s);
+  exit(1);
+}
+
 // project variables ----------------------------------------------------------
 
 #ifndef ENV_NAME // project name

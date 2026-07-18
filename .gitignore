@@ -5,3 +5,5 @@ nvim.log
 *.o
 notes.md
 test.ani
+/tests
+/tests/*

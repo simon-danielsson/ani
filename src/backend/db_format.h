@@ -10,6 +10,19 @@ typedef enum {
   PLAN_TO_WATCH = 4
 } AniEntryStatus;
 
+enum AniCurrentFieldState {
+  ID = 0,
+  NAME = 1,
+  YEAR = 2,
+  TAGS = 3,
+  SCORE = 4,
+  EP_TOT = 5,
+  EP_WAT = 6,
+  NOTE = 7,
+  STAT = 8,
+  DATEUPD = 9
+};
+
 typedef struct {
   char *name;
   char **tags;
@@ -22,6 +35,7 @@ typedef struct {
 } AniEntry;
 
 typedef struct {
-  AniEntry *entry;
-  size_t count;
+  AniEntry *entries;
+  size_t size;
+  size_t capacity;
 } AniFile;
