@@ -1,5 +1,5 @@
 #include "db_format.h"
-#include <ctime>
+#include <assert.h>
 #include <stdio.h>
 
 size_t get_fsize(FILE **f) {
@@ -30,12 +30,40 @@ bool str_is_empty(const char *s) {
     return true;
 }
 
-int ani_atoi(const char *d) {
-    int num = 0;
-    for (int i = 0; d[i] != '\0'; i++) {
-        num = num * 10 + (d[i] - '0');
+// split by ',' and return array of char*
+char **get_tags_from_field(char *s) {
+
+    char **output = calloc(TAG_TMP_BUFF, TAG_TMP_BUFF * sizeof(*output));
+
+    if (output == NULL) {
+        // TODO: error handling
+        exit(1);
     }
-    return num;
+
+    size_t i = 0;
+    int j = 0;
+    char tmp[TAG_TMP_BUFF] = {0};
+    int t = 0;
+
+    while (t < TAG_MAX_N) {
+        if (s[i] == ',' || s[i] == '\0') {
+            output[t] = malloc((strlen(tmp) + 1) * sizeof(char));
+            strcpy(output[t], tmp);
+            j = 0;
+            t++;
+            memset(tmp, 0, sizeof(tmp));
+            if (s[i] == '\0') {
+                break;
+            }
+            i++;
+            continue;
+        }
+        tmp[j] = s[i];
+        i++;
+        j++;
+    }
+
+    return output;
 }
 
 // takes either "YYYY-MM-DD" or "YYYY"
@@ -103,7 +131,7 @@ AniFile *AniFile_init() {
 
 #define INIT_SIZE 8
     container->entries = malloc(INIT_SIZE * sizeof(AniEntry));
-    container->size = INIT_SIZE;
+    container->size = 0;
     container->capacity = INIT_SIZE;
 #undef INIT_SIZE
 
@@ -113,6 +141,8 @@ AniFile *AniFile_init() {
     }
     return container;
 }
+
+// char **split
 
 void AniFile_push_AniEntry(AniFile *af, AniEntry e) {
     if (af->size == af->capacity) {
@@ -150,27 +180,24 @@ AniFile read_anifile(FILE *f) {
         // iterate on fields
         enum AniCurrentFieldState acfs = 0;
 
-        // typedef struct {
-        //   char *name;
-        //   char **tags;
-        //   int score;
-        //   int ep_total;
-        //   int ep_watched;
-        //   AniEntryStatus status;
-        //   time_t released;
-        //   time_t *last_updated;
-        // } AniEntry;
+        // AniEntry default values
+        int e_id = -1;
         char e_name[256] = {0};
         char *e_tags[128] = {0};
         int e_score = 0;
         int ep_total = 0;
         int ep_watched = 0;
         AniEntryStatus e_status = PLAN_TO_WATCH;
-        time_t e_released =
+        time_t e_released = time(NULL);
+        time_t e_last_upd = time(NULL);
 
-            char tmp[256] = {0};
+        char tmp[256] = {0};
         int field_c = 0;
         int i = 0;
+
+        AniEntry e = {0};
+
+        // AniEntry e = {0};
         while (true) {
             if (line_tok[i] == FIELD_DELIM || !line_tok[i]) {
                 // TODO: capture fields here into an AniFile variable that will
@@ -178,37 +205,52 @@ AniFile read_anifile(FILE *f) {
 
                 switch (acfs) {
                     case ID:
-                        field_name = "Id";
+                        e_id = atoi(tmp);
+
                         break;
                     case NAME:
-                        field_name = "Name";
+                        // memcpy(void *restrict dst, const void *restrict src, size_t n);
+                        // memcpy(e_name, tmp, sizeof(tmp));
+                        // e_name[255] = '\0';
+                        printf("field: name (not implemented)\n");
                         break;
                     case TAGS:
-                        field_name = "Tags";
+                        printf("field: year (not implemented)\n");
+                        e.tags = get_tags_from_field(tmp);
+                        // assert(false);
+                        // field_name = "Tags";
                         break;
                     case YEAR:
-                        field_name = "Year";
+                        printf("field: year (not implemented)\n");
+                        // assert(false);
                         break;
                     case SCORE:
-                        field_name = "Score";
+                        printf("field: score (not implemented)\n");
+                        // assert(false);
                         break;
                     case EP_TOT:
-                        field_name = "Ep total";
+                        printf("field: ep tot (not implemented)\n");
+                        // assert(false);
                         break;
                     case EP_WAT:
-                        field_name = "Ep watched";
+                        printf("field: ep wat (not implemented)\n");
+                        // assert(false);
                         break;
                     case NOTE:
-                        field_name = "Note";
+                        printf("field: ep note (not implemented)\n");
+                        // assert(false);
                         break;
                     case STAT:
-                        field_name = "Status";
+                        printf("field: ep status (not implemented)\n");
+                        // assert(false);
                         break;
                     case DATEUPD:
-                        field_name = "Last updated";
+                        printf("field: date upd (not implemented)\n");
+                        // assert(false);
                         break;
                     default:
-                        field_name = "??????";
+                        printf("field: unknown\n");
+                        // assert(false);
                         break;
                 }
 
@@ -221,10 +263,13 @@ AniFile read_anifile(FILE *f) {
                 i++; // skip delim
                 memset(tmp, 0, sizeof(tmp));
             }
+
             tmp[field_c] = line_tok[i];
             field_c++;
             i++;
         }
+
+        AniFile_push_AniEntry(af, e);
 
         printf("\n");
         line++;

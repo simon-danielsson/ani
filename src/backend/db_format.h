@@ -2,6 +2,9 @@
 
 #include "../main.h"
 
+#define TAG_TMP_BUFF 96
+#define TAG_MAX_N 4
+
 typedef enum {
   WATCHING = 0,
   COMPLETED = 1,
@@ -26,6 +29,7 @@ enum AniCurrentFieldState {
 typedef struct {
   char *name;
   char **tags;
+  int id;
   int score;
   int ep_total;
   int ep_watched;
