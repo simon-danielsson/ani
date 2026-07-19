@@ -1,7 +1,13 @@
+If:
+  PathMatch: .*\.c$
+
 CompileFlags:
   Add:
+    - -xc
+    - -std=c99
     - -Wno-c23-extensions
     - -Wextra
+    - -Wmissing-field-initializers
     - -Wno-unused-variable
     - -Wno-unused-but-set-variable
     - -Wno-unused-function

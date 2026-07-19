@@ -1,18 +1,10 @@
 #include "main.h"
 #include "backend/db_format.h"
 #include "backend/io.h"
-
-void format_time_t_year(char *buff, time_t *time, bool only_year) {
-    struct tm *t = localtime(time);
-    if (only_year) {
-        strftime(buff, sizeof(buff), "%Y", t);
-    } else {
-        strftime(buff, sizeof(buff), "%Y-%m-%d", t);
-    }
-}
+#include "utils.h"
 
 void AniFile_debug_print(AniFile af) {
-    printf("---------\n");
+    // printf("---------\n");
     for (size_t i = 0; i < af.size; i++) {
 
         // name & id
