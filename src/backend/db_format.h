@@ -28,14 +28,15 @@ enum AniCurrentFieldState {
 
 typedef struct {
   char *name;
-  char **tags;
+  char *note;  // NOTE: can also be NULL
+  char **tags; // NOTE: can also be NULL
   int id;
   int score;
   int ep_total;
   int ep_watched;
   AniEntryStatus status;
   time_t released;
-  time_t *last_updated;
+  time_t last_updated;
 } AniEntry;
 
 typedef struct {

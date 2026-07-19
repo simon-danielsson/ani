@@ -83,6 +83,28 @@ time_t time_t_from_iso_ymd(const char *iso_str) {
     return mktime(&tm);
 }
 
+char *AniEntryStatus_to_str(AniEntryStatus aes) {
+    char *status;
+    switch (aes) {
+        case WATCHING:
+            status = "Watching";
+            break;
+        case COMPLETED:
+            status = "Completed";
+            break;
+        case ON_HOLD:
+            status = "On hold";
+            break;
+        case DROPPED:
+            status = "Dropped";
+            break;
+        case PLAN_TO_WATCH:
+            status = "Plan to watch";
+            break;
+    }
+    return status;
+}
+
 char *anifield_enum_to_str(enum AniCurrentFieldState a) {
     char *field_name;
     switch (a) {
@@ -180,16 +202,6 @@ AniFile read_anifile(FILE *f) {
         // iterate on fields
         enum AniCurrentFieldState acfs = 0;
 
-        // AniEntry default values
-        int e_id = -1;
-        char *e_tags[128] = {0};
-        int e_score = 0;
-        int ep_total = 0;
-        int ep_watched = 0;
-        AniEntryStatus e_status = PLAN_TO_WATCH;
-        time_t e_released = time(NULL);
-        time_t e_last_upd = time(NULL);
-
         char tmp[256] = {0};
         int field_c = 0;
         int i = 0;
@@ -211,39 +223,42 @@ AniFile read_anifile(FILE *f) {
                         strcpy(e.name, tmp);
                         break;
                     case TAGS:
-                        e.tags = get_tags_from_field(tmp);
+                        if (!str_is_empty(tmp)) {
+                            e.tags = get_tags_from_field(tmp);
+                        } else {
+                            e.tags = NULL;
+                        }
                         break;
                     case YEAR:
-                        printf("field: year (not implemented)\n");
-                        // assert(false);
+                        e.released = time_t_from_iso_ymd(tmp);
                         break;
                     case SCORE:
-                        printf("field: score (not implemented)\n");
-                        // assert(false);
+                        e.score = atoi(tmp);
                         break;
                     case EP_TOT:
-                        printf("field: ep tot (not implemented)\n");
-                        // assert(false);
+                        e.ep_total = atoi(tmp);
                         break;
                     case EP_WAT:
-                        printf("field: ep wat (not implemented)\n");
-                        // assert(false);
+                        e.ep_watched = atoi(tmp);
                         break;
                     case NOTE:
-                        printf("field: ep note (not implemented)\n");
-                        // assert(false);
+                        if (!str_is_empty(tmp)) {
+                            e.note = malloc((strlen(tmp) + 1) * sizeof(char));
+                            strcpy(e.note, tmp);
+                        } else {
+                            e.note = NULL;
+                        }
+
                         break;
                     case STAT:
-                        printf("field: ep status (not implemented)\n");
-                        // assert(false);
+                        e.status = atoi(tmp);
                         break;
                     case DATEUPD:
-                        printf("field: date upd (not implemented)\n");
-                        // assert(false);
+                        e.last_updated = atoi(tmp);
                         break;
                     default:
                         printf("field: unknown\n");
-                        // assert(false);
+                        assert(false);
                         break;
                 }
 
@@ -275,4 +290,4 @@ AniFile read_anifile(FILE *f) {
     return *af;
 }
 
-void write_anifile(AniFile *af, FILE *f) { return; };
+void write_anifile(AniFile *af, FILE *f) { return; }
