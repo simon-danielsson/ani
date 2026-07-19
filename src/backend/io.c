@@ -1,7 +1,5 @@
 #include "../utils.h"
 #include "db_format.h"
-#include <assert.h>
-#include <stdio.h>
 
 // split by ',' and return array of char*
 char **get_tags_from_field(char *s) {
@@ -211,6 +209,7 @@ AniFile read_anifile(FILE *f) {
                         break;
                     case DATEUPD:
                         e.last_updated = atoi(tmp);
+                        e.updated_this_cycle = false;
                         break;
                     default:
                         // printf("field: unknown\n");
@@ -246,4 +245,92 @@ AniFile read_anifile(FILE *f) {
     return *af;
 }
 
-void write_anifile(AniFile *af, FILE *f) { return; }
+/*
+   id|name|year|tags|score|eptot|epwat|note|stat|dateupd
+   1|One Piece|1995|action,adventure,comedy|10|1400|5|this is very
+   good|0|2012-01-14 2|Ghost in The
+   Shell|1995|action,mecha|9|1|1|ghosts|1|2021-04-02 3|Black
+   Lagoon|2006|action|7|12|9| |3|2025-12-31 4|Kaguya-Sama: Love is war|2023|
+   |7|13|4|watch to-love-ru after this one |2|2025-12-31
+   */
+
+void write_anifile(AniFile *af, FILE *f) {
+    fprintf(f, "id|name|year|tags|score|eptot|epwat|note|stat|dateupd\n");
+
+    // printf("---------\n");
+    for (size_t i = 0; i < af->size; i++) {
+
+        // id
+        fprintf(f, "%d", af->entries[i].id);
+        fprintf(f, "|");
+
+        // name
+        fprintf(f, "%s", af->entries[i].name);
+        fprintf(f, "|");
+
+        // release year
+        {
+            char tmp[64] = {0};
+            format_time_t_year(tmp, sizeof(tmp), &af->entries[i].released, true);
+            fprintf(f, "%s", tmp);
+        }
+        fprintf(f, "|");
+
+        // tags
+        if (af->entries[i].tags != NULL) {
+            char tmp[256] = {0};
+            size_t tmp_pos = 0;
+            for (size_t j = 0; j < TAG_MAX_N; j++) {
+                if (af->entries[i].tags[j] != NULL) {
+                    char tag[64];
+                    snprintf(tag, sizeof(tag), "%s,", af->entries[i].tags[j]);
+                    strcpy(tmp + tmp_pos, tag);
+                    tmp_pos += strlen(tag);
+                }
+            }
+            // trim last ','
+            if (tmp_pos > 0 && tmp[tmp_pos - 1] == ',') {
+                tmp[tmp_pos - 1] = '\0';
+            }
+            fprintf(f, "%s", tmp);
+        } else {
+            fprintf(f, " ");
+        }
+        fprintf(f, "|");
+
+        // score
+        fprintf(f, "%d", af->entries[i].score);
+        fprintf(f, "|");
+
+        fprintf(f, "%d", af->entries[i].ep_total);
+        fprintf(f, "|");
+        fprintf(f, "%d", af->entries[i].ep_watched);
+        fprintf(f, "|");
+
+        // note
+        if (af->entries[i].note != NULL) {
+            fprintf(f, "%s", af->entries[i].note);
+        } else {
+            fprintf(f, " ");
+        }
+        fprintf(f, "|");
+
+        // status
+        fprintf(f, "%d", af->entries[i].status);
+        fprintf(f, "|");
+
+        // date updated
+        {
+            time_t u = af->entries[i].last_updated;
+            if (af->entries[i].updated_this_cycle) {
+                u = time(NULL);
+            }
+            char tmp[64] = {0};
+            format_time_t_year(tmp, sizeof(tmp), &u, false);
+            fprintf(f, "%s", tmp);
+        }
+        fprintf(f, "\n");
+    }
+
+    return;
+}

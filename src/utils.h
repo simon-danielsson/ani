@@ -14,6 +14,7 @@ bool str_is_empty(const char *s);
 // takes either "YYYY-MM-DD" or "YYYY"
 time_t time_t_from_iso_ymd(const char *iso_str);
 
-void format_time_t_year(char *buff, time_t *time, bool only_year);
+void format_time_t_year(char *buff, size_t buff_size, time_t *time,
+                        bool only_year);
 
 #endif

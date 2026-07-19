@@ -50,11 +50,13 @@ time_t time_t_from_iso_ymd(const char *iso_str) {
     return mktime(&tm);
 }
 
-void format_time_t_year(char *buff, time_t *time, bool only_year) {
+void format_time_t_year(char *buff, size_t buff_size, time_t *time,
+        bool only_year) {
     struct tm *t = localtime(time);
+
     if (only_year) {
-        strftime(buff, sizeof(buff), "%Y", t);
+        strftime(buff, buff_size, "%Y", t);
     } else {
-        strftime(buff, sizeof(buff), "%Y-%m-%d", t);
+        strftime(buff, buff_size, "%Y-%m-%d", t);
     }
 }

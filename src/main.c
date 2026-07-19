@@ -2,6 +2,7 @@
 #include "backend/db_format.h"
 #include "backend/io.h"
 #include "utils.h"
+#include <stdbool.h>
 
 void AniFile_debug_print(AniFile af) {
     // printf("---------\n");
@@ -13,9 +14,9 @@ void AniFile_debug_print(AniFile af) {
 
         // released
         {
-            char released_tmp_buff[64] = {0};
-            format_time_t_year(released_tmp_buff, &af.entries[i].released, true);
-            printf("released: %s \n", released_tmp_buff);
+            char tmp[64] = {0};
+            format_time_t_year(tmp, sizeof(tmp), &af.entries[i].released, true);
+            printf("released: %s \n", tmp);
         }
 
         printf("score: %d \n", af.entries[i].score);
@@ -29,9 +30,10 @@ void AniFile_debug_print(AniFile af) {
 
         // tags
         if (af.entries[i].tags != NULL) {
+            printf("tags: ");
             for (size_t j = 0; j < TAG_MAX_N; j++) {
                 if (af.entries[i].tags[j] != NULL) {
-                    printf("tags: #%s ", af.entries[i].tags[j]);
+                    printf("#%s ", af.entries[i].tags[j]);
                 }
             }
         }
@@ -40,15 +42,32 @@ void AniFile_debug_print(AniFile af) {
     }
 }
 
+bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current) {
+    return memcmp(snapshot, current, sizeof *current) != 0;
+}
+
 int main(void) {
-    FILE *f = fopen("test.ani", "rw");
+    // process cli arguments
+    FILE *f = fopen("./tests/input.ani", "r+");
+    if (!f) {
+        perror("Failed to open file");
+        exit(1);
+    }
+
+    // read
     AniFile af = read_anifile(f);
+
+    // snapshot to compare with before writing to file
+    AniFile snapshot = af;
 
     AniFile_debug_print(af);
 
-    // do stuff with the intermediate representation using api functions
-
-    write_anifile(&af, f);
+    {
+        FILE *f = fopen("./tests/output.ani", "w");
+        // if (AniFile_has_changed(&snapshot, &af)) {
+        write_anifile(&af, f);
+        // };
+    }
 
     return 0;
 }

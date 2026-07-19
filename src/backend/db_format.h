@@ -37,6 +37,7 @@ typedef struct {
   AniEntryStatus status;
   time_t released;
   time_t last_updated;
+  bool updated_this_cycle;
 } AniEntry;
 
 typedef struct {
