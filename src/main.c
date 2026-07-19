@@ -1,6 +1,7 @@
 #include "main.h"
 #include "backend/db_format.h"
 #include "backend/io.h"
+#include "cli/arg.h"
 #include "utils.h"
 #include <stdbool.h>
 
@@ -46,13 +47,15 @@ bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current) {
     return memcmp(snapshot, current, sizeof *current) != 0;
 }
 
-int main(void) {
+int main(int argc, char **argv) {
     // process cli arguments
     FILE *f = fopen("./tests/input.ani", "r+");
     if (!f) {
         perror("Failed to open file");
         exit(1);
     }
+
+    process_args(argc, argv);
 
     // read
     AniFile af = read_anifile(f);
