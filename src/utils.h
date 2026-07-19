@@ -22,6 +22,8 @@ void format_time_t_year(char *buff, size_t buff_size, time_t *time,
 
 void AniFile_debug_print(AniFile af);
 
-bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current);
+void trim_str(char *str);
+
+void str_to_lowercase(char *s, size_t len);
 
 #endif

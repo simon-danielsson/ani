@@ -37,4 +37,6 @@ typedef struct {
 
 Args *parse_args(int argc, char **argv);
 
+Arg *Args_find_arg(const Args *args, ArgType t1, ArgType t2);
+
 #endif

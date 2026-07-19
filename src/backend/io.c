@@ -19,6 +19,8 @@ char **get_tags_from_field(char *s) {
 
     while (t < TAG_MAX_N) {
         if (s[i] == ',' || s[i] == '\0') {
+            trim_str(tmp);
+            str_to_lowercase(tmp, TAG_TMP_BUFF);
             output[t] = malloc((strlen(tmp) + 1) * sizeof(char));
             strcpy(output[t], tmp);
             j = 0;

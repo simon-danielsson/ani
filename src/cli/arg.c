@@ -173,3 +173,14 @@ Args *parse_args(int argc, char **argv) {
 
     return args;
 }
+
+// returns NULL if arg can't be found
+Arg *Args_find_arg(const Args *args, ArgType t1, ArgType t2) {
+
+    for (size_t i = 0; i < args->size; i++) {
+        if (args->items[i].t == t1 || args->items[i].t == t2) {
+            return &args->items[i];
+        }
+    }
+    return NULL;
+}

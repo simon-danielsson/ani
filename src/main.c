@@ -1,7 +1,9 @@
 #include "main.h"
+#include "backend/api.h"
 #include "backend/db_format.h"
 #include "backend/io.h"
 #include "cli/arg.h"
+#include "cli/cli.h"
 #include "utils.h"
 #include <assert.h>
 #include <stdbool.h>
@@ -11,32 +13,41 @@
 int main(int argc, char **argv) {
     Args *args = parse_args(argc, argv);
 
+    // retrieve file from args
     FILE *f = NULL;
-    char f_name[128] = {0};
-    for (size_t i = 0; i < args->size; i++) {
-        if (args->items[i].t == F_FILE || args->items[i].t == F_FILE_LONG) {
-            f = fopen(args->items[i].s, "r+");
-        }
+    Arg *arg_file = NULL;
+
+#define FAILED_TO_OPEN                                                         \
+    printf("Error: failed to open file -- %s", MORE_INFO);                       \
+    exit(EXIT_FAILURE);
+
+    arg_file = Args_find_arg(args, F_FILE, F_FILE_LONG);
+    if (!arg_file) {
+        FAILED_TO_OPEN
     }
+
+    f = fopen(arg_file->s, "r+");
+
     if (!f) {
-        printf("Error: failed to open file -- %s", MORE_INFO);
-        exit(EXIT_FAILURE);
+        FAILED_TO_OPEN
     }
 
     // read
     AniFile af = read_anifile(f);
+    AniFile snapshot = af;
 
-    // snapshot to compare with before writing to file
-    // AniFile snapshot = af;
+    if (Args_find_arg(args, C_ADD, C_ADD)) {
+        cmd_add(&af);
+    }
 
-    AniFile_debug_print(af);
+    // AniFile_debug_print(af);
 
-    // {
-    //     FILE *f = fopen("./tests/output.ani", "w");
-    //     // if (AniFile_has_changed(&snapshot, &af)) {
-    //     write_anifile(&af, f);
-    //     // };
-    // }
+    {
+        if (AniFile_has_changed(&snapshot, &af)) {
+            f = fopen(arg_file->s, "w");
+            write_anifile(&af, f);
+        };
+    }
 
     // TODO: free memory of Args and AniFile properly at end of program
 

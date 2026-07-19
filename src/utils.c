@@ -2,6 +2,7 @@
 #include "backend/db_format.h"
 #include "backend/io.h"
 #include "main.h"
+#include <stddef.h>
 
 size_t get_fsize(FILE **f) {
     fseek(*f, 0, SEEK_END);
@@ -36,6 +37,11 @@ bool str_is_empty(const char *s) {
     return true;
 }
 
+void str_to_lowercase(char *s, size_t len) {
+    for (size_t i = 0; i < len; i++)
+        s[i] = tolower(s[i]);
+}
+
 // takes either "YYYY-MM-DD" or "YYYY"
 time_t time_t_from_iso_ymd(const char *iso_str) {
     struct tm tm = {0};
@@ -51,6 +57,24 @@ time_t time_t_from_iso_ymd(const char *iso_str) {
         return (time_t)-1;
     tm.tm_isdst = -1;
     return mktime(&tm);
+}
+
+void trim_str(char *str) {
+    char *start = str;
+    while (*start && isspace((unsigned char)*start)) {
+        start++;
+    }
+    if (*start == '\0') {
+        str[0] = '\0';
+        return;
+    }
+    char *end = start + strlen(start) - 1;
+    while (end > start && isspace((unsigned char)*end)) {
+        end--;
+    }
+    size_t len = (end - start) + 1;
+    memmove(str, start, len);
+    str[len] = '\0';
 }
 
 void format_time_t_year(char *buff, size_t buff_size, time_t *time,
@@ -71,6 +95,7 @@ void AniFile_debug_print(AniFile af) {
         // name & id
         printf("\x1b[1;30;42m%-3d %-70s \x1b[0m\n", af.entries[i].id,
                 af.entries[i].name);
+        printf("idx: %zu\n", i);
 
         // released
         {
@@ -100,8 +125,4 @@ void AniFile_debug_print(AniFile af) {
 
         printf("\n\n");
     }
-}
-
-bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current) {
-    return memcmp(snapshot, current, sizeof *current) != 0;
 }

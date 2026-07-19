@@ -14,16 +14,17 @@ typedef enum {
 } AniEntryStatus;
 
 enum AniCurrentFieldState {
-  ID = 0,
-  NAME = 1,
-  YEAR = 2,
-  TAGS = 3,
-  SCORE = 4,
-  EP_TOT = 5,
-  EP_WAT = 6,
-  NOTE = 7,
-  STAT = 8,
-  DATEUPD = 9
+  ID,
+  NAME,
+  YEAR,
+  TAGS,
+  SCORE,
+  EP_TOT,
+  EP_WAT,
+  NOTE,
+  STAT,
+  DATEUPD,
+  _FIELDS_N
 };
 
 typedef struct {

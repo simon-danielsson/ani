@@ -14,6 +14,35 @@ char *field_icon(enum AniCurrentFieldState acfs, bool devicon) {
     }
 }
 
+int AniFile_get_most_recent_id(AniFile *af) {
+    int most_recent = 0;
+    for (size_t i = 0; i < af->size; i++) {
+        if (af->entries[i].id > most_recent) {
+            most_recent = af->entries[i].id;
+        }
+    }
+    return most_recent;
+}
+
+bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current) {
+    return memcmp(snapshot, current, sizeof *current) != 0;
+}
+
+AniEntryStatus str_to_AniEntryStatus(const char *s) {
+    switch (s[0]) {
+        case 'w' | 'W':
+            return WATCHING;
+        case 'c' | 'C':
+            return COMPLETED;
+        case 'o' | 'O':
+            return ON_HOLD;
+        case 'd' | 'D':
+            return DROPPED;
+        default:
+            return PLAN_TO_WATCH;
+    }
+}
+
 char *AniEntryStatus_to_str(AniEntryStatus aes) {
     char *tmp;
     char *status[5] = {"Watching", "Completed", "On hold", "Dropped",
