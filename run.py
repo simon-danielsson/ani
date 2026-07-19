@@ -16,7 +16,7 @@ AUTH_CONT = "contact@simondanielsson.se"  # env var
 C_STD = "c99"  # c standard used to compile program
 
 AUTO_RUN = True  # if true, run binary after compile
-AUTO_RUN_ARGS = ["-f", "./tests/input.ani"]  # program args used at auto run
+AUTO_RUN_ARGS = ["-f", "test.ani"]  # program args used at auto run
 PRINT_COMPILE_DETAILS = True  # build-type, compiler, compile time
 
 C_FLAGS_DEBUG = [  # used for both debug and test builds
