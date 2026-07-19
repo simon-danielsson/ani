@@ -1,11 +1,12 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "backend/db_format.h"
 #include "main.h"
 
 size_t get_fsize(FILE **f);
 
-static void panic(const char *s);
+void panic(const char *s);
 
 char *read_entire_file(FILE *f);
 
@@ -16,5 +17,9 @@ time_t time_t_from_iso_ymd(const char *iso_str);
 
 void format_time_t_year(char *buff, size_t buff_size, time_t *time,
                         bool only_year);
+
+void AniFile_debug_print(AniFile af);
+
+bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current);
 
 #endif

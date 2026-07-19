@@ -65,7 +65,7 @@ void AniFile_push_AniEntry(AniFile *af, AniEntry e) {
         AniEntry *new_entries =
             realloc(af->entries, new_capacity * sizeof(AniEntry));
         if (!new_entries) {
-            panic("Out of memory\n");
+            panic("out of memory\n");
         }
         af->entries = new_entries;
         af->capacity = new_capacity;
