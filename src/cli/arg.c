@@ -14,7 +14,16 @@ char *arg_as_str(ArgType at) {
         [F_FILE_LONG] = "--file",
         [F_ICONS] = "-i",
         [F_ICONS_LONG] = "--no-icons",
-        [C_ADD] = "add"};
+        [C_ADD] = "add",
+        [C_EP] = "ep",
+        [C_EDIT] = "edit",
+        [C_INFO] = "info",
+        [C_RM] = "rm",
+        [C_STATS] = "stats",
+        [C_REC] = "rec",
+        [C_SEARCH] = "search"
+
+    };
     return args[at];
 }
 
@@ -83,6 +92,14 @@ bool ArgIter_has_prev(const ArgIter *it) { return it->current > it->begin; }
 char *ArgIter_peek_prev(const ArgIter *it) {
     return ArgIter_has_prev(it) ? it->current[-1] : NULL;
 }
+#define CMD_PARSE_ERR(not_provided)                                            \
+    do {                                                                         \
+        if (!ArgIter_has_next(&it)) {                                              \
+            fprintf(stderr, "No %s provided after '%s' -- %s\n", (not_provided),     \
+                    arg, MORE_INFO);                                                 \
+            exit(EXIT_FAILURE);                                                      \
+        }                                                                          \
+    } while (0)
 
 Args *parse_args(int argc, char **argv) {
     if (argc < 2) {
@@ -96,7 +113,6 @@ Args *parse_args(int argc, char **argv) {
     while (ArgIter_has_next(&it)) {
         char *arg = ArgIter_next(&it);
 
-        // flag: help
         if (strcmp(arg, arg_as_str(F_HELP)) == 0 ||
                 (strcmp(arg, arg_as_str(F_HELP_LONG)) == 0)) {
             for (size_t i = 0; i < help_txt_len; i++) {
@@ -104,7 +120,6 @@ Args *parse_args(int argc, char **argv) {
             }
             exit(EXIT_SUCCESS);
 
-            // flag: guide
             // TODO: write guide in static/guide.txt
         } else if (strcmp(arg, arg_as_str(F_GUIDE)) == 0) {
             for (size_t i = 0; i < guide_txt_len; i++) {
@@ -112,35 +127,46 @@ Args *parse_args(int argc, char **argv) {
             }
             exit(EXIT_SUCCESS);
 
-            // flag: guide
-            // TODO: implement icons flag operation
         } else if (strcmp(arg, arg_as_str(F_ICONS)) == 0 ||
                 (strcmp(arg, arg_as_str(F_ICONS_LONG)) == 0)) {
             Args_push_arg(args, Arg_new(NULL, F_ICONS));
 
-            // flag: file
         } else if (strcmp(arg, arg_as_str(F_FILE)) == 0 ||
                 (strcmp(arg, arg_as_str(F_FILE_LONG)) == 0)) {
-
-            if (!ArgIter_has_next(&it)) {
-                fprintf(stderr, "No path provided after '%s' -- %s\n", arg, MORE_INFO);
-                exit(EXIT_FAILURE);
-            }
+            CMD_PARSE_ERR("path");
             Args_push_arg(args, Arg_new(ArgIter_next(&it), F_FILE));
 
-            // command: add
+        } else if (strcmp(arg, arg_as_str(C_EP)) == 0) {
+            CMD_PARSE_ERR("id");
+            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_EP));
+
+        } else if (strcmp(arg, arg_as_str(C_RM)) == 0) {
+            CMD_PARSE_ERR("id");
+            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_RM));
+
+        } else if (strcmp(arg, arg_as_str(C_SEARCH)) == 0) {
+            CMD_PARSE_ERR("search term");
+            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_SEARCH));
+
+        } else if (strcmp(arg, arg_as_str(C_REC)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_REC));
+
+        } else if (strcmp(arg, arg_as_str(C_INFO)) == 0) {
+            CMD_PARSE_ERR("id");
+            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_INFO));
+
+        } else if (strcmp(arg, arg_as_str(C_STATS)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_STATS));
+
+        } else if (strcmp(arg, arg_as_str(C_EDIT)) == 0) {
+            CMD_PARSE_ERR("id");
+            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_EDIT));
+
         } else if (strcmp(arg, arg_as_str(C_ADD)) == 0) {
-            if (ArgIter_has_next(&it)) {
-                Args_push_arg(args, Arg_new(ArgIter_next(&it), C_ADD));
-                return args;
-            } else {
-                printf("No entry id provided after '%s' flag -- %s\n", argv[1],
-                        MORE_INFO);
-                exit(EXIT_FAILURE);
-            }
+            Args_push_arg(args, Arg_new(NULL, C_ADD));
 
         } else {
-            printf("Unknown argument '%s' -- %s\n", argv[1], MORE_INFO);
+            printf("Unknown argument '%s' -- %s\n", arg, MORE_INFO);
             exit(EXIT_FAILURE);
         }
     }

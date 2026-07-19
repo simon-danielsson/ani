@@ -12,6 +12,13 @@ typedef enum {
   F_ICONS,
   F_ICONS_LONG,
   C_ADD,
+  C_EP,
+  C_EDIT,
+  C_INFO,
+  C_RM,
+  C_STATS,
+  C_REC,
+  C_SEARCH,
   _ARGS_N
 } ArgType;
 
