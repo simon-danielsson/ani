@@ -1,25 +1,24 @@
 #include "db_format.h"
 
-char *AniEntryStatus_to_str(AniEntryStatus aes) {
-    char *status;
-    switch (aes) {
-        case WATCHING:
-            status = "Watching";
-            break;
-        case COMPLETED:
-            status = "Completed";
-            break;
-        case ON_HOLD:
-            status = "On hold";
-            break;
-        case DROPPED:
-            status = "Dropped";
-            break;
-        case PLAN_TO_WATCH:
-            status = "Plan to watch";
-            break;
+char *field_icon(enum AniCurrentFieldState acfs, bool devicon) {
+    char *icons_dev[10] = {"", "󰷝", "",  "", "",
+        "", "",  "󰎛", "", "󰚰"};
+    char *icons_tty[10] = {"I", "N", "Y", "T", "R", "E", "E", "N", "S", "U"};
+
+    if (devicon) {
+        char *tmp = icons_dev[acfs];
+        return tmp;
+    } else {
+        char *tmp = icons_tty[acfs];
+        return tmp;
     }
-    return status;
+}
+
+char *AniEntryStatus_to_str(AniEntryStatus aes) {
+    char *tmp;
+    char *status[5] = {"Watching", "Completed", "On hold", "Dropped",
+        "Plan to watch"};
+    return status[aes];
 }
 
 char *anifield_enum_to_str(enum AniCurrentFieldState a) {
@@ -54,9 +53,6 @@ char *anifield_enum_to_str(enum AniCurrentFieldState a) {
             break;
         case DATEUPD:
             field_name = "Last updated";
-            break;
-        default:
-            field_name = "??????";
             break;
     }
     return field_name;
