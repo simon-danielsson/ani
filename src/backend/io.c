@@ -182,7 +182,6 @@ AniFile read_anifile(FILE *f) {
 
         // AniEntry default values
         int e_id = -1;
-        char e_name[256] = {0};
         char *e_tags[128] = {0};
         int e_score = 0;
         int ep_total = 0;
@@ -205,20 +204,14 @@ AniFile read_anifile(FILE *f) {
 
                 switch (acfs) {
                     case ID:
-                        e_id = atoi(tmp);
-
+                        e.id = atoi(tmp);
                         break;
                     case NAME:
-                        // memcpy(void *restrict dst, const void *restrict src, size_t n);
-                        // memcpy(e_name, tmp, sizeof(tmp));
-                        // e_name[255] = '\0';
-                        printf("field: name (not implemented)\n");
+                        e.name = malloc((strlen(tmp) + 1) * sizeof(char));
+                        strcpy(e.name, tmp);
                         break;
                     case TAGS:
-                        printf("field: year (not implemented)\n");
                         e.tags = get_tags_from_field(tmp);
-                        // assert(false);
-                        // field_name = "Tags";
                         break;
                     case YEAR:
                         printf("field: year (not implemented)\n");

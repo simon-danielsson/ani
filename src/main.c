@@ -3,13 +3,19 @@
 #include "backend/io.h"
 
 void AniFile_debug_print(AniFile af) {
+    printf("---------\n");
     for (size_t i = 0; i < af.size; i++) {
+
+        printf("\x1b[30;42m%-70s \x1b[0m\n", af.entries[i].name);
+
+        printf("id: %d \n", af.entries[i].id);
+
         for (size_t j = 0; j < TAG_MAX_N; j++) {
             if (af.entries[i].tags[j] != NULL) {
-                printf("#%s ", af.entries[i].tags[j]);
+                printf("tags: #%s ", af.entries[i].tags[j]);
             }
         }
-        printf("\n");
+        printf("\n\n");
     }
 }
 
