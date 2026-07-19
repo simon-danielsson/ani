@@ -4,6 +4,8 @@
 #include "backend/db_format.h"
 #include "main.h"
 
+#define MORE_INFO "run 'ani -h' for more information"
+
 size_t get_fsize(FILE **f);
 
 void panic(const char *s);

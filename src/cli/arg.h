@@ -7,9 +7,11 @@ typedef enum {
   F_HELP,
   F_HELP_LONG,
   F_GUIDE,
-  F_GUIDE_LONG,
   F_FILE,
   F_FILE_LONG,
+  F_ICONS,
+  F_ICONS_LONG,
+  C_ADD,
   _ARGS_N
 } ArgType;
 
@@ -26,6 +28,6 @@ typedef struct {
   size_t capacity;
 } Args;
 
-Args parse_args(int argc, char **argv);
+Args *parse_args(int argc, char **argv);
 
 #endif

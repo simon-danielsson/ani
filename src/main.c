@@ -3,28 +3,24 @@
 #include "backend/io.h"
 #include "cli/arg.h"
 #include "utils.h"
+#include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 int main(int argc, char **argv) {
-    // process cli arguments
-    // FILE *f = fopen("./tests/input.ani", "r+");
-    // if (!f) {
-    //     perror("Failed to open file");
-    //     exit(EXIT_FAILURE);
-    // }
+    Args *args = parse_args(argc, argv);
 
-    Args args = parse_args(argc, argv);
-
-    FILE *f;
-    for (size_t i = 0; i < args.size; i++) {
-        if (args.items[i].t == F_FILE) {
-            f = fopen(args.items[i].s, "r+");
-            if (!f) {
-                printf("Error: failed to open '%s'", args.items[i].s);
-                exit(EXIT_FAILURE);
-            }
+    FILE *f = NULL;
+    char f_name[128] = {0};
+    for (size_t i = 0; i < args->size; i++) {
+        if (args->items[i].t == F_FILE || args->items[i].t == F_FILE_LONG) {
+            f = fopen(args->items[i].s, "r+");
         }
+    }
+    if (!f) {
+        printf("Error: failed to open file -- %s", MORE_INFO);
+        exit(EXIT_FAILURE);
     }
 
     // read
