@@ -1,5 +1,6 @@
 #include "../utils.h"
 #include "db_format.h"
+#include <stdlib.h>
 
 // split by ',' and return array of char*
 char **get_tags_from_field(char *s) {
@@ -8,7 +9,7 @@ char **get_tags_from_field(char *s) {
 
     if (output == NULL) {
         // TODO: error handling
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     size_t i = 0;

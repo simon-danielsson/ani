@@ -4,6 +4,7 @@
 #include "cli/arg.h"
 #include "utils.h"
 #include <stdbool.h>
+#include <stdlib.h>
 
 void AniFile_debug_print(AniFile af) {
     // printf("---------\n");
@@ -52,25 +53,25 @@ int main(int argc, char **argv) {
     FILE *f = fopen("./tests/input.ani", "r+");
     if (!f) {
         perror("Failed to open file");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     process_args(argc, argv);
 
     // read
-    AniFile af = read_anifile(f);
+    // AniFile af = read_anifile(f);
 
     // snapshot to compare with before writing to file
-    AniFile snapshot = af;
+    // AniFile snapshot = af;
 
-    AniFile_debug_print(af);
+    // AniFile_debug_print(af);
 
-    {
-        FILE *f = fopen("./tests/output.ani", "w");
-        // if (AniFile_has_changed(&snapshot, &af)) {
-        write_anifile(&af, f);
-        // };
-    }
+    // {
+    //     FILE *f = fopen("./tests/output.ani", "w");
+    //     // if (AniFile_has_changed(&snapshot, &af)) {
+    //     write_anifile(&af, f);
+    //     // };
+    // }
 
     return 0;
 }

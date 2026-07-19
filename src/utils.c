@@ -1,4 +1,5 @@
 #include "main.h"
+#include <stdlib.h>
 
 size_t get_fsize(FILE **f) {
     fseek(*f, 0, SEEK_END);
@@ -9,7 +10,7 @@ size_t get_fsize(FILE **f) {
 
 static void panic(const char *s) {
     printf("Panic: %s\n", s);
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 char *read_entire_file(FILE *f) {
