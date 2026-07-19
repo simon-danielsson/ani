@@ -40,7 +40,14 @@ int main(int argc, char **argv) {
         cmd_add(&af);
     }
 
-    // AniFile_debug_print(af);
+    {
+        Arg *tmp = Args_find_arg(args, C_EP, C_EP);
+        if (tmp) {
+            cmd_ep(&af, atoi(tmp->s));
+        }
+    }
+
+    AniFile_debug_print(af);
 
     {
         if (AniFile_has_changed(&snapshot, &af)) {

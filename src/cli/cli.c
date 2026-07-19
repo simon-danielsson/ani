@@ -1,6 +1,8 @@
 #include "../backend/api.h"
 #include "../backend/io.h"
 #include "../utils.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 /*
    commands that will be using the prompt:
@@ -68,6 +70,24 @@ const char *prompt_field(enum AniCurrentFieldState at) {
                       [d]ropped, [p]lan to watch ",
     };
     return args[at];
+}
+
+void cmd_ep(AniFile *af, int id) {
+
+    AniEntry *e = AniFile_find_entry_by_id(af, id);
+    if (!e) {
+        printf("Error: no file with id '%d' could be found.", id);
+        exit(EXIT_FAILURE);
+    }
+
+    int new_ep = prompt_ep(e->ep_watched, e->ep_total);
+
+    if (new_ep >= e->ep_total) {
+        e->ep_watched = e->ep_total;
+        e->status = COMPLETED;
+    }
+
+    e->last_updated = time(NULL);
 }
 
 void cmd_add(AniFile *af) {

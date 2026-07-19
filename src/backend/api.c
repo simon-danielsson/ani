@@ -14,6 +14,15 @@ char *field_icon(enum AniCurrentFieldState acfs, bool devicon) {
     }
 }
 
+AniEntry *AniFile_find_entry_by_id(AniFile *af, int id) {
+    for (size_t i = 0; i < af->size; i++) {
+        if (af->entries[i].id == id) {
+            return &af->entries[i];
+        }
+    }
+    return NULL;
+}
+
 int AniFile_get_most_recent_id(AniFile *af) {
     int most_recent = 0;
     for (size_t i = 0; i < af->size; i++) {
