@@ -3,12 +3,12 @@ USAGE
 
 META OPTIONS
     -h, --help            Displays this help message.
-    -g, --guide           Display practical guide on typical usage.
+    --guide               Display practical guide on typical usage.
 
 OPTIONS
     -f, --file            Source file to read and/or modify, can be omitted if
                           a file has been set as default with the 'set' command.
-    -n, --no-icons        Replace nerdfont icons with more portable fallbacks.
+    -i, --no-icons        Replace nerdfont icons with more portable fallbacks.
 
 COMMANDS
     add                   Add a new entry in an interactive prompt.
@@ -20,6 +20,7 @@ COMMANDS
     info <id>             Print info of given entry.
     rm <id>               Remove an entry (non-reversible).
     stats                 Display global statistics.
+    rec                   Display a randomly recommended plan-to-watch entry.
 
     set [command]
         new <src-file>    Set a default/fallback path to a src-file, will be
