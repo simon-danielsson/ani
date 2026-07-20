@@ -34,6 +34,11 @@ int AniFile_get_most_recent_id(AniFile *af) {
 }
 
 bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current) {
+    for (size_t i = 0; i < current->size; i++) {
+        if (current->entries[i].last_updated) {
+            return true;
+        }
+    }
     return memcmp(snapshot, current, sizeof *current) != 0;
 }
 
