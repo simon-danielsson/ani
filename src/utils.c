@@ -51,10 +51,9 @@ time_t time_t_from_iso_ymd(const char *iso_str) {
         tm.tm_mon += 6;
         tm.tm_isdst = -1;
         return mktime(&tm);
-    }
-
-    if (strptime(iso_str, "%Y-%m-%d", &tm) == NULL)
+    } else if (strptime(iso_str, "%Y-%m-%d", &tm) == NULL)
         return (time_t)-1;
+
     tm.tm_isdst = -1;
     return mktime(&tm);
 }
