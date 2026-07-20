@@ -36,6 +36,11 @@ int main(int argc, char **argv) {
     AniFile af = read_anifile(f);
     AniFile snapshot = af;
 
+    bool use_devicons = ({
+            Arg *a = Args_find_arg(args, F_ICONS, F_ICONS_LONG);
+            !a;
+            });
+
     if (Args_find_arg(args, C_ADD, C_ADD)) {
         cmd_add(&af);
     }
@@ -54,6 +59,13 @@ int main(int argc, char **argv) {
         Arg *tmp = Args_find_arg(args, C_EP, C_EP);
         if (tmp) {
             cmd_ep(&af, atoi(tmp->s));
+        }
+    }
+
+    {
+        Arg *tmp = Args_find_arg(args, C_INFO, C_INFO);
+        if (tmp) {
+            cmd_info(&af, atoi(tmp->s), use_devicons);
         }
     }
 

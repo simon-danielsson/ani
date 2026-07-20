@@ -7,6 +7,8 @@
 #define COL_QUESTION "\033[34m"
 #define COL_INFO "\033[33m"
 #define COL_RESET "\033[0m"
+#define COL_SHOW_HEADER "\033[4;1m"
+#define COL_ID "\033[47m"
 
 /*
    commands using a interactive prompt:
@@ -33,22 +35,71 @@ const char *prompt_field(enum AniCurrentFieldState at) {
     return args[at];
 }
 
-void AniEntry_pretty_print(AniEntry *e) {
+/*
+   56   One Piece
+   ┊     On hold                        812 of 1250      9
+   ┊     #action #comedy #adventure     1999            󰚰 2025-12-05
+   ┊    󰎛 Waiting for it to finish.
 
-    // 56   One Piece
-    // ┊     On hold                        812 of 1250      9
-    // ┊     #action #comedy #adventure     1999            󰚰
-    // 2025-12-05 ┊    󰎛 Waiting for it to finish.
-    //
-    // 512  Serial Experiments Lain
-    // ┊     Currently watching             5 of 13          10
-    // ┊     #mystery #drama                1998            󰚰
-    // 2023-02-16 ┊    󰎛 Rewatching it for the third time.
-    //
-    // 121  Kaguya Sama: Love is war
-    // ┊     Completed                      26 of 26         7
-    // ┊     #romance #comedy               2023            󰚰
-    // 2024-11-23
+   512  Serial Experiments Lain
+   ┊     Currently watching             5 of 13          10
+   ┊     #mystery #drama                1998            󰚰 2023-02-16
+   ┊    󰎛 Rewatching it for the third time.
+
+   121  Kaguya Sama: Love is war
+   ┊     Completed                      26 of 26         7
+   ┊     #romance #comedy               2023            󰚰 2024-11-23
+   */
+
+void AniEntry_pretty_print(AniEntry *e, bool d) {
+#define PRETTY_PRN_LINE                                                        \
+    do {                                                                         \
+        printf("\n%-7s", "┊");                                                     \
+    } while (0)
+
+    // row
+    printf("%-5d", e->id);
+    printf("%s%-79s%s", COL_SHOW_HEADER, e->name, COL_RESET);
+
+    // row
+    PRETTY_PRN_LINE;
+    printf("%s%s%s %-30s", COL_QUESTION, field_icon(STAT, d), COL_RESET,
+            AniEntryStatus_to_str(e->status));
+    printf("%s%s%s %d of %-22d", COL_QUESTION, field_icon(EP_TOT, d), COL_RESET,
+            e->ep_watched, e->ep_total);
+    printf("%s%s%s %d", COL_QUESTION, field_icon(SCORE, d), COL_RESET, e->score);
+
+    // row
+    PRETTY_PRN_LINE;
+    printf("%s%s%s", COL_QUESTION, field_icon(TAGS, d), COL_RESET);
+    if (e->tags != NULL) {
+        char tmp[128] = {0};
+        for (size_t j = 0; j < TAG_MAX_N; j++) {
+            if (e->tags[j] != NULL) {
+                strncat(tmp, " #", 2);
+                strncat(tmp, e->tags[j], strlen(e->tags[j]) + 1);
+            }
+        }
+        printf("%-31s", tmp);
+    } else {
+        printf(" %-30s", "(none)");
+    }
+    {
+        char tmp[32] = {0};
+        format_time_t_year(tmp, 32, &e->released, true);
+        printf("%s%s%s %-27s", COL_QUESTION, field_icon(YEAR, d), COL_RESET, tmp);
+    }
+    {
+        char tmp[32] = {0};
+        format_time_t_year(tmp, 32, &e->last_updated, false);
+        printf("%s%s%s %s", COL_QUESTION, field_icon(DATEUPD, d), COL_RESET, tmp);
+    }
+    if (e->note) {
+        // row
+        PRETTY_PRN_LINE;
+        printf("%s%s%s %s", COL_QUESTION, field_icon(NOTE, d), COL_RESET, e->note);
+    }
+    printf("\n");
 }
 
 void AniEntry_prompt_edit_print(AniEntry *e) {
@@ -411,6 +462,12 @@ void cmd_ep(AniFile *af, int id) {
     }
 
     e->last_updated = time(NULL);
+}
+
+void cmd_info(AniFile *af, int id, bool devicons) {
+    AniEntry *e = AniFile_find_entry_by_id(af, id);
+    AniEntry_pretty_print(e, devicons);
+    COULD_NOT_FIND_ENTRY_BY_ID;
 }
 
 void cmd_add(AniFile *af) {
