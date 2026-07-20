@@ -23,6 +23,38 @@ AniEntry *AniFile_find_entry_by_id(AniFile *af, int id) {
     return NULL;
 }
 
+bool AniFile_remove_entry_by_id(AniFile *af, int id) {
+    if (af == NULL) {
+        return false;
+    }
+
+    for (size_t i = 0; i < af->size; i++) {
+        if (af->entries[i].id == id) {
+
+            free(af->entries[i].name);
+
+            if (af->entries[i].tags != NULL) {
+                for (size_t j = 0; j < TAG_MAX_N; j++) {
+                    free(af->entries[i].tags[j]);
+                }
+                free(af->entries[i].tags);
+            }
+
+            free(af->entries[i].note);
+
+            // shift entries left
+            for (size_t j = i + 1; j < af->size; j++) {
+                af->entries[j - 1] = af->entries[j];
+            }
+
+            af->size--;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int AniFile_get_most_recent_id(AniFile *af) {
     int most_recent = 0;
     for (size_t i = 0; i < af->size; i++) {

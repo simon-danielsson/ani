@@ -17,7 +17,8 @@
 
 #define COULD_NOT_FIND_ENTRY_BY_ID                                             \
     if (!e) {                                                                    \
-        printf("Error: an entry with id '%d' could not be found.", id);            \
+        printf("Error: an entry with id '%d' could not be found -- %s", id,        \
+                MORE_INFO);                                                         \
         exit(EXIT_FAILURE);                                                        \
     }
 
@@ -428,7 +429,7 @@ char **prompt_add(const char **q, int n_q) {
     char **answers = calloc(n_q, sizeof(*answers));
 
     for (int current_q = 0; current_q < n_q; current_q++) {
-        printf("%s\n", q[current_q]);
+        printf("%s%s%s\n", COL_QUESTION, q[current_q], COL_RESET);
         printf("=> ");
         char tmp[128] = {0};
         int c_count = 0;
@@ -444,6 +445,22 @@ char **prompt_add(const char **q, int n_q) {
     }
 
     return answers;
+}
+
+void cmd_rm(AniFile *af, int id) {
+    AniEntry *e = AniFile_find_entry_by_id(af, id);
+    COULD_NOT_FIND_ENTRY_BY_ID;
+
+    char name[128] = {0};
+    memcpy(name, e->name, strlen(e->name));
+
+    bool success = AniFile_remove_entry_by_id(af, id);
+    if (success) {
+        printf("Entry '%s%s%s' with id '%s%d%s' was successfully removed.",
+                COL_INFO, name, COL_RESET, COL_INFO, id, COL_RESET);
+    } else {
+        printf("Error: removal of entry failed -- %s", MORE_INFO);
+    }
 }
 
 void cmd_ep(AniFile *af, int id) {
@@ -531,6 +548,9 @@ void cmd_add(AniFile *af) {
     free(a);
 
     AniFile_push_AniEntry(af, e);
+
+    printf("Entry '%s%s%s' was added successfully!\n", COL_INFO, e.name,
+            COL_RESET);
 
 #undef Q
 }

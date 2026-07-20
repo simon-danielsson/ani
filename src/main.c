@@ -63,6 +63,13 @@ int main(int argc, char **argv) {
     }
 
     {
+        Arg *tmp = Args_find_arg(args, C_RM, C_RM);
+        if (tmp) {
+            cmd_rm(&af, atoi(tmp->s));
+        }
+    }
+
+    {
         Arg *tmp = Args_find_arg(args, C_INFO, C_INFO);
         if (tmp) {
             cmd_info(&af, atoi(tmp->s), use_devicons);

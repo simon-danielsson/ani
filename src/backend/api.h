@@ -10,3 +10,4 @@ bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current);
 char *anifield_enum_to_str(enum AniCurrentFieldState a);
 
 AniEntry *AniFile_find_entry_by_id(AniFile *af, int id);
+bool AniFile_remove_entry_by_id(AniFile *af, int id);

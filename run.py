@@ -19,8 +19,7 @@ AUTO_RUN = True  # if true, run binary after compile
 AUTO_RUN_ARGS = [
         "-f",
         "test.ani",
-        "info",
-        "3",
+        "add",
         ]  # program args used at auto run
 PRINT_COMPILE_DETAILS = True  # build-type, compiler, compile time
 
