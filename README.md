@@ -3,7 +3,7 @@
 </p>
   
 <p align="center">
-  <em>Anime progress tracker in the CLI.</em>
+  <em>Anime progress tracker for the CLI.</em>
 </p>
 
 <p align="center">
