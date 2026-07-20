@@ -1,5 +1,6 @@
 #include "../utils.h"
 #include "db_format.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 // split by ',' and return array of char*
@@ -149,13 +150,14 @@ AniFile read_anifile(FILE *f) {
                         e.status = atoi(tmp);
                         break;
                     case DATEUPD:
-                        e.last_updated = atoi(tmp);
+                        trim_str(tmp);
+                        e.last_updated = time_t_from_iso_ymd(tmp);
                         e.updated_this_cycle = false;
                         break;
                     default:
-                        // printf("field: unknown\n");
-                        assert(false);
-                        break;
+                        printf("Error: encountered unknown field '%s' while reading file",
+                                tmp);
+                        exit(EXIT_FAILURE);
                 }
 
                 // printf("%-15s%-5s%s\n", anifield_enum_to_str(acfs), "--", tmp);
