@@ -4,15 +4,354 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define COL_QUESTION "\033[34m"
+#define COL_INFO "\033[33m"
+#define COL_RESET "\033[0m"
+
 /*
-   commands that will be using the prompt:
-
-   add: Add a new entry in an interactive prompt.
-
-   ep <id>: Change episode progress in an interactive prompt.
-
-   edit <id>: Edit an entry in an interactive prompt.
+   commands using a interactive prompt:
+   add, ep <id>, edit <id>
    */
+
+#define COULD_NOT_FIND_ENTRY_BY_ID                                             \
+    if (!e) {                                                                    \
+        printf("Error: an entry with id '%d' could not be found.", id);            \
+        exit(EXIT_FAILURE);                                                        \
+    }
+
+const char *prompt_field(enum AniCurrentFieldState at) {
+    static char *args[_FIELDS_N] = {
+        [NAME] = "Name",
+        [YEAR] = "Release year (YYYY)",
+        [EP_TOT] = "Total number of episodes",
+        [EP_WAT] = "Episodes watched",
+        [TAGS] = "Tags (separated by ',')",
+        [SCORE] = "User score (from 1 to 10)",
+        [NOTE] = "Personal note",
+        [STAT] = "[w]atching, [c]ompleted, [o]n hold, [d]ropped, [p]lan to watch",
+    };
+    return args[at];
+}
+
+void AniEntry_pretty_print(AniEntry *e) {
+
+    // 56   One Piece
+    // ┊     On hold                        812 of 1250      9
+    // ┊     #action #comedy #adventure     1999            󰚰
+    // 2025-12-05 ┊    󰎛 Waiting for it to finish.
+    //
+    // 512  Serial Experiments Lain
+    // ┊     Currently watching             5 of 13          10
+    // ┊     #mystery #drama                1998            󰚰
+    // 2023-02-16 ┊    󰎛 Rewatching it for the third time.
+    //
+    // 121  Kaguya Sama: Love is war
+    // ┊     Completed                      26 of 26         7
+    // ┊     #romance #comedy               2023            󰚰
+    // 2024-11-23
+}
+
+void AniEntry_prompt_edit_print(AniEntry *e) {
+    char released_tmp[32] = {0};
+    format_time_t_year(released_tmp, 32, &e->released, true);
+
+    printf("%-24s%s\n", "1 Name", e->name);
+    printf("%-24s%s\n", "2 Release year", released_tmp);
+    printf("%-24s%s\n", "3 Status", AniEntryStatus_to_str(e->status));
+    printf("%-24s%d\n", "4 Episodes total", e->ep_total);
+    printf("%-24s%d\n", "5 Episodes watched", e->ep_watched);
+    printf("%-24s%d\n", "6 Score", e->score);
+
+    printf("%-24s", "7 Note");
+    if (e->note != NULL) {
+        printf("%s\n", e->note);
+    } else {
+        printf("(none)\n");
+    }
+
+    printf("%-24s", "8 Tags");
+    if (e->tags != NULL) {
+        for (size_t j = 0; j < TAG_MAX_N; j++) {
+            if (e->tags[j] != NULL) {
+                printf("#%s ", e->tags[j]);
+            }
+        }
+    } else {
+        printf("(none)");
+    }
+    printf("\n\n");
+}
+
+// returns false if the user wants to keep editing
+bool prompt_edit(AniEntry *e) {
+    AniEntry_prompt_edit_print(e);
+
+    printf("%sEnter number corresponding to field:%s\n", COL_QUESTION, COL_RESET);
+    printf("=> ");
+    int r = 0;
+    {
+        char tmp[128] = {0};
+        int c_count = 0;
+        for (int ch; (ch = getchar()) != EOF;) {
+            if (ch == '\n') {
+                r = atoi(tmp);
+                break;
+            }
+            tmp[c_count] = ch;
+            c_count++;
+        }
+    }
+
+    switch (r) {
+        case 1:
+            printf("%sEnter new name:%s\n", COL_QUESTION, COL_RESET);
+            printf("=> ");
+            char tmp[128] = {0};
+            int c_count = 0;
+            for (int ch; (ch = getchar()) != EOF;) {
+                if (ch == '\n') {
+                    tmp[c_count] = '\0';
+                    trim_str(tmp);
+                    char *new_name = strdup(tmp);
+                    if (!new_name) {
+                        perror("strdup");
+                        return false;
+                    }
+                    free(e->name);
+                    e->name = new_name;
+                    printf("%sName was updated to '%s'%s\n", COL_INFO, e->name, COL_RESET);
+                    e->last_updated = time(NULL);
+                    break;
+                }
+                tmp[c_count] = ch;
+                c_count++;
+            }
+            break;
+
+        case 2:
+            printf("%sEnter new release year:%s\n", COL_QUESTION, COL_RESET);
+            printf("=> ");
+            {
+                int r = 0;
+                char tmp[128] = {0};
+                int c_count = 0;
+                for (int ch; (ch = getchar()) != EOF;) {
+                    if (ch == '\n') {
+                        trim_str(tmp);
+                        e->released = time_t_from_iso_ymd(tmp);
+                        printf("%sYear was updated to '%s'%s\n", COL_INFO, tmp, COL_RESET);
+                        e->last_updated = time(NULL);
+                        break;
+                    }
+                    tmp[c_count] = ch;
+                    c_count++;
+                }
+            }
+            break;
+
+        case 3:
+            printf("%s\n", prompt_field(STAT));
+            printf("%sEnter character corresponding to status:%s\n", COL_QUESTION,
+                    COL_RESET);
+            printf("=> ");
+            {
+                int r = 0;
+                char tmp[128] = {0};
+                int c_count = 0;
+                for (int ch; (ch = getchar()) != EOF;) {
+                    if (ch == '\n') {
+                        trim_str(tmp);
+                        e->status = str_to_AniEntryStatus(tmp);
+                        printf("%sStatus was updated to '%s'%s\n", COL_INFO,
+                                AniEntryStatus_to_str(e->status), COL_RESET);
+                        e->last_updated = time(NULL);
+                        break;
+                    }
+                    tmp[c_count] = ch;
+                    c_count++;
+                }
+            }
+            break;
+
+        case 4:
+            printf("%sEnter new total episodes:%s\n", COL_QUESTION, COL_RESET);
+            printf("=> ");
+            {
+                int r = 0;
+                char tmp[128] = {0};
+                int c_count = 0;
+                for (int ch; (ch = getchar()) != EOF;) {
+                    if (ch == '\n') {
+                        trim_str(tmp);
+                        e->ep_total = atoi(tmp);
+                        printf("%sTotal episodes was updated to '%s'%s\n", COL_INFO, tmp,
+                                COL_RESET);
+                        e->last_updated = time(NULL);
+                        break;
+                    }
+                    tmp[c_count] = ch;
+                    c_count++;
+                }
+            }
+
+            break;
+
+        case 5:
+            printf("%sEnter new episodes watched:%s\n", COL_QUESTION, COL_RESET);
+            printf("=> ");
+            {
+                int r = 0;
+                char tmp[128] = {0};
+                int c_count = 0;
+                for (int ch; (ch = getchar()) != EOF;) {
+                    if (ch == '\n') {
+                        trim_str(tmp);
+                        int new_ep = atoi(tmp);
+                        if (new_ep >= e->ep_total) {
+                            e->ep_watched = e->ep_total;
+                            e->status = COMPLETED;
+                        } else if (new_ep <= 0) {
+                            e->ep_watched = 0;
+                        } else {
+                            e->ep_watched = new_ep;
+                        }
+                        printf("%sEpisodes watched was updated to '%d'%s\n", COL_INFO,
+                                e->ep_watched, COL_RESET);
+                        e->last_updated = time(NULL);
+                        break;
+                    }
+                    tmp[c_count] = ch;
+                    c_count++;
+                }
+            }
+            break;
+
+        case 6:
+            printf("%sEnter new score (1-10):%s\n", COL_QUESTION, COL_RESET);
+            printf("=> ");
+            {
+                int r = 0;
+                char tmp[128] = {0};
+                int c_count = 0;
+                for (int ch; (ch = getchar()) != EOF;) {
+                    if (ch == '\n') {
+                        trim_str(tmp);
+                        e->score = atoi(tmp);
+                        printf("%sScore was updated to '%d'%s\n", COL_INFO, e->score,
+                                COL_RESET);
+                        e->last_updated = time(NULL);
+                        break;
+                    }
+                    tmp[c_count] = ch;
+                    c_count++;
+                }
+            }
+            break;
+
+        case 7:
+            printf("%sEnter new note:%s\n", COL_QUESTION, COL_RESET);
+            printf("=> ");
+            {
+                char tmp[128] = {0};
+                int c_count = 0;
+                for (int ch; (ch = getchar()) != EOF;) {
+                    if (ch == '\n') {
+                        tmp[c_count] = '\0';
+                        trim_str(tmp);
+                        char *new_name = strdup(tmp);
+                        if (str_is_empty(tmp)) {
+                            new_name = strdup(" ");
+                        } else {
+                            new_name = strdup(tmp);
+                        }
+                        if (!new_name) {
+                            perror("strdup");
+                            return false;
+                        }
+                        free(e->note);
+                        e->note = new_name;
+                        printf("%sNote was updated to '%s'%s\n", COL_INFO, e->note,
+                                COL_RESET);
+                        e->last_updated = time(NULL);
+                        break;
+                    }
+                    tmp[c_count] = ch;
+                    c_count++;
+                }
+            }
+            break;
+
+        default:
+            printf("%sEnter new tags (separated by ','):%s\n", COL_QUESTION, COL_RESET);
+            printf("=> ");
+            {
+                char tmp[128] = {0};
+                int c_count = 0;
+                for (int ch; (ch = getchar()) != EOF;) {
+                    if (ch == '\n') {
+                        tmp[c_count] = '\0';
+                        trim_str(tmp);
+
+                        if (!str_is_empty(tmp)) {
+                            char *tags_raw = strdup(tmp);
+                            free(e->tags);
+                            e->tags = get_tags_from_field(tags_raw);
+                        } else {
+                            e->tags = NULL;
+                        }
+                        printf("%sTags were updated to '", COL_INFO);
+                        if (!str_is_empty(tmp)) {
+                            for (size_t j = 0; j < TAG_MAX_N; j++) {
+                                if (e->tags[j] != NULL) {
+                                    printf("#%s ", e->tags[j]);
+                                }
+                            }
+                        }
+                        printf("'%s\n", COL_RESET);
+                        e->last_updated = time(NULL);
+                        break;
+                    }
+                    tmp[c_count] = ch;
+                    c_count++;
+                }
+            }
+
+            break;
+    }
+
+    printf("\n%sDo you want to keep editing?%s\n", COL_QUESTION, COL_RESET);
+    printf("(y) Keep editing!\n");
+    printf("(n) Save and exit\n");
+    printf("(Ctrl-C) Cancel changes and exit\n");
+    printf("=> ");
+    {
+        char tmp[32] = {0};
+        int j = 0;
+        for (int ch; (ch = getchar()) != EOF;) {
+            if (ch == '\n' || ch == '\r') {
+                break;
+            }
+            tmp[j] = ch;
+            j++;
+        }
+        if (strcmp(tmp, "y")) {
+            return true;
+        }
+        if (strcmp(tmp, "n")) {
+            return false;
+        }
+    }
+    return false;
+}
+
+void cmd_edit(AniFile *af, int id) {
+    AniEntry *e = AniFile_find_entry_by_id(af, id);
+    COULD_NOT_FIND_ENTRY_BY_ID;
+    int prompt_should_quit = false;
+    while (!prompt_should_quit) {
+        prompt_should_quit = prompt_edit(e);
+    }
+}
 
 int prompt_ep(int watched_episodes, int total_episodes) {
     printf("Current progress: %d out of %d\n", watched_episodes, total_episodes);
@@ -56,42 +395,25 @@ char **prompt_add(const char **q, int n_q) {
     return answers;
 }
 
-const char *prompt_field(enum AniCurrentFieldState at) {
-    static char *args[_FIELDS_N] = {
-        [NAME] = "Name",
-        [YEAR] = "Release year (YYYY)",
-        [EP_TOT] = "Total number of episodes",
-        [EP_WAT] = "Episodes watched",
-        [TAGS] = "Tags (separated by ',')",
-        [SCORE] = "User score (from 1 to 10)",
-        [NOTE] = "Personal note",
-        [STAT] = "Current watch status\n\
-                  [w]atching, [c]ompleted, [o]n hold, \
-                      [d]ropped, [p]lan to watch ",
-    };
-    return args[at];
-}
-
 void cmd_ep(AniFile *af, int id) {
-
     AniEntry *e = AniFile_find_entry_by_id(af, id);
-    if (!e) {
-        printf("Error: no file with id '%d' could be found.", id);
-        exit(EXIT_FAILURE);
-    }
+    COULD_NOT_FIND_ENTRY_BY_ID;
 
     int new_ep = prompt_ep(e->ep_watched, e->ep_total);
 
     if (new_ep >= e->ep_total) {
         e->ep_watched = e->ep_total;
         e->status = COMPLETED;
+    } else if (new_ep <= 0) {
+        e->ep_watched = 0;
+    } else {
+        e->ep_watched = new_ep;
     }
 
     e->last_updated = time(NULL);
 }
 
 void cmd_add(AniFile *af) {
-
 #define Q 8
     const char *q[Q] = {
         prompt_field(NAME),   prompt_field(YEAR), prompt_field(EP_TOT),

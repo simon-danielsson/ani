@@ -41,13 +41,23 @@ int main(int argc, char **argv) {
     }
 
     {
+        Arg *tmp = Args_find_arg(args, C_EDIT, C_EDIT);
+        if (tmp) {
+            cmd_edit(&af, atoi(tmp->s));
+            f = fopen(arg_file->s, "w");
+            write_anifile(&af, f);
+            return 0;
+        }
+    }
+
+    {
         Arg *tmp = Args_find_arg(args, C_EP, C_EP);
         if (tmp) {
             cmd_ep(&af, atoi(tmp->s));
         }
     }
 
-    AniFile_debug_print(af);
+    // AniFile_debug_print(af);
 
     {
         if (AniFile_has_changed(&snapshot, &af)) {
