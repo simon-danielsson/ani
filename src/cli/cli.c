@@ -214,6 +214,9 @@ bool prompt_edit(AniEntry *e) {
                     if (ch == '\n') {
                         trim_str(tmp);
                         e->status = str_to_AniEntryStatus(tmp);
+                        if (e->status == COMPLETED) {
+                            e->ep_watched = e->ep_total;
+                        }
                         printf("%sStatus was updated to '%s'%s\n", COL_INFO,
                                 AniEntryStatus_to_str(e->status), COL_RESET);
                         e->last_updated = time(NULL);
