@@ -33,13 +33,16 @@ No info section written yet.
 
 ## Install
   
-Clone this repository and build from source using the bundled `run.py` script.
-  
 ``` bash
-./run.py release
+# clone
+git clone https://github.com/simon-danielsson/ani.git
+# cd
+cd ani
+# install
+./install.sh
+# run
+ani -h
 ```
-  
-An executable will have been generated inside `./build/release`.
   
 ---
 <div id="usage"></div>

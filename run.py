@@ -43,6 +43,7 @@ RST = "\x1b[0m"
 class BuildType(Enum):
     Release = "release"
     Debug = "debug"
+    Install = "install"
     Test = "test"
 
 @dataclass
@@ -103,6 +104,7 @@ def collect_src_files(src: Path) -> list[str]:
     return [f"{path}" for path in src.rglob("*.c")]
 
 def build(a: Args) -> None:
+
     build_dir = Path(f"{ROOT}/build/{a.build.value}")
     bin_name = f"{PROJ_NAME}_{a.build.value}_{GIT_V}_{GIT_HASH_SH}"
     c_flags: list[str] = ENV_FLAGS
@@ -130,16 +132,17 @@ def build(a: Args) -> None:
     if PRINT_COMPILE_DETAILS:
         print(f"{a.build.value} via " f"{compiler} ({C_STD}) {output.exec_time}")
 
-    if AUTO_RUN:
-        if output.process.returncode != 0:
-            print(output.process.stderr)
-            sys.exit(output.process.returncode)
+    if a.build != BuildType.Install:
+        if AUTO_RUN:
+            if output.process.returncode != 0:
+                print(output.process.stderr)
+                sys.exit(output.process.returncode)
 
-        env = os.environ.copy()
-        if platform.system() == "Darwin":
-            env["MallocNanoZone"] = "0"
-        exe_path = (build_dir / bin_name).resolve()
-        os.execvpe(str(exe_path), [str(exe_path)] + AUTO_RUN_ARGS, env)
+            env = os.environ.copy()
+            if platform.system() == "Darwin":
+                env["MallocNanoZone"] = "0"
+            exe_path = (build_dir / bin_name).resolve()
+            os.execvpe(str(exe_path), [str(exe_path)] + AUTO_RUN_ARGS, env)
 
 # main ------------------------------------------------------------------------
 
@@ -151,6 +154,8 @@ def help() -> None:
             f"-> ./build/debug\n"
             f"{BLD}run test{RST}\n"
             f"-> ./build/test"
+            f"{BLD}run install{RST}\n"
+            f"-> ./build/install"
             )
 
 def get_args() -> Args:
@@ -164,6 +169,8 @@ def get_args() -> Args:
                 a.build = BuildType.Debug
             case t if t.startswith("t"):
                 a.build = BuildType.Test
+            case t if t.startswith("i"):
+                a.build = BuildType.Install
             case h if h.startswith("h"):
                 a.help = True
     return a
