@@ -45,6 +45,10 @@ int main(int argc, char **argv) {
         cmd_add(&af);
     }
 
+    if (Args_find_arg(args, C_STATS, C_STATS)) {
+        cmd_stats(&af);
+    }
+
     {
         Arg *tmp = Args_find_arg(args, C_EDIT, C_EDIT);
         if (tmp) {

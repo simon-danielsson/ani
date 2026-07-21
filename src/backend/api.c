@@ -1,3 +1,4 @@
+#include "api.h"
 #include "db_format.h"
 
 char *field_icon(enum AniCurrentFieldState acfs, bool devicon) {
@@ -131,4 +132,47 @@ char *anifield_enum_to_str(enum AniCurrentFieldState a) {
             break;
     }
     return field_name;
+}
+
+void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
+
+#define M24_IN_SECS 1440
+#define ENTRY af->entries[i]
+
+    int score_total = 0;
+
+    a->total_n_entries = af->size;
+
+    for (size_t i = 0; i < af->size; i++) {
+        a->combined_watch_time += ENTRY.ep_watched * M24_IN_SECS;
+        a->total_n_ep_watched += ENTRY.ep_watched;
+        score_total += ENTRY.score;
+        switch (ENTRY.status) {
+            case COMPLETED:
+                a->total_completed++;
+                break;
+            case DROPPED:
+                a->total_dropped++;
+                break;
+            case WATCHING:
+                a->total_watching++;
+                break;
+            case ON_HOLD:
+                a->total_hold++;
+                break;
+            case PLAN_TO_WATCH:
+                a->total_planned++;
+                break;
+        }
+    }
+
+    assert(a->total_completed + a->total_dropped + a->total_hold +
+            a->total_planned + a->total_watching ==
+            a->total_n_entries);
+
+    a->average_score = (double)score_total / af->size;
+
+#undef ENTRY
+
+    return;
 }

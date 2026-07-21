@@ -58,6 +58,8 @@ time_t time_t_from_iso_ymd(const char *iso_str) {
     return mktime(&tm);
 }
 
+double time_t_to_days(time_t t) { return ((double)t / 86400); }
+
 void trim_str(char *str) {
     char *start = str;
     while (*start && isspace((unsigned char)*start)) {

@@ -1,26 +1,42 @@
+#include "cli.h"
 #include "../backend/api.h"
 #include "../backend/io.h"
 #include "../utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-#define COL_QUESTION "\033[34m"
-#define COL_INFO "\033[33m"
-#define COL_RESET "\033[0m"
+char *ansi_from_color(Color c) {
+    switch (c) {
+        case MAGENTA:
+            return "\033[35m";
+            break;
+        case YELLOW:
+            return "\033[33m";
+            break;
+        case GREEN:
+            return "\033[32m";
+            break;
+        case RED:
+            return "\033[31m";
+            break;
+        case BLUE:
+            return "\033[34m";
+            break;
+        default:
+            return "\033[0m";
+    }
+    return "\033[0m";
+}
+
+#define COL_QUESTION ansi_from_color(BLUE)
+#define COL_INFO ansi_from_color(YELLOW)
+#define COL_RESET ansi_from_color(RESET)
 #define COL_SHOW_HEADER "\033[4;1m"
-#define COL_ID "\033[47m"
 
 /*
    commands using a interactive prompt:
    add, ep <id>, edit <id>
    */
-
-#define COULD_NOT_FIND_ENTRY_BY_ID                                             \
-    if (!e) {                                                                    \
-        printf("Error: an entry with id '%d' could not be found -- %s", id,        \
-                MORE_INFO);                                                         \
-        exit(EXIT_FAILURE);                                                        \
-    }
 
 const char *prompt_field(enum AniCurrentFieldState at) {
     static char *args[_FIELDS_N] = {
@@ -101,6 +117,8 @@ void AniEntry_pretty_print(AniEntry *e, bool d) {
         printf("%s%s%s %s", COL_QUESTION, field_icon(NOTE, d), COL_RESET, e->note);
     }
     printf("\n");
+
+#undef PRETTY_PRN_LINE
 }
 
 void AniEntry_prompt_edit_print(AniEntry *e) {
@@ -556,4 +574,108 @@ void cmd_add(AniFile *af) {
             COL_RESET);
 
 #undef Q
+}
+
+#define STATS_N_OF_STATUSES 5
+#define STATS_STATSBAR_LEN 55
+#define STATS_STATSBAR_C "█"
+
+void bar_repeat(const char *c, int count, Color col) {
+    for (int i = 0; i < count; i++) {
+        printf("%s%s%s", ansi_from_color(col), c, ansi_from_color(RESET));
+    }
+}
+
+void stats_print_statsbar(StatsBarField *fields) {
+
+    int total = 0;
+    for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
+        total += fields[i].total;
+    }
+    for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
+        fields[i].scaled_total =
+            round(fields[i].total * ((double)STATS_STATSBAR_LEN / total));
+    }
+    for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
+        bar_repeat(STATS_STATSBAR_C, fields[i].scaled_total, fields[i].color);
+    }
+}
+
+void cmd_stats(AniFile *af) {
+
+    struct AniFileStats stats = {0};
+    AniFile_get_stats(af, &stats);
+
+    StatsBarField fields[STATS_N_OF_STATUSES] = {
+
+        (StatsBarField){.color = GREEN,
+            .scaled_total = 0,
+            .total = stats.total_watching,
+            .stat = WATCHING},
+
+        (StatsBarField){.color = BLUE,
+            .scaled_total = 0,
+            .total = stats.total_completed,
+            .stat = COMPLETED},
+
+        (StatsBarField){.color = YELLOW,
+            .scaled_total = 0,
+            .total = stats.total_hold,
+            .stat = ON_HOLD},
+
+        (StatsBarField){.color = RED,
+            .scaled_total = 0,
+            .total = stats.total_dropped,
+            .stat = DROPPED},
+
+        (StatsBarField){.color = RESET,
+            .scaled_total = 0,
+            .total = stats.total_planned,
+            .stat = PLAN_TO_WATCH},
+
+    };
+    stats_print_statsbar(fields);
+
+    printf("\n\n");
+
+    int row = 0;
+    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+            fields[row].total);
+
+    printf("%-15s%d", "Ep. watched", stats.total_n_ep_watched);
+
+    printf("\n");
+    row++;
+
+    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+            fields[row].total);
+
+    printf("%-15s%.1f", "Days", time_t_to_days(stats.combined_watch_time));
+
+    printf("\n");
+    row++;
+
+    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+            fields[row].total);
+
+    printf("%-15s%d", "Tot. entries", stats.total_n_entries);
+
+    printf("\n");
+    row++;
+
+    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+            fields[row].total);
+
+    printf("%-15s%.2f", "Avg. score", stats.average_score);
+
+    printf("\n");
+    row++;
+
+    printf("%s%-15s%s %d\n", ansi_from_color(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+            fields[row].total);
 }
