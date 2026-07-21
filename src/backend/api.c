@@ -97,43 +97,6 @@ char *AniEntryStatus_to_str(AniEntryStatus aes) {
     return status[aes];
 }
 
-char *anifield_enum_to_str(enum AniCurrentFieldState a) {
-    char *field_name;
-    switch (a) {
-        case ID:
-            field_name = "Id";
-            break;
-        case NAME:
-            field_name = "Name";
-            break;
-        case TAGS:
-            field_name = "Tags";
-            break;
-        case YEAR:
-            field_name = "Year";
-            break;
-        case SCORE:
-            field_name = "Score";
-            break;
-        case EP_TOT:
-            field_name = "Ep total";
-            break;
-        case EP_WAT:
-            field_name = "Ep watched";
-            break;
-        case NOTE:
-            field_name = "Note";
-            break;
-        case STAT:
-            field_name = "Status";
-            break;
-        default:
-            field_name = "Last updated";
-            break;
-    }
-    return field_name;
-}
-
 void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
 
 #define M25_IN_SECS 1500

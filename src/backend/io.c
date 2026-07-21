@@ -160,7 +160,6 @@ AniFile read_anifile(FILE *f) {
                         exit(EXIT_FAILURE);
                 }
 
-                // printf("%-15s%-5s%s\n", anifield_enum_to_str(acfs), "--", tmp);
                 acfs++;
                 field_c = 0;
                 if (!line_tok[i]) {
