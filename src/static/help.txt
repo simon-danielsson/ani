@@ -36,7 +36,8 @@ COMMANDS
         on-hold           List on-hold
         dropped           List dropped
         planned           List plan-to-watch
-        -r                Reverse sorting (combined as a modifier with other sorting flags)
+        -r                Reverse sorting order asc./desc.
+                          (modifier for sorting flags below)
         -n                Sort by name
         -s                Sort by user score/rating
         -u                Sort by last updated
