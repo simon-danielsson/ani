@@ -127,7 +127,7 @@ char *anifield_enum_to_str(enum AniCurrentFieldState a) {
         case STAT:
             field_name = "Status";
             break;
-        case DATEUPD:
+        default:
             field_name = "Last updated";
             break;
     }
@@ -136,7 +136,7 @@ char *anifield_enum_to_str(enum AniCurrentFieldState a) {
 
 void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
 
-#define M24_IN_SECS 1440
+#define M25_IN_SECS 1500
 #define ENTRY af->entries[i]
 
     int score_total = 0;
@@ -144,9 +144,11 @@ void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
     a->total_n_entries = af->size;
 
     for (size_t i = 0; i < af->size; i++) {
-        a->combined_watch_time += ENTRY.ep_watched * M24_IN_SECS;
+        a->combined_watch_time += ENTRY.ep_watched * M25_IN_SECS;
         a->total_n_ep_watched += ENTRY.ep_watched;
-        score_total += ENTRY.score;
+        if (ENTRY.status != PLAN_TO_WATCH) {
+            score_total += ENTRY.score;
+        }
         switch (ENTRY.status) {
             case COMPLETED:
                 a->total_completed++;
