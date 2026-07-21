@@ -66,6 +66,13 @@ int main(int argc, char **argv) {
     }
 
     {
+        Arg *tmp = Args_find_arg(args, C_SEARCH, C_SEARCH);
+        if (tmp) {
+            cmd_search(&af, tmp->s, use_devicons);
+        }
+    }
+
+    {
         Arg *tmp = Args_find_arg(args, C_EP, C_EP);
         if (tmp) {
             cmd_ep(&af, atoi(tmp->s));

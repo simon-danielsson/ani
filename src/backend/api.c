@@ -1,4 +1,5 @@
 #include "api.h"
+#include "../utils.h"
 #include "db_format.h"
 
 char *field_icon(enum AniCurrentFieldState acfs, bool devicon) {
@@ -22,6 +23,62 @@ AniEntry *AniFile_find_entry_by_id(AniFile *af, int id) {
         }
     }
     return NULL;
+}
+
+// returns an array of id's matching search term
+int *AniFile_search_for_entries(AniFile *af, const char *search_term,
+        size_t *out_count) {
+    if (!af || af->size == 0 || !search_term || !out_count)
+        return NULL;
+
+    *out_count = 0;
+
+    // lowercase copy of search term
+    char *term = strdup(search_term);
+    if (!term)
+        return NULL;
+    str_to_lowercase(term, strlen(term) + 1);
+
+    int *results = malloc(af->size * sizeof(int));
+    if (!results) {
+        free(term);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < af->size; i++) {
+        char buffer[2048] = {0};
+
+        strcat(buffer, af->entries[i].name);
+
+        if (af->entries[i].note) {
+            strcat(buffer, " ");
+            strcat(buffer, af->entries[i].note);
+        }
+
+        if (af->entries[i].tags) {
+            for (size_t j = 0; af->entries[i].tags[j]; j++) {
+                strcat(buffer, " ");
+                strcat(buffer, af->entries[i].tags[j]);
+            }
+        }
+
+        str_to_lowercase(buffer, strlen(buffer) + 1);
+
+        if (strstr(buffer, term)) {
+            results[*out_count] = af->entries[i].id;
+            (*out_count)++;
+        }
+    }
+
+    free(term);
+
+    if (*out_count == 0) {
+        free(results);
+        return NULL;
+    }
+
+    int *shrunk = realloc(results, *out_count * sizeof(int));
+    return shrunk ? shrunk : results;
 }
 
 AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af) {

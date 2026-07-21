@@ -502,6 +502,30 @@ void cmd_ep(AniFile *af, int id) {
     e->last_updated = time(NULL);
 }
 
+void cmd_search(AniFile *af, char *search_term, bool devicons) {
+    size_t count;
+    int *ids = AniFile_search_for_entries(af, search_term, &count);
+
+    if (!ids) {
+        printf("Could not find anything matching '%s%s%s'!\n",
+                ansi_from_color(YELLOW), search_term, ansi_from_color(YELLOW));
+        return;
+    }
+
+    for (size_t i = 0; i < count; i++) {
+        int id = ids[i];
+        AniEntry *e = AniFile_find_entry_by_id(af, id);
+        COULD_NOT_FIND_ENTRY_BY_ID;
+        AniEntry_pretty_print(e, devicons);
+        if (i != count - 1)
+            printf("\n");
+    }
+
+    free(ids);
+
+    // AniEntry_pretty_print(e, devicons);
+}
+
 void cmd_info(AniFile *af, int id, bool devicons) {
     AniEntry *e = AniFile_find_entry_by_id(af, id);
     COULD_NOT_FIND_ENTRY_BY_ID;

@@ -27,6 +27,11 @@ struct AniFileStats {
   char *fav_tag;
 };
 
+typedef struct {
+  int entry_id;
+  char *text_fields_concat;
+} AniEntrySearchResult;
+
 void AniFile_get_stats(AniFile *af, struct AniFileStats *a);
 
 char *AniEntryStatus_to_str(AniEntryStatus aes);
@@ -39,4 +44,9 @@ bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current);
 
 AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af);
 AniEntry *AniFile_find_entry_by_id(AniFile *af, int id);
+
+// returns an array of id's matching search term
+int *AniFile_search_for_entries(AniFile *af, const char *search_term,
+                                size_t *out_count);
+
 bool AniFile_remove_entry_by_id(AniFile *af, int id);
