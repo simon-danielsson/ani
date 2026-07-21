@@ -20,7 +20,7 @@ COMMANDS
     info <id>             Print info of given entry.
     rm <id>               Remove an entry (non-reversible).
     stats                 Display global statistics.
-    rec                   Display a randomly recommended plan-to-watch entry.
+    rec                   Let ani recommended you a plan-to-watch/on-hold entry.
 
     set [command]
         new <src-file>    Set a default/fallback path to a src-file, will be

@@ -24,6 +24,35 @@ AniEntry *AniFile_find_entry_by_id(AniFile *af, int id) {
     return NULL;
 }
 
+AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af) {
+    if (af == NULL || af->size == 0)
+        return NULL;
+
+    size_t count = 0;
+    for (size_t i = 0; i < af->size; i++) {
+        if (af->entries[i].status == PLAN_TO_WATCH ||
+                af->entries[i].status == ON_HOLD) {
+
+            count++;
+        }
+    }
+
+    if (count == 0)
+        return NULL;
+
+    size_t target = rand() % count;
+
+    for (size_t i = 0; i < af->size; i++) {
+        if (af->entries[i].status == PLAN_TO_WATCH ||
+                af->entries[i].status == ON_HOLD) {
+            if (target-- == 0)
+                return &af->entries[i];
+        }
+    }
+
+    return NULL;
+}
+
 bool AniFile_remove_entry_by_id(AniFile *af, int id) {
     if (af == NULL) {
         return false;

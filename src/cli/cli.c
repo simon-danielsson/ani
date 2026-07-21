@@ -504,8 +504,16 @@ void cmd_ep(AniFile *af, int id) {
 
 void cmd_info(AniFile *af, int id, bool devicons) {
     AniEntry *e = AniFile_find_entry_by_id(af, id);
-    AniEntry_pretty_print(e, devicons);
     COULD_NOT_FIND_ENTRY_BY_ID;
+    AniEntry_pretty_print(e, devicons);
+}
+
+void cmd_rec(AniFile *af, bool devicons) {
+    AniEntry *e = AniFile_find_random_plan_to_watch_entry(af);
+    if (!e) {
+        printf("Could not find any recommendation for you, sorry!\n");
+    }
+    AniEntry_pretty_print(e, devicons);
 }
 
 void cmd_add(AniFile *af) {

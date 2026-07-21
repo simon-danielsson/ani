@@ -36,5 +36,6 @@ char *field_icon(enum AniCurrentFieldState acfs, bool devicon);
 int AniFile_get_most_recent_id(AniFile *af);
 bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current);
 
+AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af);
 AniEntry *AniFile_find_entry_by_id(AniFile *af, int id);
 bool AniFile_remove_entry_by_id(AniFile *af, int id);

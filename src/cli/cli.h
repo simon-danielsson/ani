@@ -34,5 +34,6 @@ void cmd_edit(AniFile *af, int id);
 void cmd_info(AniFile *af, int id, bool devicons);
 void cmd_rm(AniFile *af, int id);
 void cmd_stats(AniFile *af);
+void cmd_rec(AniFile *af, bool devicons);
 
 #endif

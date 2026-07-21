@@ -11,6 +11,8 @@
 #include <stdlib.h>
 
 int main(int argc, char **argv) {
+    srand((unsigned)time(NULL));
+
     Args *args = parse_args(argc, argv);
 
     // retrieve file from args
@@ -36,13 +38,17 @@ int main(int argc, char **argv) {
     AniFile af = read_anifile(f);
     AniFile snapshot = af;
 
-    bool use_devicons = ({
-            Arg *a = Args_find_arg(args, F_ICONS, F_ICONS_LONG);
-            !a;
-            });
+    bool use_devicons = true;
+    if (Args_find_arg(args, F_ICONS, F_ICONS_LONG) != NULL) {
+        use_devicons = false;
+    }
 
     if (Args_find_arg(args, C_ADD, C_ADD)) {
         cmd_add(&af);
+    }
+
+    if (Args_find_arg(args, C_REC, C_REC)) {
+        cmd_rec(&af, use_devicons);
     }
 
     if (Args_find_arg(args, C_STATS, C_STATS)) {
