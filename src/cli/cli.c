@@ -613,15 +613,12 @@ void cmd_add(AniFile *af) {
 }
 
 #define STATS_N_OF_STATUSES 5
-#define STATS_STATSBAR_LEN 54
+#define STATS_STATSBAR_LEN 56
 #define STATS_STATSBAR_C "█"
 
 void bar_repeat(const char *c, int count, Color col) {
     for (int i = 0; i < count; i++) {
         printf("%s%s%s", ansi_from_color(col), c, ansi_from_color(RESET));
-    }
-    if (count > 1) {
-        printf(" ");
     }
 }
 
@@ -675,7 +672,7 @@ void cmd_stats(AniFile *af) {
     };
     stats_print_statsbar(fields);
 
-    printf("\n\n");
+    printf("\n");
 
     int row = 0;
     printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
