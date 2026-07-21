@@ -126,14 +126,78 @@ char *AniEntryStatus_to_str(AniEntryStatus aes) {
     return status[aes];
 }
 
-void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
+int count_tag_occ(AniFile *af, const char *tag) {
+    int count = 0;
 
+    for (size_t i = 0; i < af->size; i++) {
+        AniEntry *e = &af->entries[i];
+
+        if (!e->tags)
+            continue;
+
+        for (size_t j = 0; e->tags[j] != NULL; j++) {
+            if (strcmp(e->tags[j], tag) == 0) {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+const char *find_most_common_tag(AniFile *af) {
+    const char *best_tag = NULL;
+    int best_count = 0;
+
+    for (size_t i = 0; i < af->size; i++) {
+        AniEntry *e = &af->entries[i];
+
+        if (!e->tags)
+            continue;
+
+        for (size_t j = 0; e->tags[j] != NULL; j++) {
+            const char *tag = e->tags[j];
+
+            bool seen_prev = false;
+
+            for (size_t ii = 0; ii <= i && !seen_prev; ii++) {
+                AniEntry *prev = &af->entries[ii];
+
+                if (!prev->tags)
+                    continue;
+
+                size_t limit = (ii == i) ? j : (size_t)-1;
+
+                for (size_t jj = 0; prev->tags[jj] != NULL && jj < limit; jj++) {
+                    if (strcmp(prev->tags[jj], tag) == 0) {
+                        seen_prev = true;
+                        break;
+                    }
+                }
+            }
+
+            if (seen_prev)
+                continue;
+
+            int count = count_tag_occ(af, tag);
+
+            if (count > best_count) {
+                best_count = count;
+                best_tag = tag;
+            }
+        }
+    }
+
+    return best_tag;
+}
+
+void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
 #define M25_IN_SECS 1500
 #define ENTRY af->entries[i]
 
     int score_total = 0;
-
     a->total_n_entries = af->size;
+    int scored_entries = af->size - a->total_planned;
 
     for (size_t i = 0; i < af->size; i++) {
         a->combined_watch_time += ENTRY.ep_watched * M25_IN_SECS;
@@ -141,6 +205,8 @@ void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
         if (ENTRY.status != PLAN_TO_WATCH) {
             score_total += ENTRY.score;
         }
+        const char *fav = find_most_common_tag(af);
+        a->fav_tag = fav ? strdup(fav) : NULL;
         switch (ENTRY.status) {
             case COMPLETED:
                 a->total_completed++;
@@ -164,7 +230,8 @@ void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
             a->total_planned + a->total_watching ==
             a->total_n_entries);
 
-    a->average_score = (double)score_total / af->size;
+    a->average_score =
+        scored_entries ? (double)score_total / scored_entries : 0.0;
 
 #undef ENTRY
 

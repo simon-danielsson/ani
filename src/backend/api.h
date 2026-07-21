@@ -24,6 +24,7 @@ struct AniFileStats {
   int total_n_entries;
   time_t combined_watch_time;
   double average_score;
+  char *fav_tag;
 };
 
 void AniFile_get_stats(AniFile *af, struct AniFileStats *a);

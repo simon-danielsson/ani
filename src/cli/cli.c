@@ -686,7 +686,11 @@ void cmd_stats(AniFile *af) {
     printf("\n");
     row++;
 
-    printf("%s%-15s%s %d\n", ansi_from_color(fields[row].color),
+    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
             AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
             fields[row].total);
+
+    printf("%-15s#%s", "Fav. tag", stats.fav_tag);
+
+    printf("\n");
 }
