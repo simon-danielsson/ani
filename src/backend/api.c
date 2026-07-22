@@ -91,9 +91,11 @@ bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
             matches++;
         }
 
-        // release dates at most 61 days apart to be a match
-        if (new_entry->released > old->released - 5259600 &&
-                new_entry->released < old->released + 5259600) {
+        if (new_entry->ep_watched == old->ep_watched) {
+            matches++;
+        }
+
+        if (new_entry->released == old->released) {
             matches++;
         }
 
@@ -119,8 +121,8 @@ bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
             matches++;
         }
 
-        // require at least two matches
-        if (matches >= 2) {
+        // at least three matches
+        if (matches >= 3) {
             return true;
         }
     }
