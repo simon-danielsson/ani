@@ -426,9 +426,9 @@ void cmd_edit(AniFile *af, int id) {
     }
 }
 
-int prompt_ep(int watched_episodes, int total_episodes) {
-    printf("%sCurrent progress: %d out of %d%s\n", ansi_from_color(BLUE),
-            watched_episodes, total_episodes, ansi_from_color(RESET));
+int prompt_ep(char *name, int watched_episodes, int total_episodes) {
+    printf("'%s'\n", name);
+    printf("Progress: %d of %d\n", watched_episodes, total_episodes);
     printf("=> ");
     int r = 0;
     char tmp[128] = {0};
@@ -489,7 +489,7 @@ void cmd_ep(AniFile *af, int id) {
     AniEntry *e = AniFile_find_entry_by_id(af, id);
     COULD_NOT_FIND_ENTRY_BY_ID;
 
-    int new_ep = prompt_ep(e->ep_watched, e->ep_total);
+    int new_ep = prompt_ep(e->name, e->ep_watched, e->ep_total);
 
     if (new_ep >= e->ep_total) {
         e->ep_watched = e->ep_total;
@@ -502,8 +502,7 @@ void cmd_ep(AniFile *af, int id) {
 
     e->last_updated = time(NULL);
 
-    printf("Entry '%s%s%s' was edited successfully!\n", COL_INFO, e->name,
-            COL_RESET);
+    printf("Updated: %d of %d\n", e->ep_watched, e->ep_total);
 }
 
 void cmd_search(AniFile *af, char *search_term, bool devicons) {
