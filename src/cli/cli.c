@@ -504,6 +504,9 @@ void cmd_ep(AniFile *af, int id) {
     if (new_ep >= e->ep_total) {
         e->ep_watched = e->ep_total;
         e->status = COMPLETED;
+    } else if (new_ep < e->ep_total && e->status == COMPLETED) {
+        e->ep_watched = new_ep;
+        e->status = WATCHING;
     } else if (new_ep <= 0) {
         e->ep_watched = 0;
     } else {
