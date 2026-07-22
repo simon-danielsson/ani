@@ -1,5 +1,5 @@
 USAGE
-    ani <option|command>
+    ani <opt|cmd>
 
 META OPTIONS
     -h, --help            Displays this help message.
@@ -24,7 +24,7 @@ COMMANDS
 
     search <word>         Search entries by name, note, and tags.
 
-    ls [command, flags]   List all entries
+    list, ls [cmd|flags]  List all entries
         watching          List watching
         completed         List completed
         on-hold           List on-hold

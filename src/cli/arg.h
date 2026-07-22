@@ -19,6 +19,19 @@ typedef enum {
   C_STATS,
   C_REC,
   C_SEARCH,
+  C_LIST,
+  C_LS,
+  C_LIST_WATCH,
+  C_LIST_COMPL,
+  C_LIST_ONHOL,
+  C_LIST_DROPP,
+  C_LIST_PLANN,
+  F_SORT_REVR,
+  F_SORT_NAME,
+  F_SORT_SCOR,
+  F_SORT_UPDA,
+  F_SORT_RELE,
+  F_SORT_PROG,
   _ARGS_N
 } ArgType;
 

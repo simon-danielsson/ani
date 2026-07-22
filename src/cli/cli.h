@@ -2,6 +2,7 @@
 #define CLI_H
 
 #include "../backend/db_format.h"
+#include "arg.h"
 
 typedef enum {
   RED,
@@ -36,5 +37,7 @@ void cmd_rm(AniFile *af, int id);
 void cmd_stats(AniFile *af);
 void cmd_rec(AniFile *af, bool devicons);
 void cmd_search(AniFile *af, char *search_term, bool devicons);
+void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
+              ArgType sort_type, bool devicons);
 
 #endif

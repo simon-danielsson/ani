@@ -71,6 +71,53 @@ int main(int argc, char **argv) {
         cmd_add(&af);
     }
 
+    // first field is for the -r reverse flag if added
+    // second field is for sorting flag itself
+    ArgType sort_type;
+    bool reverse_sort = false;
+
+    if (Args_find_arg(args, F_SORT_REVR, F_SORT_REVR)) {
+        reverse_sort = true;
+    }
+    if (Args_find_arg(args, F_SORT_NAME, F_SORT_NAME)) {
+        sort_type = F_SORT_NAME;
+    }
+    if (Args_find_arg(args, F_SORT_PROG, F_SORT_PROG)) {
+        sort_type = F_SORT_PROG;
+    }
+    if (Args_find_arg(args, F_SORT_UPDA, F_SORT_UPDA)) {
+        sort_type = F_SORT_UPDA;
+    }
+    if (Args_find_arg(args, F_SORT_SCOR, F_SORT_SCOR)) {
+        sort_type = F_SORT_SCOR;
+    }
+    if (Args_find_arg(args, F_SORT_RELE, F_SORT_RELE)) {
+        sort_type = F_SORT_RELE;
+    }
+
+    if (Args_find_arg(args, C_LIST, C_LS)) {
+
+        ArgType list_type = C_LIST;
+
+        if (Args_find_arg(args, C_LIST_COMPL, C_LIST_COMPL)) {
+            list_type = C_LIST_COMPL;
+        }
+        if (Args_find_arg(args, C_LIST_DROPP, C_LIST_DROPP)) {
+            list_type = C_LIST_DROPP;
+        }
+        if (Args_find_arg(args, C_LIST_ONHOL, C_LIST_ONHOL)) {
+            list_type = C_LIST_ONHOL;
+        }
+        if (Args_find_arg(args, C_LIST_PLANN, C_LIST_PLANN)) {
+            list_type = C_LIST_PLANN;
+        }
+        if (Args_find_arg(args, C_LIST_WATCH, C_LIST_WATCH)) {
+            list_type = C_LIST_WATCH;
+        }
+
+        cmd_list(&af, list_type, reverse_sort, sort_type, use_devicons);
+    }
+
     if (Args_find_arg(args, C_REC, C_REC)) {
         cmd_rec(&af, use_devicons);
     }

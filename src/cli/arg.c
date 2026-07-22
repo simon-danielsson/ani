@@ -7,7 +7,8 @@
 #include <stdlib.h>
 
 char *arg_as_str(ArgType at) {
-    static char *args[_ARGS_N] = {[F_HELP] = "-h",
+    static char *args[_ARGS_N] = {
+        [F_HELP] = "-h",
         [F_HELP_LONG] = "--help",
         [F_GUIDE] = "--guide",
         [F_FILE] = "-f",
@@ -21,8 +22,20 @@ char *arg_as_str(ArgType at) {
         [C_RM] = "rm",
         [C_STATS] = "stats",
         [C_REC] = "rec",
-        [C_SEARCH] = "search"
-
+        [C_SEARCH] = "search",
+        [C_LIST] = "list",
+        [C_LS] = "ls",
+        [C_LIST_WATCH] = "watching",
+        [C_LIST_COMPL] = "completed",
+        [C_LIST_ONHOL] = "on-hold",
+        [C_LIST_DROPP] = "dropped",
+        [C_LIST_PLANN] = "planned",
+        [F_SORT_REVR] = "-r",
+        [F_SORT_NAME] = "-n",
+        [F_SORT_SCOR] = "-s",
+        [F_SORT_UPDA] = "-u",
+        [F_SORT_RELE] = "-d",
+        [F_SORT_PROG] = "-p",
     };
     return args[at];
 }
@@ -120,7 +133,6 @@ Args *parse_args(int argc, char **argv) {
             }
             exit(EXIT_SUCCESS);
 
-            // TODO: write guide in static/guide.txt
         } else if (strcmp(arg, arg_as_str(F_GUIDE)) == 0) {
             for (size_t i = 0; i < guide_txt_len; i++) {
                 printf("%c", guide_txt[i]);
@@ -155,15 +167,41 @@ Args *parse_args(int argc, char **argv) {
             CMD_PARSE_ERR("id");
             Args_push_arg(args, Arg_new(ArgIter_next(&it), C_INFO));
 
-        } else if (strcmp(arg, arg_as_str(C_STATS)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_STATS));
-
         } else if (strcmp(arg, arg_as_str(C_EDIT)) == 0) {
             CMD_PARSE_ERR("id");
             Args_push_arg(args, Arg_new(ArgIter_next(&it), C_EDIT));
 
         } else if (strcmp(arg, arg_as_str(C_ADD)) == 0) {
             Args_push_arg(args, Arg_new(NULL, C_ADD));
+
+            // ls command types
+        } else if (strcmp(arg, arg_as_str(C_LIST)) == 0 ||
+                strcmp(arg, arg_as_str(C_LS)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_LIST));
+        } else if (strcmp(arg, arg_as_str(C_LIST_COMPL)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_LIST_COMPL));
+        } else if (strcmp(arg, arg_as_str(C_LIST_DROPP)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_LIST_DROPP));
+        } else if (strcmp(arg, arg_as_str(C_LIST_ONHOL)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_LIST_ONHOL));
+        } else if (strcmp(arg, arg_as_str(C_LIST_PLANN)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_LIST_PLANN));
+        } else if (strcmp(arg, arg_as_str(C_LIST_WATCH)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_LIST_WATCH));
+
+            // sorting flags
+        } else if (strcmp(arg, arg_as_str(F_SORT_NAME)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, F_SORT_NAME));
+        } else if (strcmp(arg, arg_as_str(F_SORT_PROG)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, F_SORT_PROG));
+        } else if (strcmp(arg, arg_as_str(F_SORT_RELE)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, F_SORT_RELE));
+        } else if (strcmp(arg, arg_as_str(F_SORT_REVR)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, F_SORT_REVR));
+        } else if (strcmp(arg, arg_as_str(F_SORT_SCOR)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, F_SORT_SCOR));
+        } else if (strcmp(arg, arg_as_str(F_SORT_UPDA)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, F_SORT_UPDA));
 
         } else {
             printf("Unknown argument '%s' -- %s\n", arg, MORE_INFO);

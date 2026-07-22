@@ -2,6 +2,7 @@
 #include "../backend/api.h"
 #include "../backend/io.h"
 #include "../utils.h"
+#include "arg.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -415,6 +416,15 @@ bool prompt_edit(AniEntry *e) {
         }
     }
     return false;
+}
+
+void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
+        ArgType sort_type, bool devicons) {
+    printf("listing entries...\n");
+
+    if (!sort_type) {
+        // do no sorting
+    }
 }
 
 void cmd_edit(AniFile *af, int id) {
