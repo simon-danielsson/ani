@@ -22,12 +22,6 @@ COMMANDS
     stats                 Display global statistics.
     rec                   Let ani recommended you a plan-to-watch/on-hold entry.
 
-    set [command]
-        new <src-file>    Set a default/fallback path to a src-file, will be
-                          used if the '--file' flag has not been provided.
-        rm                Remove default path (does not remove the file itself).
-        ls                Print location of default path (if there is one).
-
     search <word>         Search entries by name, note, and tags.
 
     ls [command, flags]   List all entries

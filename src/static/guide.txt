@@ -1,1 +1,20 @@
-This is a guide that has not been implemented yet!
+1a) Initializing a new 'ani' library
+
+    Ani requires a file to operate from. To set this up, you may create an
+    empty file in an arbitrary directory:
+    ```
+        $ touch library.ani
+    ```
+    Tip: I keep my file in a git repo synced to github.
+
+    The layout of a '.ani' file functions the same as a CSV/TSV, but using pipe ('|')
+    characters as delimiters. That makes the format extremely trivial to parse,
+    so if you ever wanted to move your library over to some other format it'll
+    be easy to do so.
+
+    Note: The '.ani' extension is not validated in the program, so you can use any
+    extension you want.
+
+1b)
+
+This guide is a work in progress...
