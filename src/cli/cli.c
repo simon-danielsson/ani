@@ -624,7 +624,7 @@ void cmd_add(AniFile *af) {
 
     } else {
         AniFile_push_AniEntry(af, e);
-        printf("'%s%s%s' was successfully added with id '%s%d%s'!\n", COL_INFO,
+        printf("'%s%s%s' was successfully added with id '%s%d%s'\n", COL_INFO,
                 e.name, COL_RESET, COL_INFO, e.id, COL_RESET);
     }
 
