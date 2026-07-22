@@ -51,6 +51,9 @@ int *AniFile_search_for_entries(AniFile *af, const char *search_term,
 
 bool AniFile_remove_entry_by_id(AniFile *af, int id);
 
+bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
+                                      const AniFile *af);
+
 // takes the path of the .ani file in home directory and gives back a path for
 // the fallback .ani file
 char *get_set_ani_path(FILE *f);

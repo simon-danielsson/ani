@@ -81,6 +81,53 @@ int *AniFile_search_for_entries(AniFile *af, const char *search_term,
     return shrunk ? shrunk : results;
 }
 
+bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
+        const AniFile *af) {
+    for (size_t i = 0; i < af->size; i++) {
+        const AniEntry *old = &af->entries[i];
+        int matches = 0;
+
+        if (new_entry->ep_total == old->ep_total) {
+            matches++;
+        }
+
+        // release dates at most 61 days apart to be a match
+        if (new_entry->released > old->released - 5259600 &&
+                new_entry->released < old->released + 5259600) {
+            matches++;
+        }
+
+        // at least half the words should appear in old->name
+        char name_copy[256];
+        strncpy(name_copy, new_entry->name, sizeof(name_copy) - 1);
+        name_copy[sizeof(name_copy) - 1] = '\0';
+
+        size_t word_count = 0;
+        size_t name_matches = 0;
+
+        for (char *token = strtok(name_copy, " "); token != NULL;
+                token = strtok(NULL, " ")) {
+
+            word_count++;
+
+            if (strstr(old->name, token) != NULL) {
+                name_matches++;
+            }
+        }
+
+        if (word_count > 0 && name_matches * 2 >= word_count) {
+            matches++;
+        }
+
+        // require at least two matches
+        if (matches >= 2) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af) {
     if (af == NULL || af->size == 0)
         return NULL;

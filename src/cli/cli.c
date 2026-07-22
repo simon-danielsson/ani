@@ -613,10 +613,17 @@ void cmd_add(AniFile *af) {
 
     free(a);
 
-    AniFile_push_AniEntry(af, e);
+    bool probably_new = AniEntry_is_probably_a_new_entry(&e, af);
+    if (probably_new) {
+        printf("'%s%s%s' appears to already exist in your library.\n"
+                "Your entry was not added...\n",
+                COL_INFO, e.name, COL_RESET);
 
-    printf("Entry '%s%s%s' was added successfully!\n", COL_INFO, e.name,
-            COL_RESET);
+    } else {
+        AniFile_push_AniEntry(af, e);
+        printf("'%s%s%s' was successfully added with id '%s%d%s'!\n", COL_INFO,
+                e.name, COL_RESET, COL_INFO, e.id, COL_RESET);
+    }
 
 #undef Q
 }
