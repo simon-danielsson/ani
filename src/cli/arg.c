@@ -174,6 +174,9 @@ Args *parse_args(int argc, char **argv) {
         } else if (strcmp(arg, arg_as_str(C_ADD)) == 0) {
             Args_push_arg(args, Arg_new(NULL, C_ADD));
 
+        } else if (strcmp(arg, arg_as_str(C_STATS)) == 0) {
+            Args_push_arg(args, Arg_new(NULL, C_STATS));
+
             // ls command types
         } else if (strcmp(arg, arg_as_str(C_LIST)) == 0 ||
                 strcmp(arg, arg_as_str(C_LS)) == 0) {
