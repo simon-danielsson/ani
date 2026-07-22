@@ -34,14 +34,11 @@ No info section written yet.
 ## Install
   
 ``` bash
-# clone
+# clone this repo
 git clone https://github.com/simon-danielsson/ani.git
-# cd
-cd ani
+
 # install
-./install.sh
-# run
-ani -h
+./ani/install.sh
 ```
   
 ---
@@ -49,7 +46,10 @@ ani -h
   
 ## Usage
    
-No setup section yet.
+``` bash
+# read the guide to get started
+ani --guide
+```
     
 ---
 <div id="screenshots"></div>
