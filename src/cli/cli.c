@@ -436,6 +436,24 @@ void cmd_edit(AniFile *af, int id) {
     }
 }
 
+bool prompt_confirm() {
+    printf("=> ");
+    bool yes = false;
+    char tmp[128] = {0};
+    int c_count = 0;
+    for (int ch; (ch = getchar()) != EOF;) {
+        if (ch == '\n') {
+            if (tmp[0] == 'y' || tmp[0] == 'Y') {
+                yes = true;
+            }
+            break;
+        }
+        tmp[c_count] = ch;
+        c_count++;
+    }
+    return yes;
+}
+
 int prompt_ep(char *name, int watched_episodes, int total_episodes) {
     printf("'%s'\n", name);
     printf("Progress: %d of %d\n", watched_episodes, total_episodes);
@@ -488,7 +506,7 @@ void cmd_rm(AniFile *af, int id) {
 
     bool success = AniFile_remove_entry_by_id(af, id);
     if (success) {
-        printf("Entry '%s%s%s' with id '%s%d%s' was successfully removed.",
+        printf("Entry '%s%s%s' with id '%s%d%s' was successfully removed.\n",
                 COL_INFO, name, COL_RESET, COL_INFO, id, COL_RESET);
     } else {
         printf("Error: removal of entry failed -- %s", MORE_INFO);
@@ -617,17 +635,21 @@ void cmd_add(AniFile *af) {
     free(a);
 
     bool probably_new = AniEntry_is_probably_a_new_entry(&e, af);
-    if (probably_new) {
-        printf("'%s%s%s' appears to already exist in your library.\n"
-                "Your entry was not added...\n",
-                COL_INFO, e.name, COL_RESET);
-
-    } else {
+    if (!probably_new) {
         AniFile_push_AniEntry(af, e);
         printf("'%s%s%s' was successfully added with id '%s%d%s'\n", COL_INFO,
                 e.name, COL_RESET, COL_INFO, e.id, COL_RESET);
+    } else {
+        printf("'%s%s%s' appears to already exist in your library.\n", COL_INFO,
+                e.name, COL_RESET);
+        printf("Do you want to add it anyway? (y/n)\n");
+        bool yes = prompt_confirm();
+        if (yes) {
+            AniFile_push_AniEntry(af, e);
+            printf("'%s%s%s' was successfully added with id '%s%d%s'\n", COL_INFO,
+                    e.name, COL_RESET, COL_INFO, e.id, COL_RESET);
+        }
     }
-
 #undef Q
 }
 
