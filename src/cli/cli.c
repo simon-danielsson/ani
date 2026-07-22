@@ -635,7 +635,8 @@ void cmd_add(AniFile *af) {
     free(a);
 
     bool probably_new = AniEntry_is_probably_a_new_entry(&e, af);
-    if (!probably_new) {
+
+    if (probably_new) {
         AniFile_push_AniEntry(af, e);
         printf("'%s%s%s' was successfully added with id '%s%d%s'\n", COL_INFO,
                 e.name, COL_RESET, COL_INFO, e.id, COL_RESET);

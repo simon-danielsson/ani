@@ -85,21 +85,24 @@ bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
         const AniFile *af) {
     for (size_t i = 0; i < af->size; i++) {
         const AniEntry *old = &af->entries[i];
+
         int matches = 0;
 
-        if (new_entry->ep_total == old->ep_total) {
+        if (new_entry->status == old->status)
             matches++;
-        }
 
-        if (new_entry->ep_watched == old->ep_watched) {
+        if (new_entry->ep_total == old->ep_total)
             matches++;
-        }
 
-        if (new_entry->released == old->released) {
+        if (new_entry->ep_watched == old->ep_watched)
             matches++;
-        }
 
-        // at least half the words should appear in old->name
+        if (new_entry->score == old->score)
+            matches++;
+
+        if (new_entry->released == old->released)
+            matches++;
+
         char name_copy[256];
         strncpy(name_copy, new_entry->name, sizeof(name_copy) - 1);
         name_copy[sizeof(name_copy) - 1] = '\0';
@@ -112,24 +115,22 @@ bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
 
             word_count++;
 
-            if (strstr(old->name, token) != NULL) {
+            if (strcasestr(old->name, token) != NULL) {
                 name_matches++;
             }
         }
 
-        if (word_count > 0 && name_matches * 2 >= word_count) {
+        if (word_count >= 2 && name_matches * 5 >= word_count * 4) {
             matches++;
         }
 
-        // at least three matches
-        if (matches >= 3) {
-            return true;
+        if (matches >= 5) {
+            return false;
         }
     }
 
-    return false;
+    return true;
 }
-
 AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af) {
     if (af == NULL || af->size == 0)
         return NULL;
