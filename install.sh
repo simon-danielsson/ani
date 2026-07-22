@@ -8,6 +8,8 @@ fi
 
 root="$(dirname "$(readlink -f "$0")")"
 
+"$root/src/static/build_static.sh"
+
 "$root/run.py" install
 
 latest_exec=$(
