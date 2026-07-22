@@ -13,7 +13,7 @@ root="$(dirname "$(readlink -f "$0")")"
 "$root/run.py" install
 
 latest_exec=$(
-  find "$root/build/release" -maxdepth 1 -type f -perm -111 -print0 |
+  find "$root/build/install" -maxdepth 1 -type f -perm -111 -print0 |
   while IFS= read -r -d '' f; do
     if file -b "$f" | grep -qE 'Mach-O .* executable|ELF .* executable'; then
       stat_out=$(stat -f '%m %N' "$f" 2>/dev/null || stat -c '%Y %n' "$f")
@@ -26,7 +26,7 @@ latest_exec=$(
 )
 
 if [[ -z ${latest_exec:-} ]]; then
-  echo "No binary found in $root/build/release" >&2
+  echo "No binary found in $root/build/install" >&2
   exit 1
 fi
 
