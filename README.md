@@ -48,7 +48,7 @@ git clone https://github.com/simon-danielsson/ani.git
    
 ``` bash
 # read the guide to get started
-ani --guide
+ani --guide | less
 ```
     
 ---
