@@ -640,8 +640,8 @@ void cmd_add(AniFile *af) {
         printf("'%s%s%s' was successfully added with id '%s%d%s'\n", COL_INFO,
                 e.name, COL_RESET, COL_INFO, e.id, COL_RESET);
     } else {
-        printf("'%s%s%s' appears to already exist in your library.\n", COL_INFO,
-                e.name, COL_RESET);
+        printf("'%s%s%s' might already exist in your library.\n", COL_INFO, e.name,
+                COL_RESET);
         printf("Do you want to add it anyway? (y/n)\n");
         bool yes = prompt_confirm();
         if (yes) {
