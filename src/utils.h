@@ -28,4 +28,5 @@ void trim_str(char *str);
 
 void str_to_lowercase(char *s, size_t len);
 
+char *expand_home_path(const char *path);
 #endif

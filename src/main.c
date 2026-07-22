@@ -10,28 +10,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// located in the users home dir
+#define SETFILE_NAME ".ani"
+
 int main(int argc, char **argv) {
     srand((unsigned)time(NULL));
 
     Args *args = parse_args(argc, argv);
 
-    // retrieve file from args
-    FILE *f = NULL;
-    Arg *arg_file = NULL;
-
 #define FAILED_TO_OPEN                                                         \
     printf("Error: failed to open file -- %s", MORE_INFO);                       \
     exit(EXIT_FAILURE);
 
+    // retrieve file from args
+    FILE *f = NULL;
+    Arg *arg_file = NULL;
     arg_file = Args_find_arg(args, F_FILE, F_FILE_LONG);
-    if (!arg_file) {
-        FAILED_TO_OPEN
-    }
+    if (arg_file) {
+        f = fopen(arg_file->s, "r+");
+    } else if (!f) {
 
-    f = fopen(arg_file->s, "r+");
+        FILE *f_fallback = NULL;
+        char tmp[256];
+        {
+            char *ani_loc = ".ani";
+            char *home = getenv("HOME");
+            snprintf(tmp, sizeof(tmp), "%s/%s", home, ani_loc);
+            f_fallback = fopen(tmp, "r+");
+        }
 
-    if (!f) {
-        FAILED_TO_OPEN
+        if (!f_fallback) {
+            printf("Missing .ani file: %s\n", tmp);
+            printf("This is required to run ani without a file flag...\n");
+            FAILED_TO_OPEN
+        }
+
+        // retrieve path of fallback file within HOME/.ani
+        char *fallback_file = get_set_ani_path(f_fallback);
+
+        f = fopen(fallback_file, "r+");
+        arg_file = &(Arg){.s = fallback_file, .t = F_FILE};
+
+        if (!f) {
+            printf("Error: missing or broken fallback '%s' inside '%s'\n",
+                    fallback_file, tmp);
+            FAILED_TO_OPEN
+        }
     }
 
     // read

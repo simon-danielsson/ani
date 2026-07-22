@@ -127,3 +127,37 @@ void AniFile_debug_print(AniFile af) {
         printf("\n\n");
     }
 }
+
+// expand leading '~' to $HOME
+// returns an allocated string to be freed by the caller
+char *expand_home_path(const char *path) {
+    if (!path) {
+        return NULL;
+    }
+
+    if (path[0] != '~') {
+        return strdup(path);
+    }
+
+    const char *home = getenv("HOME");
+    if (!home) {
+        return strdup(path);
+    }
+
+    if (path[1] != '\0' && path[1] != '/') {
+        return strdup(path);
+    }
+
+    size_t home_len = strlen(home);
+    size_t rest_len = strlen(path + 1);
+
+    char *expanded = malloc(home_len + rest_len + 1);
+    if (!expanded) {
+        return NULL;
+    }
+
+    strcpy(expanded, home);
+    strcat(expanded, path + 1);
+
+    return expanded;
+}

@@ -294,3 +294,34 @@ void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
 
     return;
 }
+
+char *get_set_ani_path(FILE *f) {
+    char *content = read_entire_file(f);
+    if (!content) {
+        return NULL;
+    }
+
+    char *path = malloc(257);
+    if (!path) {
+        free(content);
+        return NULL;
+    }
+
+    int i = 0;
+    while (i < 256 && content[i] && content[i] != '\n') {
+        path[i] = content[i];
+        i++;
+    }
+
+    path[i] = '\0';
+
+    trim_str(path);
+
+    char *expanded = expand_home_path(path);
+
+    free(path);
+    free(content);
+
+    return expanded;
+    return path;
+}
