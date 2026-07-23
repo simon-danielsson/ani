@@ -3,6 +3,7 @@ USAGE
 
 META OPTIONS
     -h, --help            Displays this help message.
+    -v, --version         Display program information.
     --guide               Display practical guide on typical usage.
 
 OPTIONS

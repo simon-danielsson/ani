@@ -36,6 +36,8 @@ char *arg_as_str(ArgType at) {
         [F_SORT_UPDA] = "-u",
         [F_SORT_RELE] = "-y",
         [F_SORT_PROG] = "-p",
+        [F_VERS] = "-v",
+        [F_VERS_LONG] = "--version",
     };
     return args[at];
 }
@@ -131,6 +133,19 @@ Args *parse_args(int argc, char **argv) {
             for (size_t i = 0; i < help_txt_len; i++) {
                 printf("%c", help_txt[i]);
             }
+            exit(EXIT_SUCCESS);
+        }
+
+        if (strcmp(arg, arg_as_str(F_VERS)) == 0 ||
+                (strcmp(arg, arg_as_str(F_VERS_LONG)) == 0)) {
+            printf("========================================\n");
+            printf("%s %s (%.8s)\n", ENV_NAME, ENV_GITTAG, ENV_GITHASH);
+            printf("Anime progress tracker for the CLI.\n");
+            printf("%s\n", ENV_REPO);
+            printf("----------------------------------------\n");
+            printf("© 2026 %s - MIT License\n", ENV_AUTHOR);
+            printf("Contact: %s\n", ENV_CONTACT);
+            printf("========================================\n");
             exit(EXIT_SUCCESS);
 
         } else if (strcmp(arg, arg_as_str(F_GUIDE)) == 0) {

@@ -32,6 +32,8 @@ typedef enum {
   F_SORT_UPDA,
   F_SORT_RELE,
   F_SORT_PROG,
+  F_VERS,
+  F_VERS_LONG,
   _ARGS_N
 } ArgType;
 
