@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="media/logo.png" alt="ani" width="170"/>
+    <img src="media/logo.png" alt="ani" width="150"/>
 </p>
   
 <p align="center">
