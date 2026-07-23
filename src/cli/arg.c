@@ -98,17 +98,13 @@ ArgIter ArgIter_init(int argc, char **argv) {
     char **first = argv + 1;
     return (ArgIter){.begin = first, .current = first, .end = argv + argc};
 }
+
 bool ArgIter_has_next(const ArgIter *it) { return it->current < it->end; }
-char *ArgIter_peek(const ArgIter *it) {
-    return ArgIter_has_next(it) ? *it->current : NULL;
-}
+
 char *ArgIter_next(ArgIter *it) {
     return ArgIter_has_next(it) ? *it->current++ : NULL;
 }
-bool ArgIter_has_prev(const ArgIter *it) { return it->current > it->begin; }
-char *ArgIter_peek_prev(const ArgIter *it) {
-    return ArgIter_has_prev(it) ? it->current[-1] : NULL;
-}
+
 #define CMD_PARSE_ERR(not_provided)                                            \
     do {                                                                         \
         if (!ArgIter_has_next(&it)) {                                              \
