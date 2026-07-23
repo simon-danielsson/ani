@@ -4,6 +4,8 @@
 #include "../backend/db_format.h"
 #include "arg.h"
 
+#define PROMPT ">>> "
+
 typedef enum {
   RED,
   BLUE,

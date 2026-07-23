@@ -157,7 +157,7 @@ bool prompt_edit(AniEntry *e) {
     AniEntry_prompt_edit_print(e);
 
     printf("%sEnter number corresponding to field:%s\n", COL_QUESTION, COL_RESET);
-    printf("=> ");
+    printf(PROMPT);
     int r = 0;
     {
         char tmp[128] = {0};
@@ -175,7 +175,7 @@ bool prompt_edit(AniEntry *e) {
     switch (r) {
         case 1:
             printf("%sEnter new name:%s\n", COL_QUESTION, COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             char tmp[128] = {0};
             int c_count = 0;
             for (int ch; (ch = getchar()) != EOF;) {
@@ -200,7 +200,7 @@ bool prompt_edit(AniEntry *e) {
 
         case 2:
             printf("%sEnter new release year:%s\n", COL_QUESTION, COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             {
                 int r = 0;
                 char tmp[128] = {0};
@@ -223,7 +223,7 @@ bool prompt_edit(AniEntry *e) {
             printf("%s\n", prompt_field(STAT));
             printf("%sEnter character corresponding to status:%s\n", COL_QUESTION,
                     COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             {
                 int r = 0;
                 char tmp[128] = {0};
@@ -248,7 +248,7 @@ bool prompt_edit(AniEntry *e) {
 
         case 4:
             printf("%sEnter new total episodes:%s\n", COL_QUESTION, COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             {
                 int r = 0;
                 char tmp[128] = {0};
@@ -271,7 +271,7 @@ bool prompt_edit(AniEntry *e) {
 
         case 5:
             printf("%sEnter new episodes watched:%s\n", COL_QUESTION, COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             {
                 int r = 0;
                 char tmp[128] = {0};
@@ -301,7 +301,7 @@ bool prompt_edit(AniEntry *e) {
 
         case 6:
             printf("%sEnter new score (1-10):%s\n", COL_QUESTION, COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             {
                 int r = 0;
                 char tmp[128] = {0};
@@ -323,7 +323,7 @@ bool prompt_edit(AniEntry *e) {
 
         case 7:
             printf("%sEnter new note:%s\n", COL_QUESTION, COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             {
                 char tmp[128] = {0};
                 int c_count = 0;
@@ -356,7 +356,7 @@ bool prompt_edit(AniEntry *e) {
 
         default:
             printf("%sEnter new tags (separated by ','):%s\n", COL_QUESTION, COL_RESET);
-            printf("=> ");
+            printf(PROMPT);
             {
                 char tmp[128] = {0};
                 int c_count = 0;
@@ -396,7 +396,7 @@ bool prompt_edit(AniEntry *e) {
     printf("(y) Keep editing!\n");
     printf("(n) Save and exit\n");
     printf("(Ctrl-C) Cancel changes and exit\n");
-    printf("=> ");
+    printf(PROMPT);
     {
         char tmp[32] = {0};
         int j = 0;
@@ -501,7 +501,7 @@ void cmd_edit(AniFile *af, int id) {
 }
 
 bool prompt_confirm() {
-    printf("=> ");
+    printf(PROMPT);
     bool yes = false;
     char tmp[128] = {0};
     int c_count = 0;
@@ -521,7 +521,7 @@ bool prompt_confirm() {
 int prompt_ep(char *name, int watched_episodes, int total_episodes) {
     printf("'%s'\n", name);
     printf("Progress: %d of %d\n", watched_episodes, total_episodes);
-    printf("=> ");
+    printf(PROMPT);
     int r = 0;
     char tmp[128] = {0};
     int c_count = 0;
@@ -544,7 +544,7 @@ char **prompt_add(const char **q, int n_q) {
 
     for (int current_q = 0; current_q < n_q; current_q++) {
         printf("%s%s%s\n", COL_QUESTION, q[current_q], COL_RESET);
-        printf("=> ");
+        printf(PROMPT);
         char tmp[128] = {0};
         int c_count = 0;
         for (int ch; (ch = getchar()) != EOF;) {
