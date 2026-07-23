@@ -46,12 +46,10 @@ AniFile *AniFile_init() {
     if (!container) {
         panic("memory allocation failed");
     }
-
-#define INIT_SIZE 8
-    container->entries = malloc(INIT_SIZE * sizeof(AniEntry));
+#define ANIFILE_ENTR_INIT_SZ 8
+    container->entries = malloc(ANIFILE_ENTR_INIT_SZ * sizeof(AniEntry));
+    container->capacity = ANIFILE_ENTR_INIT_SZ;
     container->size = 0;
-    container->capacity = INIT_SIZE;
-#undef INIT_SIZE
 
     if (!container->entries) {
         free(container);
@@ -59,8 +57,6 @@ AniFile *AniFile_init() {
     }
     return container;
 }
-
-// char **split
 
 void AniFile_push_AniEntry(AniFile *af, AniEntry e) {
     if (af->size == af->capacity) {
@@ -80,7 +76,6 @@ void AniFile_push_AniEntry(AniFile *af, AniEntry e) {
 #define FIELD_DELIM '|'
 AniFile read_anifile(FILE *f) {
     char *content = read_entire_file(f);
-
     AniFile *af = AniFile_init();
 
     int line = 0;
@@ -104,12 +99,8 @@ AniFile read_anifile(FILE *f) {
 
         AniEntry e = {0};
 
-        // AniEntry e = {0};
         while (true) {
             if (line_tok[i] == FIELD_DELIM || !line_tok[i]) {
-                // TODO: capture fields here into an AniFile variable that will
-                // then get returned by the function
-
                 switch (acfs) {
                     case ID:
                         e.id = atoi(tmp);
@@ -176,7 +167,6 @@ AniFile read_anifile(FILE *f) {
 
         AniFile_push_AniEntry(af, e);
 
-        // printf("\n");
         line++;
         acfs = 0;
 
@@ -187,19 +177,9 @@ AniFile read_anifile(FILE *f) {
     return *af;
 }
 
-/*
-   id|name|year|tags|score|eptot|epwat|note|stat|dateupd
-   1|One Piece|1995|action,adventure,comedy|10|1400|5|this is very
-   good|0|2012-01-14 2|Ghost in The
-   Shell|1995|action,mecha|9|1|1|ghosts|1|2021-04-02 3|Black
-   Lagoon|2006|action|7|12|9| |3|2025-12-31 4|Kaguya-Sama: Love is war|2023|
-   |7|13|4|watch to-love-ru after this one |2|2025-12-31
-   */
-
 void write_anifile(AniFile *af, FILE *f) {
     fprintf(f, "id|name|year|tags|score|eptot|epwat|note|stat|dateupd\n");
 
-    // printf("---------\n");
     for (size_t i = 0; i < af->size; i++) {
 
         // id
