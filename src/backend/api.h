@@ -51,9 +51,22 @@ int *AniFile_search_for_entries(AniFile *af, const char *search_term,
 
 bool AniFile_remove_entry_by_id(AniFile *af, int id);
 
+void AniFile_collect_entries_with_certain_status(AniFile *af,
+                                                 AniEntry **entries,
+                                                 AniEntryStatus s);
+
 bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
                                       const AniFile *af);
 
 // takes the path of the .ani file in home directory and gives back a path for
 // the fallback .ani file
 char *get_set_ani_path(FILE *f);
+
+// qsort related functions ( src/cli/cli.c : cmd_list() )
+
+int AniEntry_qsort_by_name(const void *x_void, const void *y_void);
+int AniEntry_qsort_by_score(const void *x_void, const void *y_void);
+int AniEntry_qsort_by_updated(const void *a, const void *b);
+int AniEntry_qsort_by_released(const void *a, const void *b);
+int AniEntry_qsort_by_progress(const void *a, const void *b);
+void AniEntry_reverse_array(AniEntry **entries, size_t n);

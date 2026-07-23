@@ -34,7 +34,7 @@ char *arg_as_str(ArgType at) {
         [F_SORT_NAME] = "-n",
         [F_SORT_SCOR] = "-s",
         [F_SORT_UPDA] = "-u",
-        [F_SORT_RELE] = "-d",
+        [F_SORT_RELE] = "-y",
         [F_SORT_PROG] = "-p",
     };
     return args[at];

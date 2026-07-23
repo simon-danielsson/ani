@@ -420,11 +420,76 @@ bool prompt_edit(AniEntry *e) {
 
 void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
         ArgType sort_type, bool devicons) {
-    printf("listing entries...\n");
 
-    if (!sort_type) {
-        // do no sorting
+    AniEntry **entries = calloc(af->size, sizeof *entries);
+    // AniEntry *entries[af->size];
+    // memset(entries, 0, sizeof(entries));
+
+    AniEntryStatus status;
+    switch (list_type) {
+        case C_LIST_WATCH:
+            AniFile_collect_entries_with_certain_status(af, entries, WATCHING);
+            status = WATCHING;
+            break;
+        case C_LIST_COMPL:
+            AniFile_collect_entries_with_certain_status(af, entries, COMPLETED);
+            status = COMPLETED;
+            break;
+        case C_LIST_ONHOL:
+            AniFile_collect_entries_with_certain_status(af, entries, ON_HOLD);
+            status = ON_HOLD;
+            break;
+        case C_LIST_DROPP:
+            AniFile_collect_entries_with_certain_status(af, entries, DROPPED);
+            status = DROPPED;
+            break;
+        case C_LIST_PLANN:
+            AniFile_collect_entries_with_certain_status(af, entries, PLAN_TO_WATCH);
+            status = PLAN_TO_WATCH;
+            break;
+        default:
+            for (size_t i = 0; i < af->size; ++i) {
+                entries[i] = &af->entries[i];
+            }
+            break;
     }
+
+    if (!entries) {
+        printf("No entries with could be found.");
+        return;
+    }
+    if (sort_type) {
+        switch (sort_type) {
+            case F_SORT_NAME:
+                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_name);
+                break;
+            case F_SORT_SCOR:
+                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_score);
+                break;
+            case F_SORT_UPDA:
+                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_updated);
+                break;
+            case F_SORT_RELE:
+                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_released);
+                break;
+            case F_SORT_PROG:
+                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_progress);
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (reverse_sort) {
+        AniEntry_reverse_array(entries, af->size);
+    }
+
+    for (size_t i = 0; i < af->size; i++) {
+        if (entries[i])
+            AniEntry_pretty_print(entries[i], devicons);
+    }
+
+    free(entries);
 }
 
 void cmd_edit(AniFile *af, int id) {

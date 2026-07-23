@@ -16,6 +16,124 @@ char *field_icon(enum AniCurrentFieldState acfs, bool devicon) {
     }
 }
 
+// F_SORT_NAME
+// F_SORT_SCOR
+// F_SORT_UPDA
+// F_SORT_RELE
+// F_SORT_PROG
+
+// < 0 if x should go before y
+// 0 if x is equal to y
+// > 0 if x should go after y
+
+int AniEntry_qsort_by_progress(const void *a, const void *b) {
+    const AniEntry *x = *(const AniEntry *const *)a;
+    const AniEntry *y = *(const AniEntry *const *)b;
+
+    if (x == NULL && y == NULL)
+        return 0;
+    if (x == NULL)
+        return 1;
+    if (y == NULL)
+        return -1;
+
+    double x_progress = (double)x->ep_watched / (double)x->ep_total;
+    double y_progress = (double)y->ep_watched / (double)y->ep_total;
+
+    if (x_progress < y_progress)
+        return -1;
+    if (x_progress > y_progress)
+        return 1;
+    return 0;
+}
+
+int AniEntry_qsort_by_released(const void *a, const void *b) {
+    const AniEntry *x = *(const AniEntry *const *)a;
+    const AniEntry *y = *(const AniEntry *const *)b;
+
+    if (x == NULL && y == NULL)
+        return 0;
+    if (x == NULL)
+        return 1;
+    if (y == NULL)
+        return -1;
+
+    if (x->released < y->released)
+        return -1;
+    if (x->released > y->released)
+        return 1;
+    return 0;
+}
+int AniEntry_qsort_by_updated(const void *a, const void *b) {
+    const AniEntry *x = *(const AniEntry *const *)a;
+    const AniEntry *y = *(const AniEntry *const *)b;
+
+    if (x == NULL && y == NULL)
+        return 0;
+    if (x == NULL)
+        return 1;
+    if (y == NULL)
+        return -1;
+
+    if (x->last_updated < y->last_updated)
+        return -1;
+    if (x->last_updated > y->last_updated)
+        return 1;
+    return 0;
+}
+
+int AniEntry_qsort_by_score(const void *a, const void *b) {
+    const AniEntry *x = *(const AniEntry *const *)a;
+    const AniEntry *y = *(const AniEntry *const *)b;
+
+    if (x == NULL && y == NULL)
+        return 0;
+    if (x == NULL)
+        return 1;
+    if (y == NULL)
+        return -1;
+
+    return x->score - y->score;
+}
+
+int AniEntry_qsort_by_name(const void *a, const void *b) {
+    const AniEntry *x = *(const AniEntry *const *)a;
+    const AniEntry *y = *(const AniEntry *const *)b;
+
+    if (x == NULL && y == NULL)
+        return 0;
+    if (x == NULL)
+        return 1;
+    if (y == NULL)
+        return -1;
+
+    return strcmp(x->name, y->name);
+}
+
+void AniEntry_reverse_array(AniEntry **entries, size_t n) {
+    int l = 0, r = n - 1;
+    while (l < r) {
+        AniEntry *temp = entries[l];
+        entries[l] = entries[r];
+        entries[r] = temp;
+        l++;
+        r--;
+    }
+}
+
+void AniFile_collect_entries_with_certain_status(AniFile *af,
+        AniEntry **entries,
+        AniEntryStatus s) {
+    int entry_count = 0;
+
+    for (size_t i = 0; i < af->size; i++) {
+        if (af->entries[i].status == s) {
+            entries[entry_count] = &af->entries[i];
+            entry_count++;
+        }
+    }
+}
+
 AniEntry *AniFile_find_entry_by_id(AniFile *af, int id) {
     for (size_t i = 0; i < af->size; i++) {
         if (af->entries[i].id == id) {
@@ -131,6 +249,7 @@ bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
 
     return true;
 }
+
 AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af) {
     if (af == NULL || af->size == 0)
         return NULL;
