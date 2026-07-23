@@ -15,6 +15,7 @@
 
 int main(int argc, char **argv) {
     srand((unsigned)time(NULL));
+    USE_DEVICONS = true;
 
     Args *args = parse_args(argc, argv);
 
@@ -61,11 +62,6 @@ int main(int argc, char **argv) {
     // read
     AniFile af = read_anifile(f);
     AniFile snapshot = af;
-
-    bool use_devicons = true;
-    if (Args_find_arg(args, F_ICONS, F_ICONS_LONG) != NULL) {
-        use_devicons = false;
-    }
 
     if (Args_find_arg(args, C_ADD, C_ADD)) {
         cmd_add(&af);
@@ -115,11 +111,11 @@ int main(int argc, char **argv) {
             list_type = C_LIST_WATCH;
         }
 
-        cmd_list(&af, list_type, reverse_sort, sort_type, use_devicons);
+        cmd_list(&af, list_type, reverse_sort, sort_type);
     }
 
     if (Args_find_arg(args, C_REC, C_REC)) {
-        cmd_rec(&af, use_devicons);
+        cmd_rec(&af);
     }
 
     if (Args_find_arg(args, C_STATS, C_STATS)) {
@@ -139,7 +135,7 @@ int main(int argc, char **argv) {
     {
         Arg *tmp = Args_find_arg(args, C_SEARCH, C_SEARCH);
         if (tmp) {
-            cmd_search(&af, tmp->s, use_devicons);
+            cmd_search(&af, tmp->s);
         }
     }
 
@@ -160,7 +156,7 @@ int main(int argc, char **argv) {
     {
         Arg *tmp = Args_find_arg(args, C_INFO, C_INFO);
         if (tmp) {
-            cmd_info(&af, atoi(tmp->s), use_devicons);
+            cmd_info(&af, atoi(tmp->s));
         }
     }
 

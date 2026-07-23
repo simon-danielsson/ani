@@ -37,7 +37,7 @@ void AniFile_get_stats(AniFile *af, struct AniFileStats *a);
 char *AniEntryStatus_to_str(AniEntryStatus aes);
 AniEntryStatus str_to_AniEntryStatus(const char *s);
 
-char *field_icon(enum AniCurrentFieldState acfs, bool devicon);
+char *field_icon(enum AniCurrentFieldState acfs);
 
 int AniFile_get_most_recent_id(AniFile *af);
 bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current);

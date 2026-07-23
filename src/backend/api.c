@@ -1,13 +1,14 @@
 #include "api.h"
+#include "../cli/arg.h"
 #include "../utils.h"
 #include "db_format.h"
 
-char *field_icon(enum AniCurrentFieldState acfs, bool devicon) {
+char *field_icon(enum AniCurrentFieldState acfs) {
     char *icons_dev[10] = {"", "󰷝", "",  "", "",
         "", "",  "󰎛", "", "󰚰"};
     char *icons_tty[10] = {"I", "N", "Y", "T", "R", "E", "E", "N", "S", "U"};
 
-    if (devicon) {
+    if (USE_DEVICONS) {
         char *tmp = icons_dev[acfs];
         return tmp;
     } else {
@@ -346,7 +347,6 @@ AniEntryStatus str_to_AniEntryStatus(const char *s) {
 }
 
 char *AniEntryStatus_to_str(AniEntryStatus aes) {
-    char *tmp;
     char *status[5] = {"Watching", "Completed", "On hold", "Dropped",
         "Plan to watch"};
     return status[aes];

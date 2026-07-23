@@ -32,12 +32,12 @@ typedef struct {
 void cmd_add(AniFile *af);
 void cmd_ep(AniFile *af, int id);
 void cmd_edit(AniFile *af, int id);
-void cmd_info(AniFile *af, int id, bool devicons);
+void cmd_info(AniFile *af, int id);
 void cmd_rm(AniFile *af, int id);
 void cmd_stats(AniFile *af);
-void cmd_rec(AniFile *af, bool devicons);
-void cmd_search(AniFile *af, char *search_term, bool devicons);
+void cmd_rec(AniFile *af);
+void cmd_search(AniFile *af, char *search_term);
 void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
-              ArgType sort_type, bool devicons);
+              ArgType sort_type);
 
 #endif

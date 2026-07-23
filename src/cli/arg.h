@@ -3,6 +3,8 @@
 
 #include "../main.h"
 
+extern bool USE_DEVICONS;
+
 typedef enum {
   F_HELP,
   F_HELP_LONG,

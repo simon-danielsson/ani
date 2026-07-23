@@ -69,27 +69,26 @@ const char *prompt_field(enum AniCurrentFieldState at) {
    ┊     #romance #comedy               2023            󰚰 2024-11-23
    */
 
-void AniEntry_pretty_print(AniEntry *e, bool d) {
+void AniEntry_pretty_print(AniEntry *e) {
 #define PRETTY_PRN_LINE                                                        \
     do {                                                                         \
         printf("\n%-7s", "┊");                                                     \
     } while (0)
-
     // row
     printf("%-5d", e->id);
     printf("%s%-79s%s", COL_SHOW_HEADER, e->name, COL_RESET);
 
     // row
     PRETTY_PRN_LINE;
-    printf("%s%s%s %-30s", COL_QUESTION, field_icon(STAT, d), COL_RESET,
+    printf("%s%s%s %-30s", COL_QUESTION, field_icon(STAT), COL_RESET,
             AniEntryStatus_to_str(e->status));
-    printf("%s%s%s %d of %-22d", COL_QUESTION, field_icon(EP_TOT, d), COL_RESET,
+    printf("%s%s%s %d of %-22d", COL_QUESTION, field_icon(EP_TOT), COL_RESET,
             e->ep_watched, e->ep_total);
-    printf("%s%s%s %d", COL_QUESTION, field_icon(SCORE, d), COL_RESET, e->score);
+    printf("%s%s%s %d", COL_QUESTION, field_icon(SCORE), COL_RESET, e->score);
 
     // row
     PRETTY_PRN_LINE;
-    printf("%s%s%s", COL_QUESTION, field_icon(TAGS, d), COL_RESET);
+    printf("%s%s%s", COL_QUESTION, field_icon(TAGS), COL_RESET);
     if (e->tags != NULL) {
         char tmp[128] = {0};
         for (size_t j = 0; j < TAG_MAX_N; j++) {
@@ -105,17 +104,17 @@ void AniEntry_pretty_print(AniEntry *e, bool d) {
     {
         char tmp[32] = {0};
         format_time_t_year(tmp, 32, &e->released, true);
-        printf("%s%s%s %-27s", COL_QUESTION, field_icon(YEAR, d), COL_RESET, tmp);
+        printf("%s%s%s %-27s", COL_QUESTION, field_icon(YEAR), COL_RESET, tmp);
     }
     {
         char tmp[32] = {0};
         format_time_t_year(tmp, 32, &e->last_updated, false);
-        printf("%s%s%s %s", COL_QUESTION, field_icon(DATEUPD, d), COL_RESET, tmp);
+        printf("%s%s%s %s", COL_QUESTION, field_icon(DATEUPD), COL_RESET, tmp);
     }
     if (e->note) {
         // row
         PRETTY_PRN_LINE;
-        printf("%s%s%s %s", COL_QUESTION, field_icon(NOTE, d), COL_RESET, e->note);
+        printf("%s%s%s %s", COL_QUESTION, field_icon(NOTE), COL_RESET, e->note);
     }
     printf("\n");
 
@@ -419,7 +418,7 @@ bool prompt_edit(AniEntry *e) {
 }
 
 void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
-        ArgType sort_type, bool devicons) {
+        ArgType sort_type) {
 
     AniEntry **entries = calloc(af->size, sizeof *entries);
     // AniEntry *entries[af->size];
@@ -486,7 +485,7 @@ void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
 
     for (size_t i = 0; i < af->size; i++) {
         if (entries[i])
-            AniEntry_pretty_print(entries[i], devicons);
+            AniEntry_pretty_print(entries[i]);
     }
 
     free(entries);
@@ -601,7 +600,7 @@ void cmd_ep(AniFile *af, int id) {
     printf("Updated: %d of %d\n", e->ep_watched, e->ep_total);
 }
 
-void cmd_search(AniFile *af, char *search_term, bool devicons) {
+void cmd_search(AniFile *af, char *search_term) {
     size_t count;
     int *ids = AniFile_search_for_entries(af, search_term, &count);
 
@@ -615,7 +614,7 @@ void cmd_search(AniFile *af, char *search_term, bool devicons) {
         int id = ids[i];
         AniEntry *e = AniFile_find_entry_by_id(af, id);
         COULD_NOT_FIND_ENTRY_BY_ID;
-        AniEntry_pretty_print(e, devicons);
+        AniEntry_pretty_print(e);
         if (i != count - 1)
             printf("\n");
     }
@@ -625,18 +624,18 @@ void cmd_search(AniFile *af, char *search_term, bool devicons) {
     // AniEntry_pretty_print(e, devicons);
 }
 
-void cmd_info(AniFile *af, int id, bool devicons) {
+void cmd_info(AniFile *af, int id) {
     AniEntry *e = AniFile_find_entry_by_id(af, id);
     COULD_NOT_FIND_ENTRY_BY_ID;
-    AniEntry_pretty_print(e, devicons);
+    AniEntry_pretty_print(e);
 }
 
-void cmd_rec(AniFile *af, bool devicons) {
+void cmd_rec(AniFile *af) {
     AniEntry *e = AniFile_find_random_plan_to_watch_entry(af);
     if (!e) {
         printf("Could not find any recommendation for you, sorry!\n");
     }
-    AniEntry_pretty_print(e, devicons);
+    AniEntry_pretty_print(e);
 }
 
 void cmd_add(AniFile *af) {

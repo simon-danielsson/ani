@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+bool USE_DEVICONS = true;
+
 char *arg_as_str(ArgType at) {
     static char *args[_ARGS_N] = {
         [F_HELP] = "-h",
@@ -156,7 +158,8 @@ Args *parse_args(int argc, char **argv) {
 
         } else if (strcmp(arg, arg_as_str(F_ICONS)) == 0 ||
                 (strcmp(arg, arg_as_str(F_ICONS_LONG)) == 0)) {
-            Args_push_arg(args, Arg_new(NULL, F_ICONS));
+            // Args_push_arg(args, Arg_new(NULL, F_ICONS));
+            USE_DEVICONS = false;
 
         } else if (strcmp(arg, arg_as_str(F_FILE)) == 0 ||
                 (strcmp(arg, arg_as_str(F_FILE_LONG)) == 0)) {
