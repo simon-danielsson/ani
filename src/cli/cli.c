@@ -28,11 +28,6 @@ char *ansi_clr(Color c) {
     return "\033[0m";
 }
 
-/*
-   commands using a interactive prompt:
-   add, ep <id>, edit <id>
-   */
-
 const char *prompt_field(enum AniCurrentFieldState at) {
     static char *args[_FIELDS_N] = {
         [NAME] = "Name",
@@ -138,8 +133,7 @@ void AniEntry_prompt_edit_print(AniEntry *e) {
 bool prompt_edit(AniEntry *e) {
     AniEntry_prompt_edit_print(e);
 
-    printf("%sEnter number corresponding to field:%s\n", ansi_clr(BLUE),
-            ansi_clr(RESET));
+    printf("Enter number corresponding to field:\n");
     printf(PROMPT);
     int r = 0;
     {
@@ -157,7 +151,7 @@ bool prompt_edit(AniEntry *e) {
 
     switch (r) {
         case 1:
-            printf("%sEnter new name:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
+            printf("Enter new name:\n");
             printf(PROMPT);
             char tmp[128] = {0};
             int c_count = 0;
@@ -183,7 +177,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 2:
-            printf("%sEnter new release year:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
+            printf("Enter new release year:\n");
             printf(PROMPT);
             {
                 int r = 0;
@@ -206,8 +200,7 @@ bool prompt_edit(AniEntry *e) {
 
         case 3:
             printf("%s\n", prompt_field(STAT));
-            printf("%sEnter character corresponding to status:%s\n", ansi_clr(BLUE),
-                    ansi_clr(RESET));
+            printf("Enter character corresponding to status:\n");
             printf(PROMPT);
             {
                 int r = 0;
@@ -232,7 +225,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 4:
-            printf("%sEnter new total episodes:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
+            printf("Enter new total episodes:\n");
             printf(PROMPT);
             {
                 int r = 0;
@@ -255,8 +248,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 5:
-            printf("%sEnter new episodes watched:%s\n", ansi_clr(BLUE),
-                    ansi_clr(RESET));
+            printf("Enter new episodes watched:\n");
             printf(PROMPT);
             {
                 int r = 0;
@@ -286,7 +278,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 6:
-            printf("%sEnter new score (1-10):%s\n", ansi_clr(BLUE), ansi_clr(RESET));
+            printf("Enter new score (1-10):\n");
             printf(PROMPT);
             {
                 int r = 0;
@@ -308,7 +300,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 7:
-            printf("%sEnter new note:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
+            printf("Enter new note:\n");
             printf(PROMPT);
             {
                 char tmp[128] = {0};
@@ -341,8 +333,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         default:
-            printf("%sEnter new tags (separated by ','):%s\n", ansi_clr(BLUE),
-                    ansi_clr(RESET));
+            printf("Enter new tags (separated by ','):\n");
             printf(PROMPT);
             {
                 char tmp[128] = {0};
@@ -379,8 +370,7 @@ bool prompt_edit(AniEntry *e) {
             break;
     }
 
-    printf("\n%sDo you want to keep editing?%s\n", ansi_clr(BLUE),
-            ansi_clr(RESET));
+    printf("\nDo you want to keep editing?\n");
     printf("(y) Keep editing!\n");
     printf("(n) Save and exit\n");
     printf("(Ctrl-C) Cancel changes and exit\n");
@@ -531,7 +521,7 @@ char **prompt_add(const char **q, int n_q) {
     char **answers = calloc(n_q, sizeof(*answers));
 
     for (int current_q = 0; current_q < n_q; current_q++) {
-        printf("%s%s%s\n", ansi_clr(BLUE), q[current_q], ansi_clr(RESET));
+        printf("%s\n", q[current_q]);
         printf(PROMPT);
         char tmp[128] = {0};
         int c_count = 0;
