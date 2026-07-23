@@ -35,5 +35,5 @@ COMMANDS
         -n                Sort by name
         -s                Sort by user score/rating
         -u                Sort by last updated
-        -d                Sort by entry release year
+        -y                Sort by entry release year
         -p                Sort by entry episode progress
