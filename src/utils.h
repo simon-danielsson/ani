@@ -22,8 +22,6 @@ double time_t_to_days(time_t t);
 void format_time_t_year(char *buff, size_t buff_size, time_t *time,
                         bool only_year);
 
-void AniFile_debug_print(AniFile af);
-
 void trim_str(char *str);
 
 void str_to_lowercase(char *s, size_t len);
