@@ -55,8 +55,12 @@ void AniEntry_pretty_print(AniEntry *e) {
     PRETTY_PRN_LINE;
     printf("%s%s%s %-30s", ansi_clr(BLUE), field_icon(STAT), ansi_clr(RESET),
             AniEntryStatus_to_str(e->status));
-    printf("%s%s%s %d of %-22d", ansi_clr(BLUE), field_icon(EP_TOT),
-            ansi_clr(RESET), e->ep_watched, e->ep_total);
+    {
+        char tmp[64] = {0};
+        snprintf(tmp, sizeof(tmp), "%d of %d", e->ep_watched, e->ep_total);
+        printf("%s%s %s%-27s", ansi_clr(BLUE), field_icon(EP_TOT), ansi_clr(RESET),
+                tmp);
+    }
     printf("%s%s%s %d", ansi_clr(BLUE), field_icon(SCORE), ansi_clr(RESET),
             e->score);
 
