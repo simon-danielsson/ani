@@ -3,6 +3,7 @@
 #include "backend/io.h"
 #include "main.h"
 #include <stddef.h>
+#include <time.h>
 
 size_t get_fsize(FILE **f) {
     fseek(*f, 0, SEEK_END);
@@ -45,7 +46,6 @@ void str_to_lowercase(char *s, size_t len) {
 // takes either "YYYY-MM-DD" or "YYYY"
 time_t time_t_from_iso_ymd(const char *iso_str) {
     struct tm tm = {0};
-
     if (!strstr(iso_str, "-")) { // if no '-', assume "YYYY"
         tm.tm_year = atoi(iso_str) - 1900;
         tm.tm_mon += 6;
@@ -80,17 +80,14 @@ void trim_str(char *str) {
 
 void format_time_t_year(char *buff, size_t buff_size, time_t *time,
         bool only_year) {
-    struct tm *t = localtime(time);
-
     if (only_year) {
-        strftime(buff, buff_size, "%Y", t);
+        strftime(buff, buff_size, "%Y", localtime(time));
     } else {
-        strftime(buff, buff_size, "%Y-%m-%d", t);
+        strftime(buff, buff_size, "%Y-%m-%d", localtime(time));
     }
 }
 
 void AniFile_debug_print(AniFile af) {
-    // printf("---------\n");
     for (size_t i = 0; i < af.size; i++) {
 
         // name & id
@@ -131,31 +128,23 @@ void AniFile_debug_print(AniFile af) {
 // expand leading '~' to $HOME
 // returns an allocated string to be freed by the caller
 char *expand_home_path(const char *path) {
+    const char *home = getenv("HOME");
     if (!path) {
         return NULL;
     }
-
     if (path[0] != '~') {
         return strdup(path);
     }
-
-    const char *home = getenv("HOME");
     if (!home) {
         return strdup(path);
     }
-
     if (path[1] != '\0' && path[1] != '/') {
         return strdup(path);
     }
-
-    size_t home_len = strlen(home);
-    size_t rest_len = strlen(path + 1);
-
-    char *expanded = malloc(home_len + rest_len + 1);
+    char *expanded = malloc(strlen(home) + (strlen(path) + 1) + 1);
     if (!expanded) {
         return NULL;
     }
-
     strcpy(expanded, home);
     strcat(expanded, path + 1);
 
