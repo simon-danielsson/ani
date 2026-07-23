@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char *ansi_from_color(Color c) {
+#define COL_SHOW_HEADER "\033[4;1m"
+char *ansi_clr(Color c) {
     switch (c) {
         case MAGENTA:
             return "\033[35m";
@@ -29,11 +30,6 @@ char *ansi_from_color(Color c) {
     return "\033[0m";
 }
 
-#define COL_QUESTION ansi_from_color(BLUE)
-#define COL_INFO ansi_from_color(YELLOW)
-#define COL_RESET ansi_from_color(RESET)
-#define COL_SHOW_HEADER "\033[4;1m"
-
 /*
    commands using a interactive prompt:
    add, ep <id>, edit <id>
@@ -53,22 +49,6 @@ const char *prompt_field(enum AniCurrentFieldState at) {
     return args[at];
 }
 
-/*
-   56   One Piece
-   ┊     On hold                        812 of 1250      9
-   ┊     #action #comedy #adventure     1999            󰚰 2025-12-05
-   ┊    󰎛 Waiting for it to finish.
-
-   512  Serial Experiments Lain
-   ┊     Currently watching             5 of 13          10
-   ┊     #mystery #drama                1998            󰚰 2023-02-16
-   ┊    󰎛 Rewatching it for the third time.
-
-   121  Kaguya Sama: Love is war
-   ┊     Completed                      26 of 26         7
-   ┊     #romance #comedy               2023            󰚰 2024-11-23
-   */
-
 void AniEntry_pretty_print(AniEntry *e) {
 #define PRETTY_PRN_LINE                                                        \
     do {                                                                         \
@@ -76,19 +56,20 @@ void AniEntry_pretty_print(AniEntry *e) {
     } while (0)
     // row
     printf("%-5d", e->id);
-    printf("%s%-79s%s", COL_SHOW_HEADER, e->name, COL_RESET);
+    printf("%s%-79s%s", COL_SHOW_HEADER, e->name, ansi_clr(RESET));
 
     // row
     PRETTY_PRN_LINE;
-    printf("%s%s%s %-30s", COL_QUESTION, field_icon(STAT), COL_RESET,
+    printf("%s%s%s %-30s", ansi_clr(BLUE), field_icon(STAT), ansi_clr(RESET),
             AniEntryStatus_to_str(e->status));
-    printf("%s%s%s %d of %-22d", COL_QUESTION, field_icon(EP_TOT), COL_RESET,
-            e->ep_watched, e->ep_total);
-    printf("%s%s%s %d", COL_QUESTION, field_icon(SCORE), COL_RESET, e->score);
+    printf("%s%s%s %d of %-22d", ansi_clr(BLUE), field_icon(EP_TOT),
+            ansi_clr(RESET), e->ep_watched, e->ep_total);
+    printf("%s%s%s %d", ansi_clr(BLUE), field_icon(SCORE), ansi_clr(RESET),
+            e->score);
 
     // row
     PRETTY_PRN_LINE;
-    printf("%s%s%s", COL_QUESTION, field_icon(TAGS), COL_RESET);
+    printf("%s%s%s", ansi_clr(BLUE), field_icon(TAGS), ansi_clr(RESET));
     if (e->tags != NULL) {
         char tmp[128] = {0};
         for (size_t j = 0; j < TAG_MAX_N; j++) {
@@ -104,17 +85,20 @@ void AniEntry_pretty_print(AniEntry *e) {
     {
         char tmp[32] = {0};
         format_time_t_year(tmp, 32, &e->released, true);
-        printf("%s%s%s %-27s", COL_QUESTION, field_icon(YEAR), COL_RESET, tmp);
+        printf("%s%s%s %-27s", ansi_clr(BLUE), field_icon(YEAR), ansi_clr(RESET),
+                tmp);
     }
     {
         char tmp[32] = {0};
         format_time_t_year(tmp, 32, &e->last_updated, false);
-        printf("%s%s%s %s", COL_QUESTION, field_icon(DATEUPD), COL_RESET, tmp);
+        printf("%s%s%s %s", ansi_clr(BLUE), field_icon(DATEUPD), ansi_clr(RESET),
+                tmp);
     }
     if (e->note) {
         // row
         PRETTY_PRN_LINE;
-        printf("%s%s%s %s", COL_QUESTION, field_icon(NOTE), COL_RESET, e->note);
+        printf("%s%s%s %s", ansi_clr(BLUE), field_icon(NOTE), ansi_clr(RESET),
+                e->note);
     }
     printf("\n");
 
@@ -156,7 +140,8 @@ void AniEntry_prompt_edit_print(AniEntry *e) {
 bool prompt_edit(AniEntry *e) {
     AniEntry_prompt_edit_print(e);
 
-    printf("%sEnter number corresponding to field:%s\n", COL_QUESTION, COL_RESET);
+    printf("%sEnter number corresponding to field:%s\n", ansi_clr(BLUE),
+            ansi_clr(RESET));
     printf(PROMPT);
     int r = 0;
     {
@@ -174,7 +159,7 @@ bool prompt_edit(AniEntry *e) {
 
     switch (r) {
         case 1:
-            printf("%sEnter new name:%s\n", COL_QUESTION, COL_RESET);
+            printf("%sEnter new name:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
             printf(PROMPT);
             char tmp[128] = {0};
             int c_count = 0;
@@ -189,7 +174,8 @@ bool prompt_edit(AniEntry *e) {
                     }
                     free(e->name);
                     e->name = new_name;
-                    printf("%sName was updated to '%s'%s\n", COL_INFO, e->name, COL_RESET);
+                    printf("%sName was updated to '%s'%s\n", ansi_clr(YELLOW), e->name,
+                            ansi_clr(RESET));
                     e->last_updated = time(NULL);
                     break;
                 }
@@ -199,7 +185,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 2:
-            printf("%sEnter new release year:%s\n", COL_QUESTION, COL_RESET);
+            printf("%sEnter new release year:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
             printf(PROMPT);
             {
                 int r = 0;
@@ -209,7 +195,8 @@ bool prompt_edit(AniEntry *e) {
                     if (ch == '\n') {
                         trim_str(tmp);
                         e->released = time_t_from_iso_ymd(tmp);
-                        printf("%sYear was updated to '%s'%s\n", COL_INFO, tmp, COL_RESET);
+                        printf("%sYear was updated to '%s'%s\n", ansi_clr(YELLOW), tmp,
+                                ansi_clr(RESET));
                         e->last_updated = time(NULL);
                         break;
                     }
@@ -221,8 +208,8 @@ bool prompt_edit(AniEntry *e) {
 
         case 3:
             printf("%s\n", prompt_field(STAT));
-            printf("%sEnter character corresponding to status:%s\n", COL_QUESTION,
-                    COL_RESET);
+            printf("%sEnter character corresponding to status:%s\n", ansi_clr(BLUE),
+                    ansi_clr(RESET));
             printf(PROMPT);
             {
                 int r = 0;
@@ -235,8 +222,8 @@ bool prompt_edit(AniEntry *e) {
                         if (e->status == COMPLETED) {
                             e->ep_watched = e->ep_total;
                         }
-                        printf("%sStatus was updated to '%s'%s\n", COL_INFO,
-                                AniEntryStatus_to_str(e->status), COL_RESET);
+                        printf("%sStatus was updated to '%s'%s\n", ansi_clr(YELLOW),
+                                AniEntryStatus_to_str(e->status), ansi_clr(RESET));
                         e->last_updated = time(NULL);
                         break;
                     }
@@ -247,7 +234,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 4:
-            printf("%sEnter new total episodes:%s\n", COL_QUESTION, COL_RESET);
+            printf("%sEnter new total episodes:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
             printf(PROMPT);
             {
                 int r = 0;
@@ -257,8 +244,8 @@ bool prompt_edit(AniEntry *e) {
                     if (ch == '\n') {
                         trim_str(tmp);
                         e->ep_total = atoi(tmp);
-                        printf("%sTotal episodes was updated to '%s'%s\n", COL_INFO, tmp,
-                                COL_RESET);
+                        printf("%sTotal episodes was updated to '%s'%s\n", ansi_clr(YELLOW),
+                                tmp, ansi_clr(RESET));
                         e->last_updated = time(NULL);
                         break;
                     }
@@ -270,7 +257,8 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 5:
-            printf("%sEnter new episodes watched:%s\n", COL_QUESTION, COL_RESET);
+            printf("%sEnter new episodes watched:%s\n", ansi_clr(BLUE),
+                    ansi_clr(RESET));
             printf(PROMPT);
             {
                 int r = 0;
@@ -288,8 +276,8 @@ bool prompt_edit(AniEntry *e) {
                         } else {
                             e->ep_watched = new_ep;
                         }
-                        printf("%sEpisodes watched was updated to '%d'%s\n", COL_INFO,
-                                e->ep_watched, COL_RESET);
+                        printf("%sEpisodes watched was updated to '%d'%s\n", ansi_clr(YELLOW),
+                                e->ep_watched, ansi_clr(RESET));
                         e->last_updated = time(NULL);
                         break;
                     }
@@ -300,7 +288,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 6:
-            printf("%sEnter new score (1-10):%s\n", COL_QUESTION, COL_RESET);
+            printf("%sEnter new score (1-10):%s\n", ansi_clr(BLUE), ansi_clr(RESET));
             printf(PROMPT);
             {
                 int r = 0;
@@ -310,8 +298,8 @@ bool prompt_edit(AniEntry *e) {
                     if (ch == '\n') {
                         trim_str(tmp);
                         e->score = atoi(tmp);
-                        printf("%sScore was updated to '%d'%s\n", COL_INFO, e->score,
-                                COL_RESET);
+                        printf("%sScore was updated to '%d'%s\n", ansi_clr(YELLOW), e->score,
+                                ansi_clr(RESET));
                         e->last_updated = time(NULL);
                         break;
                     }
@@ -322,7 +310,7 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         case 7:
-            printf("%sEnter new note:%s\n", COL_QUESTION, COL_RESET);
+            printf("%sEnter new note:%s\n", ansi_clr(BLUE), ansi_clr(RESET));
             printf(PROMPT);
             {
                 char tmp[128] = {0};
@@ -343,8 +331,8 @@ bool prompt_edit(AniEntry *e) {
                         }
                         free(e->note);
                         e->note = new_name;
-                        printf("%sNote was updated to '%s'%s\n", COL_INFO, e->note,
-                                COL_RESET);
+                        printf("%sNote was updated to '%s'%s\n", ansi_clr(YELLOW), e->note,
+                                ansi_clr(RESET));
                         e->last_updated = time(NULL);
                         break;
                     }
@@ -355,7 +343,8 @@ bool prompt_edit(AniEntry *e) {
             break;
 
         default:
-            printf("%sEnter new tags (separated by ','):%s\n", COL_QUESTION, COL_RESET);
+            printf("%sEnter new tags (separated by ','):%s\n", ansi_clr(BLUE),
+                    ansi_clr(RESET));
             printf(PROMPT);
             {
                 char tmp[128] = {0};
@@ -372,7 +361,7 @@ bool prompt_edit(AniEntry *e) {
                         } else {
                             e->tags = NULL;
                         }
-                        printf("%sTags were updated to '", COL_INFO);
+                        printf("%sTags were updated to '", ansi_clr(YELLOW));
                         if (!str_is_empty(tmp)) {
                             for (size_t j = 0; j < TAG_MAX_N; j++) {
                                 if (e->tags[j] != NULL) {
@@ -380,7 +369,7 @@ bool prompt_edit(AniEntry *e) {
                                 }
                             }
                         }
-                        printf("'%s\n", COL_RESET);
+                        printf("'%s\n", ansi_clr(RESET));
                         e->last_updated = time(NULL);
                         break;
                     }
@@ -392,7 +381,8 @@ bool prompt_edit(AniEntry *e) {
             break;
     }
 
-    printf("\n%sDo you want to keep editing?%s\n", COL_QUESTION, COL_RESET);
+    printf("\n%sDo you want to keep editing?%s\n", ansi_clr(BLUE),
+            ansi_clr(RESET));
     printf("(y) Keep editing!\n");
     printf("(n) Save and exit\n");
     printf("(Ctrl-C) Cancel changes and exit\n");
@@ -543,7 +533,7 @@ char **prompt_add(const char **q, int n_q) {
     char **answers = calloc(n_q, sizeof(*answers));
 
     for (int current_q = 0; current_q < n_q; current_q++) {
-        printf("%s%s%s\n", COL_QUESTION, q[current_q], COL_RESET);
+        printf("%s%s%s\n", ansi_clr(BLUE), q[current_q], ansi_clr(RESET));
         printf(PROMPT);
         char tmp[128] = {0};
         int c_count = 0;
@@ -571,7 +561,8 @@ void cmd_rm(AniFile *af, int id) {
     bool success = AniFile_remove_entry_by_id(af, id);
     if (success) {
         printf("Entry '%s%s%s' with id '%s%d%s' was successfully removed.\n",
-                COL_INFO, name, COL_RESET, COL_INFO, id, COL_RESET);
+                ansi_clr(YELLOW), name, ansi_clr(RESET), ansi_clr(YELLOW), id,
+                ansi_clr(RESET));
     } else {
         printf("Error: removal of entry failed -- %s", MORE_INFO);
     }
@@ -605,8 +596,8 @@ void cmd_search(AniFile *af, char *search_term) {
     int *ids = AniFile_search_for_entries(af, search_term, &count);
 
     if (!ids) {
-        printf("Could not find anything matching '%s%s%s'!\n",
-                ansi_from_color(YELLOW), search_term, ansi_from_color(YELLOW));
+        printf("Could not find anything matching '%s%s%s'!\n", ansi_clr(YELLOW),
+                search_term, ansi_clr(YELLOW));
         return;
     }
 
@@ -702,17 +693,19 @@ void cmd_add(AniFile *af) {
 
     if (probably_new) {
         AniFile_push_AniEntry(af, e);
-        printf("'%s%s%s' was successfully added with id '%s%d%s'\n", COL_INFO,
-                e.name, COL_RESET, COL_INFO, e.id, COL_RESET);
+        printf("'%s%s%s' was successfully added with id '%s%d%s'\n",
+                ansi_clr(YELLOW), e.name, ansi_clr(RESET), ansi_clr(YELLOW), e.id,
+                ansi_clr(RESET));
     } else {
-        printf("'%s%s%s' might already exist in your library.\n", COL_INFO, e.name,
-                COL_RESET);
+        printf("'%s%s%s' might already exist in your library.\n", ansi_clr(YELLOW),
+                e.name, ansi_clr(RESET));
         printf("Do you want to add it anyway? (y/n)\n");
         bool yes = prompt_confirm();
         if (yes) {
             AniFile_push_AniEntry(af, e);
-            printf("'%s%s%s' was successfully added with id '%s%d%s'\n", COL_INFO,
-                    e.name, COL_RESET, COL_INFO, e.id, COL_RESET);
+            printf("'%s%s%s' was successfully added with id '%s%d%s'\n",
+                    ansi_clr(YELLOW), e.name, ansi_clr(RESET), ansi_clr(YELLOW), e.id,
+                    ansi_clr(RESET));
         }
     }
 #undef Q
@@ -724,7 +717,7 @@ void cmd_add(AniFile *af) {
 
 void bar_repeat(const char *c, int count, Color col) {
     for (int i = 0; i < count; i++) {
-        printf("%s%s%s", ansi_from_color(col), c, ansi_from_color(RESET));
+        printf("%s%s%s", ansi_clr(col), c, ansi_clr(RESET));
     }
 }
 
@@ -781,8 +774,8 @@ void cmd_stats(AniFile *af) {
     printf("\n");
 
     int row = 0;
-    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
     printf("%-15s%d", "Ep. watched", stats.total_n_ep_watched);
@@ -790,8 +783,8 @@ void cmd_stats(AniFile *af) {
     printf("\n");
     row++;
 
-    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
     printf("%-15s%.1f", "Days", time_t_to_days(stats.combined_watch_time));
@@ -799,8 +792,8 @@ void cmd_stats(AniFile *af) {
     printf("\n");
     row++;
 
-    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
     printf("%-15s%d", "Tot. entries", stats.total_n_entries);
@@ -808,8 +801,8 @@ void cmd_stats(AniFile *af) {
     printf("\n");
     row++;
 
-    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
     printf("%-15s%.2f", "Avg. score", stats.average_score);
@@ -817,8 +810,8 @@ void cmd_stats(AniFile *af) {
     printf("\n");
     row++;
 
-    printf("%s%-15s%s %-15d", ansi_from_color(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_from_color(RESET),
+    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
     printf("%-15s#%s", "Fav. tag", stats.fav_tag);
