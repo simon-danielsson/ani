@@ -63,8 +63,6 @@ int main(int argc, char **argv) {
         cmd_add(&af);
     }
 
-    // first field is for the -r reverse flag if added
-    // second field is for sorting flag itself
     ArgType sort_type;
     bool reverse_sort = false;
 
@@ -156,8 +154,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    // AniFile_debug_print(af);
-
     {
         if (AniFile_has_changed(&snapshot, &af)) {
             f = fopen(arg_file->s, "w");
@@ -165,7 +161,8 @@ int main(int argc, char **argv) {
         };
     }
 
-    // TODO: free memory of Args and AniFile properly at end of program
+    // TODO: free residual memory at end of program, but it really isn't
+    // necessary
 
     return 0;
 }
