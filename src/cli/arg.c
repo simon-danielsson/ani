@@ -46,11 +46,11 @@ Args *Args_init() {
         panic("memory allocation failed");
     }
 
-#define INIT_SIZE 8
-    container->items = malloc(INIT_SIZE * sizeof(Arg));
+    static int init_size = 8;
+
+    container->items = malloc(init_size * sizeof(Arg));
     container->size = 0;
-    container->capacity = INIT_SIZE;
-#undef INIT_SIZE
+    container->capacity = init_size;
 
     if (!container->items) {
         free(container);
