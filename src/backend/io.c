@@ -1,7 +1,5 @@
 #include "../utils.h"
 #include "db_format.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 // split by ',' and return array of char*
 char **get_tags_from_field(char *s) {

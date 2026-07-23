@@ -2,9 +2,6 @@
 #include "../static/guide.h"
 #include "../static/help.h"
 #include "../utils.h"
-#include <libc.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 bool USE_DEVICONS = true;
 

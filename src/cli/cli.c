@@ -3,8 +3,6 @@
 #include "../backend/io.h"
 #include "../utils.h"
 #include "arg.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 #define COL_SHOW_HEADER "\033[4;1m"
 char *ansi_clr(Color c) {

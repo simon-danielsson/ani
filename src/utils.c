@@ -2,8 +2,6 @@
 #include "backend/db_format.h"
 #include "backend/io.h"
 #include "main.h"
-#include <stddef.h>
-#include <time.h>
 
 size_t get_fsize(FILE **f) {
     fseek(*f, 0, SEEK_END);

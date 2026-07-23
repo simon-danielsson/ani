@@ -5,10 +5,6 @@
 #include "cli/arg.h"
 #include "cli/cli.h"
 #include "utils.h"
-#include <assert.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 // located in the users home dir
 #define SETFILE_NAME ".ani"
