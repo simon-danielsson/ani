@@ -594,13 +594,8 @@ void cmd_search(AniFile *af, char *search_term) {
         AniEntry *e = AniFile_find_entry_by_id(af, id);
         COULD_NOT_FIND_ENTRY_BY_ID;
         AniEntry_pretty_print(e);
-        if (i != count - 1)
-            printf("\n");
     }
-
     free(ids);
-
-    // AniEntry_pretty_print(e, devicons);
 }
 
 void cmd_info(AniFile *af, int id) {
