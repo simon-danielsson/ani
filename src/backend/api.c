@@ -160,20 +160,13 @@ bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
 
         int matches = 0;
 
-        if (new_entry->status == old->status)
-            matches++;
+        if (new_entry->status == old->status || new_entry->score == old->score ||
+                new_entry->released == old->released ||
+                new_entry->ep_total == old->ep_total ||
+                new_entry->ep_watched == old->ep_watched) {
 
-        if (new_entry->ep_total == old->ep_total)
             matches++;
-
-        if (new_entry->ep_watched == old->ep_watched)
-            matches++;
-
-        if (new_entry->score == old->score)
-            matches++;
-
-        if (new_entry->released == old->released)
-            matches++;
+        }
 
         char name_copy[256];
         strncpy(name_copy, new_entry->name, sizeof(name_copy) - 1);
