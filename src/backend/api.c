@@ -8,39 +8,16 @@ char *field_icon(enum AniCurrentFieldState acfs) {
         "", "",  "󰎛", "", "󰚰"};
     char *icons_tty[10] = {"I", "N", "Y", "T", "R", "E", "E", "N", "S", "U"};
 
-    if (USE_DEVICONS) {
-        char *tmp = icons_dev[acfs];
-        return tmp;
-    } else {
-        char *tmp = icons_tty[acfs];
-        return tmp;
-    }
+    return USE_DEVICONS ? icons_dev[acfs] : icons_tty[acfs];
 }
-
-// F_SORT_NAME
-// F_SORT_SCOR
-// F_SORT_UPDA
-// F_SORT_RELE
-// F_SORT_PROG
-
-// < 0 if x should go before y
-// 0 if x is equal to y
-// > 0 if x should go after y
 
 int AniEntry_qsort_by_progress(const void *a, const void *b) {
     const AniEntry *x = *(const AniEntry *const *)a;
     const AniEntry *y = *(const AniEntry *const *)b;
-
-    if (x == NULL && y == NULL)
-        return 0;
-    if (x == NULL)
-        return 1;
-    if (y == NULL)
-        return -1;
-
+    if (!x || !y)
+        return (x == y) ? 0 : (x ? -1 : 1);
     double x_progress = (double)x->ep_watched / (double)x->ep_total;
     double y_progress = (double)y->ep_watched / (double)y->ep_total;
-
     if (x_progress < y_progress)
         return -1;
     if (x_progress > y_progress)
@@ -51,14 +28,8 @@ int AniEntry_qsort_by_progress(const void *a, const void *b) {
 int AniEntry_qsort_by_released(const void *a, const void *b) {
     const AniEntry *x = *(const AniEntry *const *)a;
     const AniEntry *y = *(const AniEntry *const *)b;
-
-    if (x == NULL && y == NULL)
-        return 0;
-    if (x == NULL)
-        return 1;
-    if (y == NULL)
-        return -1;
-
+    if (!x || !y)
+        return (x == y) ? 0 : (x ? -1 : 1);
     if (x->released < y->released)
         return -1;
     if (x->released > y->released)
@@ -68,14 +39,8 @@ int AniEntry_qsort_by_released(const void *a, const void *b) {
 int AniEntry_qsort_by_updated(const void *a, const void *b) {
     const AniEntry *x = *(const AniEntry *const *)a;
     const AniEntry *y = *(const AniEntry *const *)b;
-
-    if (x == NULL && y == NULL)
-        return 0;
-    if (x == NULL)
-        return 1;
-    if (y == NULL)
-        return -1;
-
+    if (!x || !y)
+        return (x == y) ? 0 : (x ? -1 : 1);
     if (x->last_updated < y->last_updated)
         return -1;
     if (x->last_updated > y->last_updated)
@@ -86,28 +51,16 @@ int AniEntry_qsort_by_updated(const void *a, const void *b) {
 int AniEntry_qsort_by_score(const void *a, const void *b) {
     const AniEntry *x = *(const AniEntry *const *)a;
     const AniEntry *y = *(const AniEntry *const *)b;
-
-    if (x == NULL && y == NULL)
-        return 0;
-    if (x == NULL)
-        return 1;
-    if (y == NULL)
-        return -1;
-
+    if (!x || !y)
+        return (x == y) ? 0 : (x ? -1 : 1);
     return x->score - y->score;
 }
 
 int AniEntry_qsort_by_name(const void *a, const void *b) {
     const AniEntry *x = *(const AniEntry *const *)a;
     const AniEntry *y = *(const AniEntry *const *)b;
-
-    if (x == NULL && y == NULL)
-        return 0;
-    if (x == NULL)
-        return 1;
-    if (y == NULL)
-        return -1;
-
+    if (!x || !y)
+        return (x == y) ? 0 : (x ? -1 : 1);
     return strcmp(x->name, y->name);
 }
 
