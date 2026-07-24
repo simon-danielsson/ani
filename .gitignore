@@ -4,6 +4,7 @@ nvim.log
 .DS_Store
 *.o
 notes.md
+/src/static/*.h
 test.ani
 /tests
 /tests/*
