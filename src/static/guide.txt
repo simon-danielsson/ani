@@ -1,20 +1,58 @@
-1a) Initializing a new 'ani' library
 
-    Ani requires a file to operate from. To set this up, you may create an
-    empty file in an arbitrary directory:
+1a) Initializing a new Ani library
+
+    Ani requires a file to operate from. To set this up you create an
+    empty file in a directory of your choosing:
     ```
         $ touch library.ani
     ```
-    Tip: I keep my file in a git repo synced to github.
 
-    The layout of a '.ani' file functions the same as a CSV/TSV, but using pipe ('|')
-    characters as delimiters. That makes the format extremely trivial to parse,
-    so if you ever wanted to move your library over to some other format it'll
-    be easy to do so.
+    An Ani file looks the same as a CSV/TSV but with pipe ('|') characters as
+    delimiters. That makes the format extremely trivial to parse, so if you
+    ever wanted to move your library over to some other text-format it'll be easy
+    to do so.
 
     Note: The '.ani' extension is not validated in the program, so you can use any
     extension you want.
 
-1b)
+1b) Fallback path
 
-This guide is a work in progress...
+    Almost every command in Ani will need to be preceded with the '-f' or
+    '--file' flag, like in the following example:
+    ```
+        $ ani -f /path/to/library.ani ls
+    ```
+    But remembering to add the file flag each time is tedious! And so, you have
+    the option of creating a '.ani' file in your home directory in which you
+    can store the filepath to your library perpetually. This location will
+    be scanned by Ani at runtime (and can be overridden by the '-f' flag if
+    needed). Example:
+    ```
+        $ cd ~
+        $ touch .ani
+        $ echo "path/to/my/library.ani" > .ani
+    ```
+
+2)  Adding your first entry
+
+    Now you should be ready to start adding a new entry to your library!
+    This is easy, just run the following:
+    ```
+        $ ani add
+    ```
+    You will be greeted by an interactive prompt - fill in all the details of
+    your new entry. Good to know: before Ani adds your new entry, it will check
+    your library for potential collisions with previous entries and warn you
+    if it smells something fishy.
+
+3)  Good luck!
+
+    The guide ends here. You may review Ani's various options and commands
+    using following flag whenever you feel stuck:
+    ```
+        $ ani --help
+    ```
+    Be sure to keep a backup of your library. I like to keep my Ani library
+    in a git repo synced to github.
+
+
