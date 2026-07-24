@@ -26,7 +26,7 @@
 
 ## Info
   
-**ani** is a terminal-based application for keeping track of your anime shows.
+**Ani** is a terminal-based application for keeping track of your anime shows.
 Nothing more and nothing less.
   
 ---
