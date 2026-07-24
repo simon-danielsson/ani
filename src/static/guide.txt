@@ -48,7 +48,7 @@
 3)  Good luck!
 
     The guide ends here. You may review Ani's various options and commands
-    using following flag whenever you feel stuck:
+    using the following flag whenever you feel stuck:
     ```
         $ ani --help
     ```
