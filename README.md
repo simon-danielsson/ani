@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="media/logo.png" alt="ani" width="130"/>
+    <img src="media/logo.png" alt="ani" width="112"/>
 </p>
   
 <p align="center">
@@ -26,7 +26,8 @@
 
 ## Info
   
-No info section written yet.
+**ani** is a terminal-based application for keeping track of your anime shows.
+Nothing more and nothing less.
   
 ---
 <div id="install"></div>
