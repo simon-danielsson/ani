@@ -1,3 +1,35 @@
-test 1 | ../run.py test --test=1
-test 2 | ../run.py test --test=2
-test 3 | ../run.py test --test=3
+# utils.h
+t_str_to_lowercase() | ../run.py test --test=1
+t_time_functions() | ../run.py test --test=2
+t_expand_home_path() | ../run.py test --test=3
+t_read_entire_file() | ../run.py test --test=4
+t_trim_str() | ../run.py test --test=5
+# cli - info
+ani info t1 | ../run.py -- -f ./test.ani info 3
+ani info t2 | ../run.py -- -f ./test.ani info 2
+ani info t2 no icons | ../run.py -- -f ./test.ani info -i 2
+# cli - help
+ani help short | ../run.py -- -h
+ani help long | ../run.py -- --help
+# cli - guide
+ani guide | ../run.py -- --guide
+# cli - version
+ani version short | ../run.py -- -v
+ani version long | ../run.py -- --version
+# cli - search
+ani search | ../run.py -- --file ./test.ani search piece
+# cli - stats
+ani stats | ../run.py -- --file ./test.ani stats
+# cli - ls
+ani ls | ../run.py -- -f ./test.ani ls
+ani ls no icons | ../run.py -- -f ./test.ani ls --no-icons
+ani ls watching | ../run.py -- -f ./test.ani ls watching
+ani ls completed | ../run.py -- -f ./test.ani ls completed
+ani ls on-hold | ../run.py -- -f ./test.ani ls on-hold
+ani ls dropped | ../run.py -- -f ./test.ani ls dropped
+ani ls planned | ../run.py -- -f ./test.ani ls planned
+ani ls sort name | ../run.py -- -f ./test.ani ls -n
+ani ls sort score | ../run.py -- -f ./test.ani ls -s
+ani ls sort updated | ../run.py -- -f ./test.ani ls -u
+ani ls sort release year | ../run.py -- -f ./test.ani ls -y
+ani ls sort progress | ../run.py -- -f ./test.ani ls -p

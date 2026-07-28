@@ -1,6 +1,4 @@
 #include "utils.h"
-#include "backend/db_format.h"
-#include "backend/io.h"
 #include "main.h"
 
 size_t get_fsize(FILE **f) {

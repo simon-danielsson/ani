@@ -41,7 +41,7 @@ char *arg_as_str(ArgType at) {
     return args[at];
 }
 
-Args *Args_init() {
+Args *Args_init(void) {
     Args *container = malloc(sizeof(Args));
     if (!container) {
         panic("memory allocation failed");

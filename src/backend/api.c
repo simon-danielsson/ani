@@ -7,7 +7,6 @@ char *field_icon(enum AniCurrentFieldState acfs) {
     char *icons_dev[10] = {"", "󰷝", "",  "", "",
         "", "",  "󰎛", "", "󰚰"};
     char *icons_tty[10] = {"I", "N", "Y", "T", "R", "E", "E", "N", "S", "U"};
-
     return USE_DEVICONS ? icons_dev[acfs] : icons_tty[acfs];
 }
 
@@ -36,6 +35,7 @@ int AniEntry_qsort_by_released(const void *a, const void *b) {
         return 1;
     return 0;
 }
+
 int AniEntry_qsort_by_updated(const void *a, const void *b) {
     const AniEntry *x = *(const AniEntry *const *)a;
     const AniEntry *y = *(const AniEntry *const *)b;

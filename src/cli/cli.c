@@ -482,7 +482,7 @@ void cmd_edit(AniFile *af, int id) {
     }
 }
 
-bool prompt_confirm() {
+bool prompt_confirm(void) {
     printf(PROMPT);
     bool yes = false;
     char tmp[128] = {0};

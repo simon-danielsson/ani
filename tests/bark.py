@@ -94,11 +94,13 @@ class Test:
     def shell_cmd_as_str(self) -> str:
         return " ".join(self.shell_cmd).strip()
 
-    def launch_cmd(self, debug_print: bool) -> None:
+    def launch_cmd(
+            self, total: int = 0, done: int = 0, debug_print: bool = False
+            ) -> None:
         """helper - cmd_record()"""
         try:
             if debug_print:
-                msg_info(f"processing '{self.name}'...")
+                msg_info(f"processing {done+1}/{total}: {self.name}")
             self.stdout = subprocess.run(
                     shell=True,
                     args=self.shell_cmd_as_str(),
@@ -121,7 +123,9 @@ def read_file(file: str | Path) -> list[str]:
                 f"failed to open '{file}' (must be inside working dir)",
                 details=False,
                 )
-    return f
+
+    f = filter(lambda l: not l.startswith("#"), f)
+    return list(f)
 
 def retrieve_old_tests() -> list[Test]:
     if not os.path.exists(BARK_DIR):
@@ -137,10 +141,11 @@ def retrieve_old_tests() -> list[Test]:
                     Test(
                         shell_cmd=[],
                         name=file[0][:-1],
-                        stdout="".join(file[-1:]),
+                        stdout="".join(file[1:]),
                         id=int(child.name),
                         )
                     )
+    tests.sort(key=lambda t: t.id)
     return tests
 
 def retrieve_new_tests() -> list[Test]:
@@ -181,9 +186,12 @@ def store_test_results(tests: list[Test]) -> None:
 def cmd_record() -> None:
     """helper - cmd_record()"""
     tests = retrieve_new_tests()
-    [t.launch_cmd(debug_print=True) for t in tests]
+    [
+            t.launch_cmd(total=len(tests), done=i, debug_print=True)
+            for i, t in enumerate(tests)
+            ]
     store_test_results(tests)
-    msg_succ("new snapshot written successfully")
+    msg_succ(f"new snapshot written in {time_total():.4} sec")
 
 def cmd_help() -> None:
     print(_HELP_STR[1:])
@@ -235,7 +243,10 @@ def compare_results_table(results: list[tuple[bool, Test]]) -> None:
 def cmd_compare() -> None:
     new_tests = retrieve_new_tests()
     old_tests = retrieve_old_tests()
-    [nt.launch_cmd(debug_print=False) for nt in new_tests]
+    [
+            nt.launch_cmd(total=len(new_tests), done=i, debug_print=True)
+            for i, nt in enumerate(new_tests)
+            ]
 
     results: list[tuple[bool, Test]] = []
 

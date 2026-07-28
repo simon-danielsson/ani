@@ -39,7 +39,7 @@ char **get_tags_from_field(char *s) {
     return output;
 }
 
-AniFile *AniFile_init() {
+AniFile *AniFile_init(void) {
     AniFile *container = malloc(sizeof(AniFile));
     if (!container) {
         panic("memory allocation failed");
