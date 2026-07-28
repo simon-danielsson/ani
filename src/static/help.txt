@@ -8,7 +8,7 @@ META OPTIONS
 
 OPTIONS
     -f, --file            Source file to read and/or modify, can be omitted if
-                          a file has been set as default with the 'set' command.
+                          a fallback has been added (see: --guide).
     -i, --no-icons        Replace nerdfont icons with more portable fallbacks.
 
 COMMANDS
