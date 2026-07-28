@@ -96,13 +96,10 @@ def msg_error(s: str, quit: bool = True, details: bool = True) -> None:
 
 @dataclass
 class Test:
-    shell_cmd: list[str]
+    shell_cmd: str
     name: str
     id: int
     stdout: str = ""
-
-    def shell_cmd_as_str(self) -> str:
-        return " ".join(self.shell_cmd).strip()
 
     def launch_cmd(
             self, total: int = 0, done: int = 0, debug_print: bool = False
@@ -114,9 +111,7 @@ class Test:
         assert SHELL.stdin is not None
         assert SHELL.stdout is not None
 
-        SHELL.stdin.write(
-                f"{self.shell_cmd_as_str()}; printf '\\n{SHELL_STDOUT_MARKER}\\n'\n"
-                )
+        SHELL.stdin.write(f"{self.shell_cmd}; printf '\\n{SHELL_STDOUT_MARKER}\\n'\n")
         SHELL.stdin.flush()
 
         for line in SHELL.stdout:
@@ -148,7 +143,7 @@ def retrieve_old_tests() -> list[Test]:
             file = read_file(child)
             tests.append(
                     Test(
-                        shell_cmd=[],
+                        shell_cmd="",
                         name=file[0][:-1],
                         stdout="".join(file[1:]),
                         id=int(child.name),
@@ -163,8 +158,7 @@ def retrieve_new_tests() -> list[Test]:
     tests: list[Test] = []
     for i, l in enumerate(f):
         name, command = l.split("|")
-        test_cmd = command[:-1].split(" ")
-        tests.append(Test(shell_cmd=test_cmd, name=name.strip(), id=i))
+        tests.append(Test(shell_cmd=command.rstrip("\n"), name=name.strip(), id=i))
     return tests
 
 def generate_hash_from_file(file: str) -> str:
@@ -195,10 +189,9 @@ def store_test_results(tests: list[Test]) -> None:
 def cmd_record() -> None:
     """helper - cmd_record()"""
     tests = retrieve_new_tests()
-    [
-            t.launch_cmd(total=len(tests), done=i, debug_print=True)
-            for i, t in enumerate(tests)
-            ]
+    tests_len = len(tests)
+    for i, t in enumerate(tests):
+        t.launch_cmd(total=tests_len, done=i, debug_print=True)
     store_test_results(tests)
     msg_succ(f"new snapshot written in {time_total():.4} sec")
 
@@ -244,7 +237,7 @@ def compare_results_table(results: list[tuple[bool, Test]]) -> None:
 
     for failed, test in results:
         status = f"{COL_RED}{FIELD}F" if failed else f"{COL_GREEN}S"
-        print(f"{status:<10} {test.name:<26}{COL_RESET}{test.shell_cmd_as_str()}")
+        print(f"{status:<10} {test.name:<26}{COL_RESET}{test.shell_cmd}")
     print(f"\nFailure rate  : {failure_rate}%")
     print(f"Total time    : {time_total():.4} sec")
     print(DIV)
@@ -252,10 +245,10 @@ def compare_results_table(results: list[tuple[bool, Test]]) -> None:
 def cmd_compare() -> None:
     new_tests = retrieve_new_tests()
     old_tests = retrieve_old_tests()
-    [
-            nt.launch_cmd(total=len(new_tests), done=i, debug_print=True)
-            for i, nt in enumerate(new_tests)
-            ]
+
+    new_tests_len = len(new_tests)
+    for i, nt in enumerate(new_tests):
+        nt.launch_cmd(total=new_tests_len, done=i, debug_print=True)
 
     results: list[tuple[bool, Test]] = []
 
