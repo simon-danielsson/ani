@@ -1,9 +1,7 @@
-ani version long
-========================================
-ani v1.0.5 (6beadcb7)
-Anime progress tracker for the CLI.
-https://github.com/simon-danielsson/ani
-----------------------------------------
-© 2026 Simon Danielsson - MIT License
-Contact: contact@simondanielsson.se
-========================================
+ani stats
+[32m█[0m[32m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[31m█[0m[31m█[0m[31m█[0m[0m█[0m[0m█[0m[0m█[0m
+[32mWatching       [0m 11             Ep. watched    5373
+[34mCompleted      [0m 304            Days           93.3
+[33mOn hold        [0m 2              Tot. entries   351
+[31mDropped        [0m 17             Avg. score     6.43
+[0mPlan to watch  [0m 17             Fav. tag       #action

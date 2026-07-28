@@ -13,9 +13,6 @@ ani help short | ../run.py -- -h
 ani help long | ../run.py -- --help
 # cli - guide
 ani guide | ../run.py -- --guide
-# cli - version
-ani version short | ../run.py -- -v
-ani version long | ../run.py -- --version
 # cli - search
 ani search | ../run.py -- --file ./test.ani search piece
 # cli - stats
