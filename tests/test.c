@@ -35,7 +35,7 @@ static void t_expand_home_path(void) {
 
 // utils.h
 static void t_read_entire_file(void) {
-    FILE *f = fopen("./input.ani", "r");
+    FILE *f = fopen("./test.ani", "r");
     char *content = read_entire_file(f);
     printf("%s\n", content);
     free(content);

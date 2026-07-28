@@ -34,7 +34,6 @@ C_STD = "c99"  # c standard used to compile program
 
 AUTO_RUN = True  # if true, run binary after compile
 AUTO_RUN_ARGS = []  # program args used at auto run
-PRINT_COMPILE_DETAILS = True  # build-type, compiler, compile time
 
 C_FLAGS_DEBUG = [
         "-O0",
@@ -66,6 +65,7 @@ class Args:
     runargs: list[str]
     build: BuildType = BuildType.Debug
     help: bool = False
+    print_details: bool = False
     prog: str = ""
     test_n: int = 0
 
@@ -152,7 +152,7 @@ def build(a: Args) -> None:
         compiler = "gcc"
         output = run_cmd([compiler] + build_cmd)
 
-    if PRINT_COMPILE_DETAILS:
+    if a.print_details == True:
         print(f"{a.build.value} via " f"{compiler} ({C_STD}) {output.exec_time}")
 
     if AUTO_RUN and a.build != BuildType.Install:
@@ -187,6 +187,8 @@ def get_args() -> Args:
     while count < len(sys.argv):
         arg = sys.argv[count]
         match arg:
+            case d if d.startswith("--details"):  # --test=#
+                a.print_details = True
             case t if t.startswith("--test="):  # --test=#
                 a.test_n = int(arg.split("=", 1)[1])
             case runarg if runarg.startswith("--"):
