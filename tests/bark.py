@@ -55,6 +55,16 @@ COL_GREEN = "\033[1;32m"
 COL_BLUE = "\033[1;34m"
 COL_RESET = "\033[0m"
 
+SHELL_STDOUT_MARKER = "!!!__BARK_CMD_END__!!!"
+SHELL = subprocess.Popen(
+        ["bash", "--noprofile", "--norc"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+        )
+
 _HELP_STR = """
 Usage: ./bark.py <flag|cmd>
 
@@ -98,22 +108,21 @@ class Test:
             self, total: int = 0, done: int = 0, debug_print: bool = False
             ) -> None:
         """helper - cmd_record()"""
-        try:
-            if debug_print:
-                msg_info(f"processing {done+1}/{total}: {self.name}")
-            self.stdout = subprocess.run(
-                    shell=True,
-                    args=self.shell_cmd_as_str(),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    ).stdout
-        except FileNotFoundError:
-            msg_error(f"file not found '{self.shell_cmd_as_str()}'")
-        except subprocess.CalledProcessError as e:
-            msg_error(
-                    f"failed to execute '{self.shell_cmd_as_str()}': {e}",
-                    )
+        if debug_print:
+            msg_info(f"processing {done+1}/{total}: {self.name}")
+
+        assert SHELL.stdin is not None
+        assert SHELL.stdout is not None
+
+        SHELL.stdin.write(
+                f"{self.shell_cmd_as_str()}; printf '\\n{SHELL_STDOUT_MARKER}\\n'\n"
+                )
+        SHELL.stdin.flush()
+
+        for line in SHELL.stdout:
+            if line.rstrip("\n") == SHELL_STDOUT_MARKER:
+                break
+            self.stdout += line
 
 def read_file(file: str | Path) -> list[str]:
     try:
@@ -284,3 +293,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    SHELL.terminate()
