@@ -1,3 +1,29 @@
 t_read_entire_file()
-No arguments were provided -- run 'ani -h' for more information
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==41250==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000068 (pc 0x000181d101fc bp 0x00016d906410 sp 0x00016d906400 T0)
+==41250==The signal is caused by a READ memory access.
+==41250==Hint: address points to the zero page.
+    #0 0x000181d101fc in flockfile+0x1c (libsystem_c.dylib:arm64e+0x101fc)
+    #1 0x000181d144f8 in fseek+0x48 (libsystem_c.dylib:arm64e+0x144f8)
+    #2 0x0001024f8940 in get_fsize+0x98 (ani_test_v1.0.5_4494a3d:arm64+0x100000940)
+    #3 0x0001024f8bac in read_entire_file+0x114 (ani_test_v1.0.5_4494a3d:arm64+0x100000bac)
+    #4 0x00010251ed20 in t_read_entire_file+0x28 (ani_test_v1.0.5_4494a3d:arm64+0x100026d20)
+    #5 0x00010251e6c4 in _run_test+0x308 (ani_test_v1.0.5_4494a3d:arm64+0x1000266c4)
+    #6 0x0001024fa580 in main+0x1b0 (ani_test_v1.0.5_4494a3d:arm64+0x100002580)
+    #7 0x000181ab3dfc in start+0x1b4c (dyld:arm64e+0x1fdfc)
+
+==41250==Register values:
+ x[0] = 0x00000001edff1f2c   x[1] = 0x000000016d9063e0   x[2] = 0x0000000181e6db6c   x[3] = 0x000000016d907438  
+ x[4] = 0x0000000000000001   x[5] = 0x0000000000000020   x[6] = 0x0000000000000063   x[7] = 0x0000000000000000  
+ x[8] = 0x00000001edff1f2c   x[9] = 0x00000001edffe520  x[10] = 0x000000702db40c9c  x[11] = 0x00000001024f8a98  
+x[12] = 0x000000016d9064f0  x[13] = 0x000000016d9064e8  x[14] = 0x000000016d9064e0  x[15] = 0x0000000000000000  
+x[16] = 0x0000000181e2e618  x[17] = 0x00000001ef62eed0  x[18] = 0x0000000000000000  x[19] = 0x0000000000000000  
+x[20] = 0x0000000000000002  x[21] = 0x0000000000000000  x[22] = 0x0000000000000002  x[23] = 0x00000001edff3760  
+x[24] = 0x0000000000000001  x[25] = 0x000000016d906e20  x[26] = 0x00000001edff3770  x[27] = 0x0000000000000000  
+x[28] = 0x0000000000000000     fp = 0x000000016d906410     lr = 0x0000000181d101f8     sp = 0x000000016d906400  
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV (libsystem_c.dylib:arm64e+0x101fc) in flockfile+0x1c
+==41250==ABORTING
+bash: line 4: 41250 Abort trap: 6              ../run.py test --test=4
 
