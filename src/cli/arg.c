@@ -85,7 +85,7 @@ Arg Arg_new(const char *s, ArgType t) {
     return a;
 }
 
-typedef struct {
+typedef struct ArgIter {
     char **begin;   // first argument (argv+1)
     char **current; // next item to return
     char **end;     // one-past-last

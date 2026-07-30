@@ -27,7 +27,7 @@ struct AniFileStats {
   char *fav_tag;
 };
 
-typedef struct {
+typedef struct AniEntrySearchResult {
   int entry_id;
   char *text_fields_concat;
 } AniEntrySearchResult;

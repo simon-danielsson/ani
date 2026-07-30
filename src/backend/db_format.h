@@ -27,7 +27,7 @@ enum AniCurrentFieldState {
   _FIELDS_N
 };
 
-typedef struct {
+typedef struct AniEntry {
   char *name;
   char *note;  // NOTE: can also be NULL
   char **tags; // NOTE: can also be NULL
@@ -41,7 +41,7 @@ typedef struct {
   bool updated_this_cycle;
 } AniEntry;
 
-typedef struct {
+typedef struct AniFile {
   AniEntry *entries;
   size_t size;
   size_t capacity;

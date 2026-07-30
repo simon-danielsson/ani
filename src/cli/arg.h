@@ -41,12 +41,12 @@ typedef enum {
 
 char *arg_as_str(ArgType at);
 
-typedef struct {
+typedef struct Arg {
   ArgType t;
   char *s;
 } Arg;
 
-typedef struct {
+typedef struct Args {
   Arg *items;
   size_t size;
   size_t capacity;

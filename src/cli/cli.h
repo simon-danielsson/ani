@@ -17,7 +17,7 @@ typedef enum {
 
 char *ansi_from_color(Color c);
 
-typedef struct {
+typedef struct StatsBarField {
   AniEntryStatus stat;
   int total;
   int scaled_total;
