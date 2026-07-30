@@ -1,18 +1,52 @@
-#include "db_format.h"
+#ifndef BACKEND_H
+#define BACKEND_H
 
-/*
-   Oh one command I missed is a "stats" command that compiles the list into some
-   global statistics. Stuff like an approximated the combined amount of days of
-   watch time, episodes watched, number of shows completed, dropped, currently
-   watching, total number of entries, average score and so on
+#include "../main.h"
 
-   - combined appr. amount of watch time (in days)
-   - n of ep watched
-   - shows (i.e entries) completed, dropped, currently watching, on hold and
-   plan-to-watch
-   - total number of entries
-   - average score
-*/
+#define TAG_TMP_BUFF 96
+#define TAG_MAX_N 4
+
+typedef enum {
+  WATCHING = 0,
+  COMPLETED = 1,
+  ON_HOLD = 2,
+  DROPPED = 3,
+  PLAN_TO_WATCH = 4
+} AniEntryStatus;
+
+enum AniCurrentFieldState {
+  ID,
+  NAME,
+  YEAR,
+  TAGS,
+  SCORE,
+  EP_TOT,
+  EP_WAT,
+  NOTE,
+  STAT,
+  DATEUPD,
+  _FIELDS_N
+};
+
+typedef struct AniEntry {
+  char *name;
+  char *note;  // NOTE: can also be NULL
+  char **tags; // NOTE: can also be NULL
+  int id;
+  int score;
+  int ep_total;
+  int ep_watched;
+  AniEntryStatus status;
+  time_t released;
+  time_t last_updated;
+  bool updated_this_cycle;
+} AniEntry;
+
+typedef struct AniFile {
+  AniEntry *entries;
+  size_t size;
+  size_t capacity;
+} AniFile;
 
 struct AniFileStats {
   int total_completed;
@@ -31,6 +65,17 @@ typedef struct AniEntrySearchResult {
   int entry_id;
   char *text_fields_concat;
 } AniEntrySearchResult;
+
+// io.h
+
+char **get_tags_from_field(char *s);
+
+void AniFile_push_AniEntry(AniFile *af, AniEntry e);
+AniFile read_anifile(FILE *f);
+void write_anifile(AniFile *af, FILE *f);
+char *AniEntryStatus_to_str(AniEntryStatus aes);
+
+// api.h
 
 void AniFile_get_stats(AniFile *af, struct AniFileStats *a);
 
@@ -70,3 +115,4 @@ int AniEntry_qsort_by_updated(const void *a, const void *b);
 int AniEntry_qsort_by_released(const void *a, const void *b);
 int AniEntry_qsort_by_progress(const void *a, const void *b);
 void AniEntry_reverse_array(AniEntry **entries, size_t n);
+#endif

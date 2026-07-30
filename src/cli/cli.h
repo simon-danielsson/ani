@@ -1,7 +1,7 @@
 #ifndef CLI_H
 #define CLI_H
 
-#include "../backend/db_format.h"
+#include "../backend/backend.h"
 #include "arg.h"
 
 #define PROMPT ">>> "

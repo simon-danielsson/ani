@@ -1,7 +1,5 @@
 #include "main.h"
-#include "backend/api.h"
-#include "backend/db_format.h"
-#include "backend/io.h"
+#include "backend/backend.h"
 #include "cli/arg.h"
 #include "cli/cli.h"
 #include "utils.h"

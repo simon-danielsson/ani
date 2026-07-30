@@ -1,7 +1,6 @@
-#include "api.h"
 #include "../cli/arg.h"
 #include "../utils.h"
-#include "db_format.h"
+#include "backend.h"
 
 char *field_icon(enum AniCurrentFieldState acfs) {
     char *icons_dev[10] = {"", "󰷝", "",  "", "",

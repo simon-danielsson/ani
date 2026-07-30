@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "backend/db_format.h"
+#include "backend/backend.h"
 #include "main.h"
 
 #define MORE_INFO "run 'ani -h' for more information"
