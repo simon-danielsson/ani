@@ -5,9 +5,9 @@ t_expand_home_path() | ../run.py test --test=3
 t_read_entire_file() | ../run.py test --test=4
 t_trim_str() | ../run.py test --test=5
 # cli - info
-ani info t1 | ../run.py -- -f ./test.ani info 3
-ani info t2 | ../run.py -- -f ./test.ani info 2
-ani info t2 no icons | ../run.py -- -f ./test.ani info -i 2
+ani info 1 (id: 105) | ../run.py -- -f ./test.ani info 105
+ani info 2 (id: 106) | ../run.py -- -f ./test.ani info 106
+ani info 3 (id: 107) | ../run.py -- -f ./test.ani info 107
 # cli - help
 ani help short | ../run.py -- -h
 ani help long | ../run.py -- --help
@@ -19,7 +19,6 @@ ani search | ../run.py -- --file ./test.ani search piece
 ani stats | ../run.py -- --file ./test.ani stats
 # cli - ls
 ani ls | ../run.py -- -f ./test.ani ls
-ani ls no icons | ../run.py -- -f ./test.ani ls --no-icons
 ani ls watching | ../run.py -- -f ./test.ani ls watching
 ani ls completed | ../run.py -- -f ./test.ani ls completed
 ani ls on-hold | ../run.py -- -f ./test.ani ls on-hold

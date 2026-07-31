@@ -79,12 +79,12 @@ void Arg_init_all(void) {
 
     // commands
     args[4] = _Arg_create(C_SEARCH, "search", NULL, cmd_search, true);
-    args[5] = _Arg_create(C_LIST, "list", "ls", cmd_list, true);
+    args[5] = _Arg_create(C_LIST, "ls", "list", cmd_list, true);
     args[6] = _Arg_create(C_ADD, "add", NULL, cmd_add, true);
     args[7] = _Arg_create(C_EDIT, "edit", NULL, cmd_edit, true);
-    args[8] = _Arg_create(C_REMOVE, "remove", "rm", cmd_rm, true);
+    args[8] = _Arg_create(C_REMOVE, "rm", "remove", cmd_rm, true);
     args[9] = _Arg_create(C_INFO, "info", NULL, cmd_info, true);
-    args[10] = _Arg_create(C_REC, "rec", NULL, cmd_rec, false);
+    args[10] = _Arg_create(C_REC, "rec", "recommend", cmd_rec, false);
     args[11] = _Arg_create(C_STATS, "stats", "summary", cmd_stats, false);
     args[12] = _Arg_create(C_EP, "ep", "episode", cmd_ep, false);
 
