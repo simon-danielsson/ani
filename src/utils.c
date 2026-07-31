@@ -108,3 +108,42 @@ char *expand_home_path(const char *path) {
 
     return expanded;
 }
+
+FILE *get_anifile_handle(char *filepath) {
+#define FAILED_TO_OPEN                                                         \
+    printf("Error: failed to open file -- %s", MORE_INFO);                       \
+    exit(EXIT_FAILURE);
+
+    FILE *handle = NULL;
+
+    if (filepath[0]) {
+        handle = fopen(filepath, "r+");
+    }
+    if (!handle) {
+        FILE *f_fallback = NULL;
+        char tmp[256];
+        {
+            char *ani_loc = ".ani";
+            char *home = getenv("HOME");
+            snprintf(tmp, sizeof(tmp), "%s/%s", home, ani_loc);
+            f_fallback = fopen(tmp, "r+");
+        }
+
+        if (!f_fallback) {
+            printf("Missing .ani file: %s\n", tmp);
+            printf("This is required to run ani without a file flag...\n");
+            FAILED_TO_OPEN
+        }
+
+        // retrieve path of fallback file within HOME/.ani
+        char *fallback_file = get_set_ani_path(f_fallback);
+
+        handle = fopen(fallback_file, "r+");
+        if (!handle) {
+            printf("Error: missing or broken fallback '%s' inside '%s'\n",
+                    fallback_file, tmp);
+            FAILED_TO_OPEN
+        }
+    }
+    return handle;
+}

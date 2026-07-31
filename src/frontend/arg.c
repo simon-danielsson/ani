@@ -1,238 +1,203 @@
-#include "../static/guide.h"
-#include "../static/help.h"
+#include "../main.h"
 #include "../utils.h"
 #include "frontend.h"
 
-bool USE_DEVICONS = true;
+/*
+   TODO: make it clear to user in help/guide text that only two sorting
+   flags can be active at any one time, any other ones added will be
+   silently ignored
+   */
 
-char *arg_as_str(ArgType at) {
-    static char *args[_ARGS_N] = {
-        [F_HELP] = "-h",
-        [F_HELP_LONG] = "--help",
-        [F_GUIDE] = "--guide",
-        [F_FILE] = "-f",
-        [F_FILE_LONG] = "--file",
-        [F_ICONS] = "-i",
-        [F_ICONS_LONG] = "--no-icons",
-        [C_ADD] = "add",
-        [C_EP] = "ep",
-        [C_EDIT] = "edit",
-        [C_INFO] = "info",
-        [C_RM] = "rm",
-        [C_STATS] = "stats",
-        [C_REC] = "rec",
-        [C_SEARCH] = "search",
-        [C_LIST] = "list",
-        [C_LS] = "ls",
-        [C_LIST_WATCH] = "watching",
-        [C_LIST_COMPL] = "completed",
-        [C_LIST_ONHOL] = "on-hold",
-        [C_LIST_DROPP] = "dropped",
-        [C_LIST_PLANN] = "planned",
-        [F_SORT_REVR] = "-r",
-        [F_SORT_NAME] = "-n",
-        [F_SORT_SCOR] = "-s",
-        [F_SORT_UPDA] = "-u",
-        [F_SORT_RELE] = "-y",
-        [F_SORT_PROG] = "-p",
-        [F_VERS] = "-v",
-        [F_VERS_LONG] = "--version",
-    };
-    return args[at];
+/*
+   reference for how to structure this nicely
+   timestamp: ~ 01:12:00
+   https://www.youtube.com/watch?v=443UNeGrFoM
+   */
+
+static char *ArgType_sorting_flag_to_str(const ArgType at) {
+    switch (at) {
+        case SF_REVERSE:
+            return "reverse";
+        case SF_NAME:
+            return "name";
+        case SF_PROGRESS:
+            return "progress";
+        case SF_RELEASED:
+            return "released";
+        case SF_SCORE:
+            return "score";
+        default:
+            return "updated";
+    }
 }
 
-Args *Args_init(void) {
-    Args *container = malloc(sizeof(Args));
-    if (!container) {
-        panic("memory allocation failed");
-    }
-
-    static int init_size = 8;
-
-    container->items = malloc(init_size * sizeof(Arg));
-    container->size = 0;
-    container->capacity = init_size;
-
-    if (!container->items) {
-        free(container);
-        panic("memory allocation failed");
-    }
-    return container;
-}
-
-void Args_push_arg(Args *args, Arg a) {
-    if (args->size == args->capacity) {
-        size_t new_capacity = args->capacity << 1;
-        Arg *new_items = realloc(args->items, new_capacity * sizeof(Arg));
-        if (!new_items) {
-            panic("out of memory\n");
-        }
-        args->items = new_items;
-        args->capacity = new_capacity;
-    }
-    args->items[args->size++] = a;
-}
-
-Arg Arg_new(const char *s, ArgType t) {
+static Arg _Arg_create(ArgType t, const char *n1, const char *n2, void *cmd,
+        bool has_sub) {
     Arg a = {0};
     a.t = t;
-    if (s) {
-        a.s = malloc((strlen(s) + 1) * sizeof(char));
-        if (a.s) {
-            strcpy(a.s, s);
-        }
-    }
+    a.provided = false;
+    a.is_sort_flag = false;
+    a.names[0] = n1;
+    a.names[1] = n2;
+    a.cmd = cmd;
+    a.has_sub = has_sub;
     return a;
 }
 
-typedef struct ArgIter {
-    char **begin;   // first argument (argv+1)
-    char **current; // next item to return
-    char **end;     // one-past-last
-} ArgIter;
-
-ArgIter ArgIter_init(int argc, char **argv) {
-    char **first = argv + 1;
-    return (ArgIter){.begin = first, .current = first, .end = argv + argc};
+static Arg _Arg_create_sort_flag(ArgType t, const char *n1) {
+    Arg a = {0};
+    a.t = t;
+    a.provided = false;
+    a.is_sort_flag = true;
+    a.names[0] = n1;
+    a.names[1] = NULL;
+    a.cmd = NULL;
+    a.has_sub = false;
+    return a;
 }
 
-bool ArgIter_has_next(const ArgIter *it) { return it->current < it->end; }
-
-char *ArgIter_next(ArgIter *it) {
-    return ArgIter_has_next(it) ? *it->current++ : NULL;
+static Arg _Arg_create_cmd(ArgType t, const char *n1, void *cmd, bool has_sub) {
+    Arg a = {0};
+    a.t = t;
+    a.provided = false;
+    a.is_sort_flag = false;
+    a.names[0] = n1;
+    a.names[1] = NULL;
+    a.cmd = cmd;
+    a.has_sub = has_sub;
+    return a;
 }
 
-#define CMD_PARSE_ERR(not_provided)                                            \
-    do {                                                                         \
-        if (!ArgIter_has_next(&it)) {                                              \
-            fprintf(stderr, "No %s provided after '%s' -- %s\n", (not_provided),     \
-                    arg, MORE_INFO);                                                 \
-            exit(EXIT_FAILURE);                                                      \
-        }                                                                          \
-    } while (0)
+static Arg args[ARG_COUNT];
 
-Args *parse_args(int argc, char **argv) {
+void Arg_init_all(void) {
+    // flags
+    args[0] = _Arg_create(F_FILE, "--file", "-f", NULL, true);
+    args[1] = _Arg_create(F_HELP, "--help", "-h", flag_help, false);
+    args[2] = _Arg_create(F_VERSION, "--version", "-v", flag_version, false);
+    args[3] = _Arg_create(F_GUIDE, "--guide", NULL, flag_guide, false);
+
+    // commands
+    args[4] = _Arg_create(C_SEARCH, "search", NULL, cmd_search, true);
+    args[5] = _Arg_create(C_LIST, "list", "ls", cmd_list, true);
+    args[6] = _Arg_create(C_ADD, "add", NULL, cmd_add, true);
+    args[7] = _Arg_create(C_EDIT, "edit", NULL, cmd_edit, true);
+    args[8] = _Arg_create(C_REMOVE, "remove", "rm", cmd_rm, true);
+    args[9] = _Arg_create(C_INFO, "info", NULL, cmd_info, true);
+    args[10] = _Arg_create(C_REC, "rec", NULL, cmd_rec, false);
+    args[11] = _Arg_create(C_STATS, "stats", "summary", cmd_stats, false);
+    args[12] = _Arg_create(C_EP, "ep", "episode", cmd_ep, false);
+
+    // sorting flags
+    args[13] = _Arg_create_sort_flag(SF_NAME, "-n");
+    args[14] = _Arg_create_sort_flag(SF_PROGRESS, "-p");
+    args[15] = _Arg_create_sort_flag(SF_RELEASED, "-y");
+    args[16] = _Arg_create_sort_flag(SF_REVERSE, "-r");
+    args[17] = _Arg_create_sort_flag(SF_SCORE, "-s");
+    args[18] = _Arg_create_sort_flag(SF_UPDATED, "-u");
+}
+
+bool Arg_parse(uint argc, char **argv) {
     if (argc < 2) {
         printf("No arguments were provided -- %s\n", MORE_INFO);
-        exit(EXIT_FAILURE);
+        return false;
     }
 
-    ArgIter it = ArgIter_init(argc, argv);
-    Args *args = Args_init();
+    uint i = 1;
+    while (i < argc) {
+        for (int j = 0; j < ARG_COUNT; j++) {
+            bool matched = false;
 
-    while (ArgIter_has_next(&it)) {
-        char *arg = ArgIter_next(&it);
-
-        if (strcmp(arg, arg_as_str(F_HELP)) == 0 ||
-                (strcmp(arg, arg_as_str(F_HELP_LONG)) == 0)) {
-            for (size_t i = 0; i < help_txt_len; i++) {
-                printf("%c", help_txt[i]);
+            if ((args[j].names[0] && !matched) &&
+                    (strcmp(argv[i], args[j].names[0]) == 0)) {
+                args[j].provided = true;
+                matched = true;
             }
-            exit(EXIT_SUCCESS);
-        }
 
-        if (strcmp(arg, arg_as_str(F_VERS)) == 0 ||
-                (strcmp(arg, arg_as_str(F_VERS_LONG)) == 0)) {
-            printf("========================================\n");
-            printf("%s %s (%.8s)\n", ENV_NAME, ENV_GITTAG, ENV_GITHASH);
-            printf("Anime progress tracker for the CLI.\n");
-            printf("%s\n", ENV_REPO);
-            printf("----------------------------------------\n");
-            printf("© 2026 %s - MIT License\n", ENV_AUTHOR);
-            printf("Contact: %s\n", ENV_CONTACT);
-            printf("========================================\n");
-            exit(EXIT_SUCCESS);
-
-        } else if (strcmp(arg, arg_as_str(F_GUIDE)) == 0) {
-            for (size_t i = 0; i < guide_txt_len; i++) {
-                printf("%c", guide_txt[i]);
+            if ((args[j].names[1] && !matched) &&
+                    (strcmp(argv[i], args[j].names[1]) == 0)) {
+                args[j].provided = true;
+                matched = true;
             }
-            exit(EXIT_SUCCESS);
 
-        } else if (strcmp(arg, arg_as_str(F_ICONS)) == 0 ||
-                (strcmp(arg, arg_as_str(F_ICONS_LONG)) == 0)) {
-            // Args_push_arg(args, Arg_new(NULL, F_ICONS));
-            USE_DEVICONS = false;
+            if (!matched) {
+                continue;
+            }
 
-        } else if (strcmp(arg, arg_as_str(F_FILE)) == 0 ||
-                (strcmp(arg, arg_as_str(F_FILE_LONG)) == 0)) {
-            CMD_PARSE_ERR("path");
-            Args_push_arg(args, Arg_new(ArgIter_next(&it), F_FILE));
-
-        } else if (strcmp(arg, arg_as_str(C_EP)) == 0) {
-            CMD_PARSE_ERR("id");
-            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_EP));
-
-        } else if (strcmp(arg, arg_as_str(C_RM)) == 0) {
-            CMD_PARSE_ERR("id");
-            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_RM));
-
-        } else if (strcmp(arg, arg_as_str(C_SEARCH)) == 0) {
-            CMD_PARSE_ERR("search term");
-            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_SEARCH));
-
-        } else if (strcmp(arg, arg_as_str(C_REC)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_REC));
-
-        } else if (strcmp(arg, arg_as_str(C_INFO)) == 0) {
-            CMD_PARSE_ERR("id");
-            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_INFO));
-
-        } else if (strcmp(arg, arg_as_str(C_EDIT)) == 0) {
-            CMD_PARSE_ERR("id");
-            Args_push_arg(args, Arg_new(ArgIter_next(&it), C_EDIT));
-
-        } else if (strcmp(arg, arg_as_str(C_ADD)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_ADD));
-
-        } else if (strcmp(arg, arg_as_str(C_STATS)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_STATS));
-
-            // ls command types
-        } else if (strcmp(arg, arg_as_str(C_LIST)) == 0 ||
-                strcmp(arg, arg_as_str(C_LS)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_LIST));
-        } else if (strcmp(arg, arg_as_str(C_LIST_COMPL)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_LIST_COMPL));
-        } else if (strcmp(arg, arg_as_str(C_LIST_DROPP)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_LIST_DROPP));
-        } else if (strcmp(arg, arg_as_str(C_LIST_ONHOL)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_LIST_ONHOL));
-        } else if (strcmp(arg, arg_as_str(C_LIST_PLANN)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_LIST_PLANN));
-        } else if (strcmp(arg, arg_as_str(C_LIST_WATCH)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, C_LIST_WATCH));
-
-            // sorting flags
-        } else if (strcmp(arg, arg_as_str(F_SORT_NAME)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, F_SORT_NAME));
-        } else if (strcmp(arg, arg_as_str(F_SORT_PROG)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, F_SORT_PROG));
-        } else if (strcmp(arg, arg_as_str(F_SORT_RELE)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, F_SORT_RELE));
-        } else if (strcmp(arg, arg_as_str(F_SORT_REVR)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, F_SORT_REVR));
-        } else if (strcmp(arg, arg_as_str(F_SORT_SCOR)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, F_SORT_SCOR));
-        } else if (strcmp(arg, arg_as_str(F_SORT_UPDA)) == 0) {
-            Args_push_arg(args, Arg_new(NULL, F_SORT_UPDA));
-
-        } else {
-            printf("Unknown argument '%s' -- %s\n", arg, MORE_INFO);
-            exit(EXIT_FAILURE);
+            if (args[j].provided && args[j].has_sub) {
+                int k = 0;
+                while (i + 1 < argc && k < ARG_MAX_PARAM - 1) {
+                    if (argv[i + 1][0] == '-') {
+                        break;
+                    }
+                    i++;
+                    args[j].param[k++] = argv[i];
+                }
+                args[j].param[k] = NULL;
+            }
         }
+        i++;
     }
-
-    return args;
+    return true;
 }
 
-// returns NULL if arg can't be found
-Arg *Args_find_arg(const Args *args, ArgType t1, ArgType t2) {
+PrgVars PrgVars_init() {
+    PrgVars pv = {0};
+    pv.cmd = NULL;
+    memset(pv.filepath, 0, sizeof(char) * 128);
+    pv.params = NULL;
+    pv.sort_flags[0] = NULL;
+    pv.sort_flags[1] = NULL;
+    pv.sort_flags_count = 0;
+    return pv;
+}
 
-    for (size_t i = 0; i < args->size; i++) {
-        if (args->items[i].t == t1 || args->items[i].t == t2) {
-            return &args->items[i];
+void PrgVars_setup(PrgVars *pv) {
+    bool cmd_chosen = false;
+
+    for (uint i = 0; i < ARG_COUNT; i++) {
+        if (args[i].provided) {
+
+            if (args[i].is_sort_flag && pv->sort_flags_count < 2) {
+                pv->sort_flags[pv->sort_flags_count] = &args[i].t;
+                pv->sort_flags_count++;
+                /*
+                   TODO: Sorting is soft-capped at two flags because it simply doesn't
+                   make sense to have more than two. You sort by date, name, progress or
+                   whichever flag you want, and then you add a second flag "-r" to
+                   reverse whatever sort you wanted.
+
+                   But at the moment I am not checking whether double sorting flags have
+                   been added or if double reverse flags have been added etc. This setup
+                   function should only accept 2 sorting flags:
+                   1. a sort flag
+                   2. an optional reverse flag
+                   */
+
+            } else if (args[i].t == F_FILE) {
+                if (args[i].param[0]) {
+                    strcpy(pv->filepath, args[i].param[0]);
+                }
+            } else if (args[i].cmd != NULL && !cmd_chosen) {
+                cmd_chosen = true;
+                pv->cmd = args[i].cmd;
+                pv->params = args[i].param;
+            }
         }
     }
-    return NULL;
+}
+
+void PrgVars_debug_print(PrgVars *pv) {
+    printf("----- DEBUG PrgVars -----\n\n");
+
+    printf("filepath: %s\n", pv->filepath);
+    char *par = *pv->params;
+    for (uint i = 0; par != NULL; i++) {
+        printf("param: %s\n", par++);
+    }
+    for (size_t i = 0; i < pv->sort_flags_count; i++) {
+        printf("sf: %s\n", ArgType_sorting_flag_to_str(*pv->sort_flags[i]));
+    }
+
+    printf("\n-------------------------\n");
 }

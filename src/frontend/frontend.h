@@ -4,58 +4,57 @@
 #include "../backend/backend.h"
 #include "../main.h"
 
-extern bool USE_DEVICONS;
-
 typedef enum {
+  // flags
   F_HELP,
-  F_HELP_LONG,
+  F_VERSION,
   F_GUIDE,
   F_FILE,
-  F_FILE_LONG,
-  F_ICONS,
-  F_ICONS_LONG,
+
+  // commands
+  C_SEARCH,
+  C_LIST,
   C_ADD,
   C_EP,
   C_EDIT,
   C_INFO,
-  C_RM,
+  C_REMOVE,
   C_STATS,
   C_REC,
-  C_SEARCH,
-  C_LIST,
-  C_LS,
-  C_LIST_WATCH,
-  C_LIST_COMPL,
-  C_LIST_ONHOL,
-  C_LIST_DROPP,
-  C_LIST_PLANN,
-  F_SORT_REVR,
-  F_SORT_NAME,
-  F_SORT_SCOR,
-  F_SORT_UPDA,
-  F_SORT_RELE,
-  F_SORT_PROG,
-  F_VERS,
-  F_VERS_LONG,
-  _ARGS_N
+
+  // sorting flags
+  SF_REVERSE,
+  SF_NAME,
+  SF_SCORE,
+  SF_UPDATED,
+  SF_RELEASED,
+  SF_PROGRESS,
 } ArgType;
 
-char *arg_as_str(ArgType at);
+#define ARG_COUNT 19
+#define ARG_MAX_PARAM 6
+
+typedef struct PrgVars PrgVars;
+
+typedef struct PrgVars {
+  char filepath[128];
+  void (*cmd)(AniFile *af, PrgVars *pv);
+  char **params;
+  ArgType *sort_flags[2];
+  size_t sort_flags_count;
+} PrgVars;
 
 typedef struct Arg {
   ArgType t;
-  char *s;
+  bool provided;
+  const char *names[2];
+  bool has_sub; // true if arg needs subcommands/flags
+  bool is_sort_flag;
+  char *param[ARG_MAX_PARAM];
+  void (*cmd)(AniFile *af, PrgVars *pv);
 } Arg;
 
-typedef struct Args {
-  Arg *items;
-  size_t size;
-  size_t capacity;
-} Args;
-
-Args *parse_args(int argc, char **argv);
-
-Arg *Args_find_arg(const Args *args, ArgType t1, ArgType t2);
+char *arg_as_str(ArgType at);
 
 #define PROMPT ">>> "
 
@@ -79,20 +78,29 @@ typedef struct StatsBarField {
 
 #define COULD_NOT_FIND_ENTRY_BY_ID                                             \
   if (!e) {                                                                    \
-    printf("Error: an entry with id '%d' could not be found -- %s", id,        \
-           MORE_INFO);                                                         \
+    printf("Error: an entry with id '%d' could not be found -- %s",            \
+           atoi(pv->params[0]), MORE_INFO);                                    \
     exit(EXIT_FAILURE);                                                        \
   }
 
-void cmd_add(AniFile *af);
-void cmd_ep(AniFile *af, int id);
-void cmd_edit(AniFile *af, int id);
-void cmd_info(AniFile *af, int id);
-void cmd_rm(AniFile *af, int id);
-void cmd_stats(AniFile *af);
-void cmd_rec(AniFile *af);
-void cmd_search(AniFile *af, char *search_term);
-void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
-              ArgType sort_type);
+void Arg_init_all(void);
+bool Arg_parse(uint argc, char **argv);
+PrgVars PrgVars_init();
+void PrgVars_setup(PrgVars *pv);
+void PrgVars_debug_print(PrgVars *pv);
+
+void cmd_add(AniFile *af, PrgVars *pv);
+void cmd_ep(AniFile *af, PrgVars *pv);
+void cmd_edit(AniFile *af, PrgVars *pv);
+void cmd_info(AniFile *af, PrgVars *pv);
+void cmd_rm(AniFile *af, PrgVars *pv);
+void cmd_stats(AniFile *af, PrgVars *pv);
+void cmd_rec(AniFile *af, PrgVars *pv);
+void cmd_search(AniFile *af, PrgVars *pv);
+void cmd_list(AniFile *af, PrgVars *pv);
+
+void flag_guide(AniFile *af, PrgVars *pv);
+void flag_version(AniFile *af, PrgVars *pv);
+void flag_help(AniFile *af, PrgVars *pv);
 
 #endif

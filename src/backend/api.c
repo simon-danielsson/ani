@@ -1,12 +1,10 @@
-#include "../frontend/frontend.h"
 #include "../utils.h"
 #include "backend.h"
 
 char *field_icon(enum AniCurrentFieldState acfs) {
     char *icons_dev[10] = {"", "󰷝", "",  "", "",
         "", "",  "󰎛", "", "󰚰"};
-    char *icons_tty[10] = {"I", "N", "Y", "T", "R", "E", "E", "N", "S", "U"};
-    return USE_DEVICONS ? icons_dev[acfs] : icons_tty[acfs];
+    return icons_dev[acfs];
 }
 
 int AniEntry_qsort_by_progress(const void *a, const void *b) {

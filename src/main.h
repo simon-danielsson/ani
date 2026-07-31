@@ -28,6 +28,10 @@
 #include <string.h>
 #include <time.h>
 
+// types ----------------------------------------------------------------------
+
+typedef uint32_t uint;
+
 // project variables ----------------------------------------------------------
 
 #ifndef ENV_NAME // project name

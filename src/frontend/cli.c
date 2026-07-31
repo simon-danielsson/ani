@@ -1,4 +1,6 @@
 #include "../backend/backend.h"
+#include "../static/guide.h"
+#include "../static/help.h"
 #include "../utils.h"
 #include "frontend.h"
 
@@ -397,69 +399,71 @@ bool prompt_edit(AniEntry *e) {
     return false;
 }
 
-void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
-        ArgType sort_type) {
-
+void cmd_list(AniFile *af, PrgVars *pv) {
     AniEntry **entries = calloc(af->size, sizeof *entries);
-    // AniEntry *entries[af->size];
-    // memset(entries, 0, sizeof(entries));
 
-    AniEntryStatus status;
-    switch (list_type) {
-        case C_LIST_WATCH:
-            AniFile_collect_entries_with_certain_status(af, entries, WATCHING);
-            status = WATCHING;
-            break;
-        case C_LIST_COMPL:
-            AniFile_collect_entries_with_certain_status(af, entries, COMPLETED);
-            status = COMPLETED;
-            break;
-        case C_LIST_ONHOL:
-            AniFile_collect_entries_with_certain_status(af, entries, ON_HOLD);
-            status = ON_HOLD;
-            break;
-        case C_LIST_DROPP:
-            AniFile_collect_entries_with_certain_status(af, entries, DROPPED);
-            status = DROPPED;
-            break;
-        case C_LIST_PLANN:
-            AniFile_collect_entries_with_certain_status(af, entries, PLAN_TO_WATCH);
-            status = PLAN_TO_WATCH;
-            break;
-        default:
-            for (size_t i = 0; i < af->size; ++i) {
-                entries[i] = &af->entries[i];
-            }
-            break;
+    if (pv->params[0] != NULL) {
+        switch (pv->params[0][0]) {
+            case 'w':
+                AniFile_collect_entries_with_certain_status(af, entries, WATCHING);
+                break;
+            case 'c':
+                AniFile_collect_entries_with_certain_status(af, entries, COMPLETED);
+                break;
+            case 'o':
+                AniFile_collect_entries_with_certain_status(af, entries, ON_HOLD);
+                break;
+            case 'd':
+                AniFile_collect_entries_with_certain_status(af, entries, DROPPED);
+                break;
+            case 'p':
+                AniFile_collect_entries_with_certain_status(af, entries, PLAN_TO_WATCH);
+                break;
+        }
+    } else {
+        for (size_t i = 0; i < af->size; ++i) {
+            entries[i] = &af->entries[i];
+        }
     }
 
     if (!entries) {
         printf("No entries with could be found.");
         return;
     }
-    if (sort_type) {
-        switch (sort_type) {
-            case F_SORT_NAME:
-                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_name);
-                break;
-            case F_SORT_SCOR:
-                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_score);
-                break;
-            case F_SORT_UPDA:
-                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_updated);
-                break;
-            case F_SORT_RELE:
-                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_released);
-                break;
-            case F_SORT_PROG:
-                qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_progress);
-                break;
-            default:
-                break;
+
+    bool reverse = false;
+
+    if (pv->sort_flags_count != 0) {
+        for (size_t i = 0; i < pv->sort_flags_count; i++) {
+            if (*pv->sort_flags[i] == (ArgType)SF_REVERSE) {
+                reverse = true;
+            }
+
+            switch (*pv->sort_flags[i]) {
+                case (ArgType)SF_NAME:
+                    qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_name);
+                    break;
+                case (ArgType)SF_SCORE:
+                    qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_score);
+                    break;
+                case (ArgType)SF_UPDATED:
+                    qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_updated);
+                    break;
+                case (ArgType)SF_RELEASED:
+                    qsort(entries, af->size, sizeof(entries[0]),
+                            AniEntry_qsort_by_released);
+                    break;
+                case (ArgType)SF_PROGRESS:
+                    qsort(entries, af->size, sizeof(entries[0]),
+                            AniEntry_qsort_by_progress);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
-    if (reverse_sort) {
+    if (reverse) {
         AniEntry_reverse_array(entries, af->size);
     }
 
@@ -471,8 +475,8 @@ void cmd_list(AniFile *af, ArgType list_type, bool reverse_sort,
     free(entries);
 }
 
-void cmd_edit(AniFile *af, int id) {
-    AniEntry *e = AniFile_find_entry_by_id(af, id);
+void cmd_edit(AniFile *af, PrgVars *pv) {
+    AniEntry *e = AniFile_find_entry_by_id(af, atoi(pv->params[0]));
     COULD_NOT_FIND_ENTRY_BY_ID;
     int prompt_should_quit = false;
     while (!prompt_should_quit) {
@@ -541,7 +545,8 @@ char **prompt_add(const char **q, int n_q) {
     return answers;
 }
 
-void cmd_rm(AniFile *af, int id) {
+void cmd_rm(AniFile *af, PrgVars *pv) {
+    int id = atoi(pv->params[0]);
     AniEntry *e = AniFile_find_entry_by_id(af, id);
     COULD_NOT_FIND_ENTRY_BY_ID;
 
@@ -558,8 +563,8 @@ void cmd_rm(AniFile *af, int id) {
     }
 }
 
-void cmd_ep(AniFile *af, int id) {
-    AniEntry *e = AniFile_find_entry_by_id(af, id);
+void cmd_ep(AniFile *af, PrgVars *pv) {
+    AniEntry *e = AniFile_find_entry_by_id(af, atoi(pv->params[0]));
     COULD_NOT_FIND_ENTRY_BY_ID;
 
     int new_ep = prompt_ep(e->name, e->ep_watched, e->ep_total);
@@ -581,13 +586,13 @@ void cmd_ep(AniFile *af, int id) {
     printf("Updated: %d of %d\n", e->ep_watched, e->ep_total);
 }
 
-void cmd_search(AniFile *af, char *search_term) {
+void cmd_search(AniFile *af, PrgVars *pv) {
     size_t count;
-    int *ids = AniFile_search_for_entries(af, search_term, &count);
+    int *ids = AniFile_search_for_entries(af, pv->params[0], &count);
 
     if (!ids) {
         printf("Could not find anything matching '%s%s%s'!\n", ansi_clr(YELLOW),
-                search_term, ansi_clr(YELLOW));
+                pv->params[0], ansi_clr(YELLOW));
         return;
     }
 
@@ -600,13 +605,13 @@ void cmd_search(AniFile *af, char *search_term) {
     free(ids);
 }
 
-void cmd_info(AniFile *af, int id) {
-    AniEntry *e = AniFile_find_entry_by_id(af, id);
+void cmd_info(AniFile *af, PrgVars *pv) {
+    AniEntry *e = AniFile_find_entry_by_id(af, atoi(pv->params[0]));
     COULD_NOT_FIND_ENTRY_BY_ID;
     AniEntry_pretty_print(e);
 }
 
-void cmd_rec(AniFile *af) {
+void cmd_rec(AniFile *af, PrgVars *_) {
     AniEntry *e = AniFile_find_random_plan_to_watch_entry(af);
     if (!e) {
         printf("Could not find any recommendation for you, sorry!\n");
@@ -614,7 +619,7 @@ void cmd_rec(AniFile *af) {
     AniEntry_pretty_print(e);
 }
 
-void cmd_add(AniFile *af) {
+void cmd_add(AniFile *af, PrgVars *_) {
 #define Q 8
     const char *q[Q] = {
         prompt_field(NAME),   prompt_field(YEAR), prompt_field(EP_TOT),
@@ -721,7 +726,7 @@ void stats_print_statsbar(StatsBarField *fields) {
     }
 }
 
-void cmd_stats(AniFile *af) {
+void cmd_stats(AniFile *af, PrgVars *_) {
 
     struct AniFileStats stats = {0};
     AniFile_get_stats(af, &stats);
@@ -802,4 +807,28 @@ void cmd_stats(AniFile *af) {
     printf("%-15s#%s", "Fav. tag", stats.fav_tag);
 
     printf("\n");
+}
+
+void flag_guide(AniFile *af, PrgVars *pv) {
+    for (size_t i = 0; i < guide_txt_len; i++) {
+        printf("%c", guide_txt[i]);
+    }
+}
+
+void flag_help(AniFile *af, PrgVars *pv) {
+    for (size_t i = 0; i < help_txt_len; i++) {
+        printf("%c", help_txt[i]);
+    }
+}
+
+void flag_version(AniFile *af, PrgVars *pv) {
+    printf("========================================\n");
+    printf("%s %s (%.8s)\n", ENV_NAME, ENV_GITTAG, ENV_GITHASH);
+    printf("Anime progress tracker for the CLI.\n");
+    printf("%s\n", ENV_REPO);
+    printf("----------------------------------------\n");
+    printf("© 2026 %s - MIT License\n", ENV_AUTHOR);
+    printf("Contact: %s\n", ENV_CONTACT);
+    printf("========================================\n");
+    exit(EXIT_SUCCESS);
 }
