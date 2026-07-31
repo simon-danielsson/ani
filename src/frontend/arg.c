@@ -1,7 +1,7 @@
-#include "arg.h"
 #include "../static/guide.h"
 #include "../static/help.h"
 #include "../utils.h"
+#include "frontend.h"
 
 bool USE_DEVICONS = true;
 

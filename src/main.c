@@ -1,7 +1,6 @@
 #include "main.h"
 #include "backend/backend.h"
-#include "cli/arg.h"
-#include "cli/cli.h"
+#include "frontend/frontend.h"
 #include "utils.h"
 
 // located in the users home dir

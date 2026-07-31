@@ -1,7 +1,6 @@
-#include "cli.h"
 #include "../backend/backend.h"
 #include "../utils.h"
-#include "arg.h"
+#include "frontend.h"
 
 #define COL_SHOW_HEADER "\033[4;1m"
 char *ansi_clr(Color c) {
