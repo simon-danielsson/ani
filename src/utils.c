@@ -25,6 +25,14 @@ char *read_entire_file(FILE *f) {
     return content;
 }
 
+size_t char_len_of_int(int i) {
+    size_t len = 1;
+    if (i != 0) {
+        len = floor(log10(abs(i))) + 1;
+    }
+    return len;
+}
+
 bool str_is_empty(const char *s) {
     for (int i = 0; s[i] != '\0'; i++) {
         if (isalpha(s[i])) {

@@ -42,64 +42,183 @@ const char *prompt_field(enum AniCurrentFieldState at) {
     return args[at];
 }
 
+#define HEADER_MAX_WIDTH 44
+#define WIDTH 51
+#define COL_WIDTH WIDTH / 2 - 3
 void AniEntry_pretty_print(AniEntry *e) {
-#define PRETTY_PRN_LINE                                                        \
-    do {                                                                         \
-        printf("\n%-7s", "┊");                                                     \
-    } while (0)
-    // row
-    printf("%-5d", e->id);
-    printf("%s%-79s%s", COL_SHOW_HEADER, e->name, ansi_clr(RESET));
-
-    // row
-    PRETTY_PRN_LINE;
-    printf("%s%s%s %-30s", ansi_clr(BLUE), field_icon(STAT), ansi_clr(RESET),
-            AniEntryStatus_to_str(e->status));
+    // header
     {
-        char tmp[64] = {0};
-        snprintf(tmp, sizeof(tmp), "%d of %d", e->ep_watched, e->ep_total);
-        printf("%s%s %s%-27s", ansi_clr(BLUE), field_icon(EP_TOT), ansi_clr(RESET),
-                tmp);
-    }
-    printf("%s%s%s %d", ansi_clr(BLUE), field_icon(SCORE), ansi_clr(RESET),
-            e->score);
+        size_t header_len = strlen(e->name);
 
-    // row
-    PRETTY_PRN_LINE;
-    printf("%s%s%s", ansi_clr(BLUE), field_icon(TAGS), ansi_clr(RESET));
-    if (e->tags != NULL) {
-        char tmp[128] = {0};
-        for (size_t j = 0; j < TAG_MAX_N; j++) {
-            if (e->tags[j] != NULL) {
-                strncat(tmp, " #", 2);
-                strncat(tmp, e->tags[j], strlen(e->tags[j]) + 1);
-            }
+        int padding;
+        if (header_len > HEADER_MAX_WIDTH) {
+            padding = (WIDTH / 2) - (HEADER_MAX_WIDTH / 2);
+        } else {
+            padding = (WIDTH / 2) - (header_len / 2);
         }
-        printf("%-31s", tmp);
-    } else {
-        printf(" %-30s", "(none)");
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+
+        for (size_t i = 0; i < header_len; i++) {
+            if (i > HEADER_MAX_WIDTH - 2) {
+                printf("…");
+                break;
+            }
+            printf("%c", e->name[i]);
+        }
+        printf("\n");
     }
+
+    printf("┌────────────────────────┬────────────────────────┐\n");
+
+    // id
     {
-        char tmp[32] = {0};
-        format_time_t_year(tmp, 32, &e->released, true);
-        printf("%s%s%s %-27s", ansi_clr(BLUE), field_icon(YEAR), ansi_clr(RESET),
-                tmp);
+        size_t len = 0;
+        printf("│Id");
+
+        size_t id_len = char_len_of_int(e->id);
+        size_t padding = COL_WIDTH - len - id_len;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%d", e->id);
     }
+
+    // score
     {
-        char tmp[32] = {0};
-        format_time_t_year(tmp, 32, &e->last_updated, false);
-        printf("%s%s%s %s", ansi_clr(BLUE), field_icon(DATEUPD), ansi_clr(RESET),
-                tmp);
+        size_t len = 0;
+        printf("│Score");
+
+        size_t id_len = 1;
+        if (e->score != 0) {
+            id_len = floor(log10(abs(e->score))) + 1;
+        }
+        size_t padding = COL_WIDTH - len - id_len - 3;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%d│", e->score);
     }
-    if (e->note) {
-        // row
-        PRETTY_PRN_LINE;
-        printf("%s%s%s %s", ansi_clr(BLUE), field_icon(NOTE), ansi_clr(RESET),
-                e->note);
+
+    printf("\n");
+
+    // status
+    {
+        printf("│Status");
+
+        char *status = AniEntryStatus_to_str(e->status);
+        size_t status_len = strlen(status);
+
+        size_t padding = COL_WIDTH - status_len - 4;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s│", status);
+    }
+
+    // released
+    {
+        printf("Released");
+
+        char tmp[64] = {0};
+        format_time_t_year(tmp, 64, &e->released, true);
+
+        size_t len = strlen(tmp);
+
+        size_t padding = COL_WIDTH - len - 6;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s│", tmp);
+    }
+
+    printf("\n");
+
+    // progress
+    {
+        printf("│Progress");
+
+        size_t ep_w_len = char_len_of_int(e->ep_watched);
+        size_t ep_t_len = char_len_of_int(e->ep_total);
+        size_t padding = COL_WIDTH - 7 - ep_t_len - ep_w_len;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+
+        printf("%d/%d│", e->ep_watched, e->ep_total);
+    }
+
+    // released
+    {
+        printf("Updated");
+
+        char tmp[64] = {0};
+        format_time_t_year(tmp, 64, &e->last_updated, false);
+
+        size_t len = strlen(tmp);
+
+        size_t padding = COL_WIDTH - len - 5;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s│", tmp);
     }
     printf("\n");
 
-#undef PRETTY_PRN_LINE
+    printf("├────────────────────────┴────────────────────────┤\n");
+
+    // tags
+    if (e->tags) {
+        int i = 0;
+        size_t len = 0;
+        printf("│");
+        len += 2;
+        while (e->tags[i]) {
+            if (i > 0) {
+                printf(" ");
+                len += 1;
+            }
+            printf("#%s", e->tags[i]);
+            len += strlen(e->tags[i]) + 1;
+            i++;
+        }
+        size_t padding = WIDTH - len;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("│\n");
+    }
+
+    // note
+    if (e->note) {
+        printf("│");
+        size_t len = strlen(e->note);
+        size_t padding = WIDTH - len - 2;
+        printf("%s", e->note);
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("│\n");
+    }
+
+    printf("└─────────────────────────────────────────────────┘\n");
+    printf("\n");
 }
 
 void AniEntry_prompt_edit_print(AniEntry *e) {

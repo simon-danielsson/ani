@@ -10,6 +10,8 @@ size_t get_fsize(FILE **f);
 
 void panic(const char *s);
 
+size_t char_len_of_int(int i);
+
 char *read_entire_file(FILE *f);
 
 bool str_is_empty(const char *s);
