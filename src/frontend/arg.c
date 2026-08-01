@@ -80,7 +80,7 @@ void Arg_init_all(void) {
     // commands
     args[4] = _Arg_create(C_SEARCH, "search", NULL, cmd_search, true);
     args[5] = _Arg_create(C_LIST, "ls", "list", cmd_list, true);
-    args[6] = _Arg_create(C_ADD, "add", NULL, cmd_add, true);
+    args[6] = _Arg_create(C_ADD, "add", "new", cmd_add, true);
     args[7] = _Arg_create(C_EDIT, "edit", NULL, cmd_edit, true);
     args[8] = _Arg_create(C_REMOVE, "rm", "remove", cmd_rm, true);
     args[9] = _Arg_create(C_INFO, "info", NULL, cmd_info, true);

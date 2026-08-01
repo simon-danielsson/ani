@@ -11,7 +11,7 @@ OPTIONS
                           a fallback has been added (see: --guide).
 
 COMMANDS
-    add                   Add a new entry in an interactive prompt.
+    add, new              Add a new entry in an interactive prompt.
     ep, episode <id>      Change episode progress in an interactive prompt.
                           If episode number chosen is more or equal to the total
                           number of episodes of the entry, its status will
