@@ -67,7 +67,7 @@ void AniEntry_pretty_print(AniEntry *e) {
                 printf("…");
                 break;
             }
-            printf("%c", e->name[i]);
+            printf("%s%c%s", COL_SHOW_HEADER, e->name[i], ansi_clr(RESET));
         }
         printf("\n");
     }
@@ -86,13 +86,14 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%d", e->id);
+        printf("%s%d%s", ansi_clr(BLUE), e->id, ansi_clr(RESET));
     }
+    printf("│");
 
     // score
     {
         size_t len = 0;
-        printf("│Score");
+        printf("Score");
 
         size_t scr_len = 1;
         if (e->status != PLAN_TO_WATCH) {
@@ -107,11 +108,16 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        e->status != PLAN_TO_WATCH ? printf("%d", e->score) : printf("-");
-        printf("│");
+        printf("%s", ansi_clr(BLUE));
+        if (e->status != PLAN_TO_WATCH) {
+            printf("%d", e->score);
+        } else {
+            printf("-");
+        }
+        printf("%s", ansi_clr(RESET));
     }
 
-    printf("\n");
+    printf("│\n");
 
     // status
     {
@@ -126,8 +132,9 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s│", status);
+        printf("%s%s%s", ansi_clr(BLUE), status, ansi_clr(RESET));
     }
+    printf("│");
 
     // released
     {
@@ -144,10 +151,10 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s│", tmp);
+        printf("%s%s%s", ansi_clr(BLUE), tmp, ansi_clr(RESET));
     }
 
-    printf("\n");
+    printf("│\n");
 
     // progress
     {
@@ -166,12 +173,15 @@ void AniEntry_pretty_print(AniEntry *e) {
             padding--;
         }
 
+        printf("%s", ansi_clr(BLUE));
         if (e->status != PLAN_TO_WATCH) {
-            printf("%d/%d│", e->ep_watched, e->ep_total);
+            printf("%d/%d", e->ep_watched, e->ep_total);
         } else {
-            printf("-/%d│", e->ep_total);
+            printf("-/%d", e->ep_total);
         }
+        printf("%s", ansi_clr(RESET));
     }
+    printf("│");
 
     // released
     {
@@ -188,9 +198,9 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s│", tmp);
+        printf("%s%s%s", ansi_clr(BLUE), tmp, ansi_clr(RESET));
     }
-    printf("\n");
+    printf("│\n");
 
     printf("├────────────────────────┴────────────────────────┤\n");
 
@@ -205,7 +215,7 @@ void AniEntry_pretty_print(AniEntry *e) {
                 printf(" ");
                 len += 1;
             }
-            printf("#%s", e->tags[i]);
+            printf("#%s%s%s", ansi_clr(YELLOW), e->tags[i], ansi_clr(RESET));
             len += strlen(e->tags[i]) + 1;
             i++;
         }
@@ -222,7 +232,7 @@ void AniEntry_pretty_print(AniEntry *e) {
         printf("│");
         size_t len = strlen(e->note);
         size_t padding = WIDTH - len - 2;
-        printf("%s", e->note);
+        printf("%s%s%s", ansi_clr(YELLOW), e->note, ansi_clr(RESET));
         while (padding > 0) {
             printf(" ");
             padding--;
