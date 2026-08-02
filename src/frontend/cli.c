@@ -94,17 +94,21 @@ void AniEntry_pretty_print(AniEntry *e) {
         size_t len = 0;
         printf("│Score");
 
-        size_t id_len = 1;
-        if (e->score != 0) {
-            id_len = floor(log10(abs(e->score))) + 1;
+        size_t scr_len = 1;
+        if (e->status != PLAN_TO_WATCH) {
+            if (e->score != 0) {
+                scr_len = floor(log10(abs(e->score))) + 1;
+            }
         }
-        size_t padding = COL_WIDTH - len - id_len - 3;
+
+        size_t padding = COL_WIDTH - len - scr_len - 3;
 
         while (padding > 0) {
             printf(" ");
             padding--;
         }
-        printf("%d│", e->score);
+        e->status != PLAN_TO_WATCH ? printf("%d", e->score) : printf("-");
+        printf("│");
     }
 
     printf("\n");
@@ -149,7 +153,11 @@ void AniEntry_pretty_print(AniEntry *e) {
     {
         printf("│Progress");
 
-        size_t ep_w_len = char_len_of_int(e->ep_watched);
+        size_t ep_w_len = 1;
+        if (e->status != PLAN_TO_WATCH) {
+            ep_w_len = char_len_of_int(e->ep_watched);
+        }
+
         size_t ep_t_len = char_len_of_int(e->ep_total);
         size_t padding = COL_WIDTH - 7 - ep_t_len - ep_w_len;
 
@@ -158,7 +166,11 @@ void AniEntry_pretty_print(AniEntry *e) {
             padding--;
         }
 
-        printf("%d/%d│", e->ep_watched, e->ep_total);
+        if (e->status != PLAN_TO_WATCH) {
+            printf("%d/%d│", e->ep_watched, e->ep_total);
+        } else {
+            printf("-/%d│", e->ep_total);
+        }
     }
 
     // released
