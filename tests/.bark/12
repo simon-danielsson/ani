@@ -1,8 +1,13 @@
 ani stats
-[32m█[0m[32m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[34m█[0m[31m█[0m[31m█[0m[31m█[0m[0m█[0m[0m█[0m[0m█[0m
-[32mWatching       [0m 11             Ep. watched    5373
-[34mCompleted      [0m 304            Days           93.3
-[33mOn hold        [0m 2              Tot. entries   351
-[31mDropped        [0m 17             Avg. score     6.43
-[0mPlan to watch  [0m 17             Fav. tag       #action
+Library: [33m./test.ani[0m
+┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+┌──────Entries──────┐┌────────────Info────────────┐
+│Total           [34m351[0m││Ep. watched        [34m5373/6364[0m│
+│Watching         [34m11[0m││Days watched            [34m93.3[0m│
+│Completed       [34m304[0m││Avg. score              [34m6.43[0m│
+│On hold           [34m2[0m││Fav. tag             [34m#action[0m│
+│Dropped          [34m17[0m││Unique tags               [34m25[0m│
+│Plan to watch    [34m17[0m││Last updated      [34m2026-07-26[0m│
+└───────────────────┘└────────────────────────────┘
+
 

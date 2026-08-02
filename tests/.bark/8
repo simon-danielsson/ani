@@ -12,7 +12,7 @@ OPTIONS
                           a fallback has been added (see: --guide).
 
 COMMANDS
-    add                   Add a new entry in an interactive prompt.
+    add, new              Add a new entry in an interactive prompt.
     ep, episode <id>      Change episode progress in an interactive prompt.
                           If episode number chosen is more or equal to the total
                           number of episodes of the entry, its status will
@@ -31,6 +31,13 @@ COMMANDS
         on-hold           List on-hold
         dropped           List dropped
         planned           List plan-to-watch
+
+SORTING FLAGS
+                          Sorting flags are applicable to both the search and
+                          list command. Only two flags are read, the rest are
+                          ignored (you are expected to provide a single sorting
+                          flag with an optional '-r' flag to reverse sorting order).
+
         -r                Reverse sorting order asc./desc.
                           (modifier for sorting flags below)
         -n                Sort by name

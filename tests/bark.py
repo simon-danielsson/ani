@@ -62,6 +62,7 @@ SHELL = subprocess.Popen(
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        errors="replace",
         bufsize=1,
         )
 
