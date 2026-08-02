@@ -25,6 +25,10 @@ char *read_entire_file(FILE *f) {
     return content;
 }
 
+size_t char_len_of_float(float f, int precision) {
+    return snprintf(NULL, 0, "%.*f", precision, f);
+}
+
 size_t char_len_of_int(int i) {
     size_t len = 1;
     if (i != 0) {
@@ -91,36 +95,49 @@ void format_time_t_year(char *buff, size_t buff_size, time_t *time,
     }
 }
 
-// expand leading '~' to $HOME
+// expands leading '~' to $HOME or folds $HOME to leading '~'
 // returns an allocated string to be freed by the caller
+// returns NULL if path param NULL or if env $HOME can't be found
 char *expand_home_path(const char *path) {
     const char *home = getenv("HOME");
-    if (!path) {
-        return NULL;
-    }
-    if (path[0] != '~') {
-        return strdup(path);
-    }
-    if (!home) {
-        return strdup(path);
-    }
-    if (path[1] != '\0' && path[1] != '/') {
-        return strdup(path);
-    }
-    char *expanded = malloc(strlen(home) + (strlen(path) + 1) + 1);
-    if (!expanded) {
-        return NULL;
-    }
-    strcpy(expanded, home);
-    strcat(expanded, path + 1);
 
-    return expanded;
+    if (!path || !home)
+        return NULL;
+
+    size_t home_len = strlen(home);
+    if (strncmp(path, home, home_len) == 0) {
+        size_t len = strlen(path) - home_len + 2;
+        char *out = malloc(len);
+        if (!out)
+            return NULL;
+
+        out[0] = '~';
+        strcpy(out + 1, path + home_len);
+        return out;
+    }
+
+    if (path[0] != '~')
+        return strdup(path);
+
+    if (path[1] != '\0' && path[1] != '/')
+        return strdup(path);
+
+    size_t len = strlen(home) + strlen(path + 1) + 1;
+    char *out = malloc(len);
+    if (!out)
+        return NULL;
+
+    strcpy(out, home);
+    strcat(out, path + 1);
+
+    return out;
 }
 
-FILE *get_anifile_handle(char *filepath) {
 #define FAILED_TO_OPEN                                                         \
     printf("Error: failed to open file -- %s", MORE_INFO);                       \
     exit(EXIT_FAILURE);
+
+FILE *get_anifile_handle(char *filepath) {
 
     FILE *handle = NULL;
 
@@ -154,4 +171,53 @@ FILE *get_anifile_handle(char *filepath) {
         }
     }
     return handle;
+}
+
+/*
+   TODO: right now I have two functions that do the same thing but with
+   different return values, this needs to be fixed. i.e get_anifile_path() &
+   get_anifile_handle()
+   */
+
+void get_anifile_path(char *filepath, char *buf, size_t buf_size) {
+
+    if (filepath[0]) {
+        FILE *probe = fopen(filepath, "r+");
+        if (probe) {
+            fclose(probe);
+            strncpy(buf, filepath, buf_size - 1);
+            buf[buf_size - 1] = '\0';
+            return;
+        }
+    }
+
+    FILE *f_fallback = NULL;
+    char tmp[256];
+    {
+        char *ani_loc = ".ani";
+        char *home = getenv("HOME");
+        snprintf(tmp, sizeof(tmp), "%s/%s", home, ani_loc);
+        f_fallback = fopen(tmp, "r+");
+    }
+
+    if (!f_fallback) {
+        printf("Missing .ani file: %s\n", tmp);
+        printf("This is required to run ani without a file flag...\n");
+        FAILED_TO_OPEN
+    }
+
+    char *fallback_file = get_set_ani_path(f_fallback);
+    fclose(f_fallback);
+
+    FILE *probe = fopen(fallback_file, "r+");
+    if (!probe) {
+        printf("Error: missing or broken fallback '%s' inside '%s'\n",
+                fallback_file, tmp);
+        FAILED_TO_OPEN
+    }
+    fclose(probe);
+
+    strncpy(buf, fallback_file, buf_size - 1);
+    buf[buf_size - 1] = '\0';
+    return;
 }

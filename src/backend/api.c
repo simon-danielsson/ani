@@ -417,12 +417,14 @@ void AniFile_get_stats(AniFile *af, AniFileStats *a) {
 
         a->combined_watch_time += ENTRY.ep_watched * M25_IN_SECS;
         a->ep_watched_n += ENTRY.ep_watched;
+        a->ep_total_n += ENTRY.ep_total;
         if (ENTRY.last_updated > a->last_update) {
             a->last_update = ENTRY.last_updated;
         }
         if (ENTRY.status != PLAN_TO_WATCH) {
             score_total += ENTRY.score;
         }
+
         switch (ENTRY.status) {
             case COMPLETED:
                 a->completed_n++;
@@ -486,5 +488,4 @@ char *get_set_ani_path(FILE *f) {
     free(content);
 
     return expanded;
-    return path;
 }

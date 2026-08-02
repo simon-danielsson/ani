@@ -67,15 +67,6 @@ typedef enum {
   RESET,
 } Color;
 
-char *ansi_from_color(Color c);
-
-typedef struct StatsBarField {
-  AniEntryStatus stat;
-  int total;
-  int scaled_total;
-  Color color;
-} StatsBarField;
-
 #define COULD_NOT_FIND_ENTRY_BY_ID                                             \
   if (!e) {                                                                    \
     printf("Error: an entry with id '%d' could not be found -- %s",            \

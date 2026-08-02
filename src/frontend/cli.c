@@ -49,7 +49,6 @@ const char *prompt_field(enum AniCurrentFieldState at) {
 
 void AniEntry_pretty_print(AniEntry *e) {
     /*
-
        TODO: the color
        */
 
@@ -615,20 +614,22 @@ void cmd_list(AniFile *af, PrgVars *pv) {
 
             switch (*pv->sort_flags[i]) {
                 case (ArgType)SF_NAME:
-                    qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_name);
+                    qsort(entries, found_count, sizeof(entries[0]), AniEntry_qsort_by_name);
                     break;
                 case (ArgType)SF_SCORE:
-                    qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_score);
+                    qsort(entries, found_count, sizeof(entries[0]),
+                            AniEntry_qsort_by_score);
                     break;
                 case (ArgType)SF_UPDATED:
-                    qsort(entries, af->size, sizeof(entries[0]), AniEntry_qsort_by_updated);
+                    qsort(entries, found_count, sizeof(entries[0]),
+                            AniEntry_qsort_by_updated);
                     break;
                 case (ArgType)SF_RELEASED:
-                    qsort(entries, af->size, sizeof(entries[0]),
+                    qsort(entries, found_count, sizeof(entries[0]),
                             AniEntry_qsort_by_released);
                     break;
                 case (ArgType)SF_PROGRESS:
-                    qsort(entries, af->size, sizeof(entries[0]),
+                    qsort(entries, found_count, sizeof(entries[0]),
                             AniEntry_qsort_by_progress);
                     break;
                 default:
@@ -914,112 +915,296 @@ void cmd_add(AniFile *af, PrgVars *_) {
 #undef Q
 }
 
-#define STATS_N_OF_STATUSES 5
-#define STATS_STATSBAR_LEN 56
-#define STATS_STATSBAR_C "█"
+// #define STATS_N_OF_STATUSES 5
+// #define STATS_STATSBAR_LEN 56
+// #define STATS_STATSBAR_C "█"
+//
+// void bar_repeat(const char *c, int count, Color col) {
+//     for (int i = 0; i < count; i++) {
+//         printf("%s%s%s", ansi_clr(col), c, ansi_clr(RESET));
+//     }
+// }
+//
+// void stats_print_statsbar(StatsBarField *fields) {
+//
+//     int total = 0;
+//     for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
+//         total += fields[i].total;
+//     }
+//     for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
+//         fields[i].scaled_total =
+//             round(fields[i].total * ((double)STATS_STATSBAR_LEN / total));
+//     }
+//     for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
+//         bar_repeat(STATS_STATSBAR_C, fields[i].scaled_total,
+//         fields[i].color);
+//     }
+// }
 
-void bar_repeat(const char *c, int count, Color col) {
-    for (int i = 0; i < count; i++) {
-        printf("%s%s%s", ansi_clr(col), c, ansi_clr(RESET));
-    }
-}
-
-void stats_print_statsbar(StatsBarField *fields) {
-
-    int total = 0;
-    for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
-        total += fields[i].total;
-    }
-    for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
-        fields[i].scaled_total =
-            round(fields[i].total * ((double)STATS_STATSBAR_LEN / total));
-    }
-    for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
-        bar_repeat(STATS_STATSBAR_C, fields[i].scaled_total, fields[i].color);
-    }
-}
-
-void cmd_stats(AniFile *af, PrgVars *_) {
+void cmd_stats(AniFile *af, PrgVars *pv) {
 
     AniFileStats stats = {0};
     AniFile_get_stats(af, &stats);
 
-    StatsBarField fields[STATS_N_OF_STATUSES] = {
+    char *col_field = ansi_clr(BLUE);
+    char *col_lib = ansi_clr(YELLOW);
+    char *col_reset = ansi_clr(RESET);
 
-        (StatsBarField){.color = GREEN,
-            .scaled_total = 0,
-            .total = stats.watching_n,
-            .stat = WATCHING},
+    // library location
+    {
+        // TODO: this can be consolidated
+        char tmp[256] = {0};
+        get_anifile_path(pv->filepath, tmp, 256);
+        char *path = expand_home_path(tmp);
+        printf("Library: %s%s%s\n", col_lib, path, col_reset);
+        free(path);
+    }
 
-        (StatsBarField){.color = BLUE,
-            .scaled_total = 0,
-            .total = stats.completed_n,
-            .stat = COMPLETED},
+    char *div = "┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈\n";
+    char *header = "┌──────Entries──────┐┌────────────Info────────────┐\n";
+    printf("%s%s", div, header);
 
-        (StatsBarField){.color = YELLOW,
-            .scaled_total = 0,
-            .total = stats.on_hold_n,
-            .stat = ON_HOLD},
+#define ENTRIES_SECTION_W 21
 
-        (StatsBarField){.color = RED,
-            .scaled_total = 0,
-            .total = stats.dropped_n,
-            .stat = DROPPED},
+    // total
+    {
+        size_t len = 0;
+        printf("│Total");
+        len += 7;
 
-        (StatsBarField){.color = RESET,
-            .scaled_total = 0,
-            .total = stats.plan_to_watch_n,
-            .stat = PLAN_TO_WATCH},
-    };
+        size_t field_len = char_len_of_int(stats.entries_n);
+        size_t padding = ENTRIES_SECTION_W - len - field_len;
 
-    stats_print_statsbar(fields);
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d%s", col_field, stats.entries_n, col_reset);
+        printf("│");
+    }
 
-    printf("\n");
+    {
+        printf("│Ep. watched");
+        size_t ep_w_len = char_len_of_int(stats.ep_watched_n);
+        size_t ep_t_len = char_len_of_int(stats.ep_total_n);
+        size_t padding = COL_WIDTH - 6 - ep_t_len - ep_w_len;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d/%d%s", col_field, stats.ep_watched_n, stats.ep_total_n,
+                col_reset);
+    }
+    printf("│\n");
 
-    int row = 0;
-    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-            fields[row].total);
+    {
+        printf("│Watching");
 
-    printf("%-15s%d", "Ep. watched", stats.ep_watched_n);
+        size_t field_len = char_len_of_int(stats.watching_n);
+        size_t padding = ENTRIES_SECTION_W - 10 - field_len;
 
-    printf("\n");
-    row++;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d%s", col_field, stats.watching_n, col_reset);
+        printf("│");
+    }
 
-    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-            fields[row].total);
+    {
+        printf("│Days watched");
 
-    printf("%-15s%.1f", "Days", time_t_to_days(stats.combined_watch_time));
+        float days = time_t_to_days(stats.combined_watch_time);
+        size_t days_len = char_len_of_float(days, 1);
+        size_t padding = COL_WIDTH - 6 - days_len;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%.1f%s", col_field, days, col_reset);
+    }
+    printf("│\n");
 
-    printf("\n");
-    row++;
+    {
+        printf("│Completed");
 
-    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-            fields[row].total);
+        size_t field_len = char_len_of_int(stats.completed_n);
+        size_t padding = ENTRIES_SECTION_W - 11 - field_len;
 
-    printf("%-15s%d", "Tot. entries", stats.entries_n);
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d%s", col_field, stats.completed_n, col_reset);
+        printf("│");
+    }
 
-    printf("\n");
-    row++;
+    {
+        printf("│Avg. score");
+        size_t days_len = char_len_of_float(stats.average_score, 2);
+        size_t padding = COL_WIDTH - 4 - days_len;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%.2f%s", col_field, stats.average_score, col_reset);
+    }
+    printf("│\n");
 
-    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-            fields[row].total);
+    {
+        printf("│On hold");
 
-    printf("%-15s%.2f", "Avg. score", stats.average_score);
+        size_t field_len = char_len_of_int(stats.on_hold_n);
+        size_t padding = ENTRIES_SECTION_W - 9 - field_len;
 
-    printf("\n");
-    row++;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d%s", col_field, stats.on_hold_n, col_reset);
+        printf("│");
+    }
 
-    printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-            AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-            fields[row].total);
+    {
+        printf("│Fav. tag");
+        size_t len = strlen(stats.tag_fav);
+        size_t padding = COL_WIDTH - 3 - len;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s#%s%s", col_field, stats.tag_fav, col_reset);
+    }
+    printf("│\n");
 
-    printf("%-15s#%s", "Fav. tag", stats.tag_fav);
+    {
+        printf("│Dropped");
 
-    printf("\n");
+        size_t field_len = char_len_of_int(stats.dropped_n);
+        size_t padding = ENTRIES_SECTION_W - 9 - field_len;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d%s", col_field, stats.dropped_n, col_reset);
+        printf("│");
+    }
+
+    {
+        printf("│Unique tags");
+        size_t days_len = char_len_of_float(stats.tags_kv_size, 1);
+        size_t padding = COL_WIDTH - 3 - days_len;
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d%s", col_field, (int)stats.tags_kv_size, col_reset);
+    }
+    printf("│\n");
+
+    {
+        printf("│Plan to watch");
+
+        size_t field_len = char_len_of_int(stats.plan_to_watch_n);
+        size_t padding = ENTRIES_SECTION_W - 15 - field_len;
+
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%d%s", col_field, stats.plan_to_watch_n, col_reset);
+        printf("│");
+    }
+
+    {
+        printf("│Last updated");
+        char tmp[256] = {0};
+        format_time_t_year(tmp, 256, &stats.last_update, false);
+        size_t padding = COL_WIDTH - 6 - strlen(tmp);
+        while (padding > 0) {
+            printf(" ");
+            padding--;
+        }
+        printf("%s%s%s", col_field, tmp, col_reset);
+    }
+    printf("│\n");
+    char *footer = "└───────────────────┘└────────────────────────────┘\n";
+    printf("%s\n", footer);
+
+    // StatsBarField fields[STATS_N_OF_STATUSES] = {
+    //     (StatsBarField){.color = GREEN,
+    //         .scaled_total = 0,
+    //         .total = stats.watching_n,
+    //         .stat = WATCHING},
+    //
+    //     (StatsBarField){.color = BLUE,
+    //         .scaled_total = 0,
+    //         .total = stats.completed_n,
+    //         .stat = COMPLETED},
+    //
+    //     (StatsBarField){.color = YELLOW,
+    //         .scaled_total = 0,
+    //         .total = stats.on_hold_n,
+    //         .stat = ON_HOLD},
+    //
+    //     (StatsBarField){.color = RED,
+    //         .scaled_total = 0,
+    //         .total = stats.dropped_n,
+    //         .stat = DROPPED},
+    //
+    //     (StatsBarField){.color = RESET,
+    //         .scaled_total = 0,
+    //         .total = stats.plan_to_watch_n,
+    //         .stat = PLAN_TO_WATCH},
+    // };
+    //
+    // printf("\n");
+    //
+    // int row = 0;
+    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
+    //         fields[row].total);
+    //
+    // printf("%-15s%d", "Ep. watched", stats.ep_watched_n);
+    //
+    // printf("\n");
+    // row++;
+    //
+    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
+    //         fields[row].total);
+    //
+    // printf("%-15s%.1f", "Days", time_t_to_days(stats.combined_watch_time));
+    //
+    // printf("\n");
+    // row++;
+    //
+    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
+    //         fields[row].total);
+    //
+    // printf("%-15s%d", "Tot. entries", stats.entries_n);
+    //
+    // printf("\n");
+    // row++;
+    //
+    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
+    //         fields[row].total);
+    //
+    // printf("%-15s%.2f", "Avg. score", stats.average_score);
+    //
+    // printf("\n");
+    // row++;
+    //
+    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
+    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
+    //         fields[row].total);
+    //
+    // printf("%-15s#%s", "Fav. tag", stats.tag_fav);
+    //
+    // printf("\n");
 }
 
 void flag_guide(AniFile *af, PrgVars *pv) {

@@ -64,6 +64,7 @@ typedef struct {
   int plan_to_watch_n;
 
   int ep_watched_n;
+  int ep_total_n;
   int entries_n;
 
   double average_score;

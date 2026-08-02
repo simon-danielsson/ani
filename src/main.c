@@ -3,7 +3,7 @@
 #include "frontend/frontend.h"
 #include "utils.h"
 
-// located in the users home dir
+// must be located in env $HOME
 #define SETFILE_NAME ".ani"
 
 int main(int argc, char **argv) {

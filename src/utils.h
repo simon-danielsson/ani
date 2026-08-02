@@ -11,6 +11,7 @@ size_t get_fsize(FILE **f);
 void panic(const char *s);
 
 size_t char_len_of_int(int i);
+size_t char_len_of_float(float f, int precision);
 
 char *read_entire_file(FILE *f);
 
@@ -31,5 +32,6 @@ void str_to_lowercase(char *s, size_t len);
 char *expand_home_path(const char *path);
 
 FILE *get_anifile_handle(char *filepath);
+void get_anifile_path(char *filepath, char *buf, size_t buf_size);
 
 #endif
