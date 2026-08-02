@@ -43,10 +43,19 @@ const char *prompt_field(enum AniCurrentFieldState at) {
     return args[at];
 }
 
+void AniEntry_pretty_print(AniEntry *e) {
+    /*
+
+       TODO: the color
+       */
+
 #define HEADER_MAX_WIDTH 44
 #define WIDTH 51
 #define COL_WIDTH WIDTH / 2 - 3
-void AniEntry_pretty_print(AniEntry *e) {
+    char *col_field = ansi_clr(BLUE);
+    char *col_tags_note = ansi_clr(YELLOW);
+    char *col_reset = ansi_clr(RESET);
+
     // header
     {
         size_t header_len = strlen(e->name);
@@ -67,7 +76,7 @@ void AniEntry_pretty_print(AniEntry *e) {
                 printf("…");
                 break;
             }
-            printf("%s%c%s", COL_SHOW_HEADER, e->name[i], ansi_clr(RESET));
+            printf("%s%c%s", COL_SHOW_HEADER, e->name[i], col_reset);
         }
         printf("\n");
     }
@@ -86,8 +95,9 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s%d%s", ansi_clr(BLUE), e->id, ansi_clr(RESET));
+        printf("%s%d%s", col_field, e->id, col_reset);
     }
+
     printf("│");
 
     // score
@@ -97,9 +107,7 @@ void AniEntry_pretty_print(AniEntry *e) {
 
         size_t scr_len = 1;
         if (e->status != PLAN_TO_WATCH) {
-            if (e->score != 0) {
-                scr_len = floor(log10(abs(e->score))) + 1;
-            }
+            scr_len = char_len_of_int(e->score);
         }
 
         size_t padding = COL_WIDTH - len - scr_len - 3;
@@ -108,13 +116,13 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s", ansi_clr(BLUE));
+        printf("%s", col_field);
         if (e->status != PLAN_TO_WATCH) {
             printf("%d", e->score);
         } else {
             printf("-");
         }
-        printf("%s", ansi_clr(RESET));
+        printf("%s", col_reset);
     }
 
     printf("│\n");
@@ -132,7 +140,7 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s%s%s", ansi_clr(BLUE), status, ansi_clr(RESET));
+        printf("%s%s%s", col_field, status, col_reset);
     }
     printf("│");
 
@@ -151,7 +159,7 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s%s%s", ansi_clr(BLUE), tmp, ansi_clr(RESET));
+        printf("%s%s%s", col_field, tmp, col_reset);
     }
 
     printf("│\n");
@@ -173,13 +181,13 @@ void AniEntry_pretty_print(AniEntry *e) {
             padding--;
         }
 
-        printf("%s", ansi_clr(BLUE));
+        printf("%s", col_field);
         if (e->status != PLAN_TO_WATCH) {
             printf("%d/%d", e->ep_watched, e->ep_total);
         } else {
             printf("-/%d", e->ep_total);
         }
-        printf("%s", ansi_clr(RESET));
+        printf("%s", col_reset);
     }
     printf("│");
 
@@ -198,44 +206,61 @@ void AniEntry_pretty_print(AniEntry *e) {
             printf(" ");
             padding--;
         }
-        printf("%s%s%s", ansi_clr(BLUE), tmp, ansi_clr(RESET));
+        printf("%s%s%s", col_field, tmp, col_reset);
     }
     printf("│\n");
 
     printf("├────────────────────────┴────────────────────────┤\n");
 
+    printf("│");
     // tags
     if (e->tags) {
         int i = 0;
-        size_t len = 0;
-        printf("│");
-        len += 2;
+        size_t tags_len = 0;
+        char tags_str[2048] = {0};
         while (e->tags[i]) {
+            tags_len += strlen(e->tags[i]) + 1;
+            char tmp[256] = {0};
             if (i > 0) {
-                printf(" ");
-                len += 1;
+                snprintf(tmp, 256, " #%s%s%s", col_tags_note, e->tags[i], col_reset);
+            } else {
+                snprintf(tmp, 256, "#%s%s%s", col_tags_note, e->tags[i], col_reset);
             }
-            printf("#%s%s%s", ansi_clr(YELLOW), e->tags[i], ansi_clr(RESET));
-            len += strlen(e->tags[i]) + 1;
+            strcat(tags_str, tmp);
+            tags_len += 1;
             i++;
         }
-        size_t padding = WIDTH - len;
-        while (padding > 0) {
+        tags_len += 1;
+
+        size_t start_pad = (WIDTH / 2) - (tags_len / 2);
+        size_t end_pad = WIDTH - start_pad - tags_len;
+        while (start_pad > 0) {
             printf(" ");
-            padding--;
+            start_pad--;
         }
-        printf("│\n");
+        printf("%s", tags_str);
+        while (end_pad > 0) {
+            printf(" ");
+            end_pad--;
+        }
     }
+    printf("│\n");
 
     // note
     if (e->note) {
         printf("│");
         size_t len = strlen(e->note);
-        size_t padding = WIDTH - len - 2;
-        printf("%s%s%s", ansi_clr(YELLOW), e->note, ansi_clr(RESET));
-        while (padding > 0) {
+
+        size_t start_pad = (WIDTH / 2) - (len / 2);
+        size_t end_pad = WIDTH - start_pad - len - 2;
+        while (start_pad > 0) {
             printf(" ");
-            padding--;
+            start_pad--;
+        }
+        printf("%s%s%s", col_tags_note, e->note, col_reset);
+        while (end_pad > 0) {
+            printf(" ");
+            end_pad--;
         }
         printf("│\n");
     }
