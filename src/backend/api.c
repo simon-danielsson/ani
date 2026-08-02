@@ -366,51 +366,96 @@ const char *find_most_common_tag(AniFile *af) {
     return best_tag;
 }
 
-void AniFile_get_stats(AniFile *af, struct AniFileStats *a) {
+int AniFile_get_stats_KV_find_key(const char *str_key, int kv_size,
+        AniFileStats_KV *kv) {
+    for (int i = 0; i < kv_size; i++) {
+        if (strcmp(kv[i].key, str_key) == 0)
+            return i;
+    }
+    return -1;
+}
+
+void AniFile_get_stats_KV_add_key(const char *key, size_t *kv_size,
+        AniFileStats_KV *kv) {
+    if (*kv_size >= AniFileStats_KV_MAX_VAL) {
+        panic("kv array capacity exceeded");
+    }
+    AniFileStats_KV *entry = &kv[*kv_size];
+
+    strncpy(entry->key, key, AniFileStats_KV_MAX_KEY_LEN - 1);
+    entry->key[AniFileStats_KV_MAX_KEY_LEN - 1] = '\0';
+    entry->value = 0;
+
+    (*kv_size)++;
+}
+
+void AniFile_get_stats_KV_count(char *key, size_t *kv_size,
+        AniFileStats_KV *kv) {
+    int idx = AniFile_get_stats_KV_find_key(key, *kv_size, kv);
+    if (idx == -1) {
+        AniFile_get_stats_KV_add_key(key, kv_size, kv);
+        idx = *kv_size - 1;
+    }
+    kv[idx].value++;
+}
+
 #define M25_IN_SECS 1500
 #define ENTRY af->entries[i]
+void AniFile_get_stats(AniFile *af, AniFileStats *a) {
+    a->entries_n = af->size;
+    a->last_update = 0;
 
     int score_total = 0;
-    a->total_n_entries = af->size;
-    int scored_entries = af->size - a->total_planned;
+    int scored_entries = af->size - a->plan_to_watch_n;
 
     for (size_t i = 0; i < af->size; i++) {
+        if (ENTRY.tags) {
+            for (size_t j = 0; ENTRY.tags[j] != NULL; j++) {
+                AniFile_get_stats_KV_count(ENTRY.tags[j], &a->tags_kv_size, a->tags_kv);
+            }
+        }
+
         a->combined_watch_time += ENTRY.ep_watched * M25_IN_SECS;
-        a->total_n_ep_watched += ENTRY.ep_watched;
+        a->ep_watched_n += ENTRY.ep_watched;
+        if (ENTRY.last_updated > a->last_update) {
+            a->last_update = ENTRY.last_updated;
+        }
         if (ENTRY.status != PLAN_TO_WATCH) {
             score_total += ENTRY.score;
         }
-        const char *fav = find_most_common_tag(af);
-        a->fav_tag = fav ? strdup(fav) : NULL;
         switch (ENTRY.status) {
             case COMPLETED:
-                a->total_completed++;
+                a->completed_n++;
                 break;
             case DROPPED:
-                a->total_dropped++;
+                a->dropped_n++;
                 break;
             case WATCHING:
-                a->total_watching++;
+                a->watching_n++;
                 break;
             case ON_HOLD:
-                a->total_hold++;
+                a->on_hold_n++;
                 break;
             case PLAN_TO_WATCH:
-                a->total_planned++;
+                a->plan_to_watch_n++;
                 break;
         }
     }
 
-    assert(a->total_completed + a->total_dropped + a->total_hold +
-            a->total_planned + a->total_watching ==
-            a->total_n_entries);
+    assert(a->completed_n + a->dropped_n + a->on_hold_n + a->plan_to_watch_n +
+            a->watching_n ==
+            a->entries_n);
 
     a->average_score =
         scored_entries ? (double)score_total / scored_entries : 0.0;
 
-#undef ENTRY
-
-    return;
+    int biggest_value_yet = 0;
+    for (size_t i = 0; i < a->tags_kv_size; i++) {
+        if (a->tags_kv[i].value > biggest_value_yet) {
+            biggest_value_yet = a->tags_kv[i].value;
+            a->tag_fav = a->tags_kv[i].key;
+        }
+    }
 }
 
 char *get_set_ani_path(FILE *f) {

@@ -5,7 +5,11 @@
 #include "frontend.h"
 #include <stdio.h>
 
+#define HEADER_MAX_WIDTH 44
+#define WIDTH 51
+#define COL_WIDTH WIDTH / 2 - 3
 #define COL_SHOW_HEADER "\033[4;1m"
+
 char *ansi_clr(Color c) {
     switch (c) {
         case MAGENTA:
@@ -49,9 +53,6 @@ void AniEntry_pretty_print(AniEntry *e) {
        TODO: the color
        */
 
-#define HEADER_MAX_WIDTH 44
-#define WIDTH 51
-#define COL_WIDTH WIDTH / 2 - 3
     char *col_field = ansi_clr(BLUE);
     char *col_tags_note = ansi_clr(YELLOW);
     char *col_reset = ansi_clr(RESET);
@@ -940,37 +941,37 @@ void stats_print_statsbar(StatsBarField *fields) {
 
 void cmd_stats(AniFile *af, PrgVars *_) {
 
-    struct AniFileStats stats = {0};
+    AniFileStats stats = {0};
     AniFile_get_stats(af, &stats);
 
     StatsBarField fields[STATS_N_OF_STATUSES] = {
 
         (StatsBarField){.color = GREEN,
             .scaled_total = 0,
-            .total = stats.total_watching,
+            .total = stats.watching_n,
             .stat = WATCHING},
 
         (StatsBarField){.color = BLUE,
             .scaled_total = 0,
-            .total = stats.total_completed,
+            .total = stats.completed_n,
             .stat = COMPLETED},
 
         (StatsBarField){.color = YELLOW,
             .scaled_total = 0,
-            .total = stats.total_hold,
+            .total = stats.on_hold_n,
             .stat = ON_HOLD},
 
         (StatsBarField){.color = RED,
             .scaled_total = 0,
-            .total = stats.total_dropped,
+            .total = stats.dropped_n,
             .stat = DROPPED},
 
         (StatsBarField){.color = RESET,
             .scaled_total = 0,
-            .total = stats.total_planned,
+            .total = stats.plan_to_watch_n,
             .stat = PLAN_TO_WATCH},
-
     };
+
     stats_print_statsbar(fields);
 
     printf("\n");
@@ -980,7 +981,7 @@ void cmd_stats(AniFile *af, PrgVars *_) {
             AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
-    printf("%-15s%d", "Ep. watched", stats.total_n_ep_watched);
+    printf("%-15s%d", "Ep. watched", stats.ep_watched_n);
 
     printf("\n");
     row++;
@@ -998,7 +999,7 @@ void cmd_stats(AniFile *af, PrgVars *_) {
             AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
-    printf("%-15s%d", "Tot. entries", stats.total_n_entries);
+    printf("%-15s%d", "Tot. entries", stats.entries_n);
 
     printf("\n");
     row++;
@@ -1016,7 +1017,7 @@ void cmd_stats(AniFile *af, PrgVars *_) {
             AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
             fields[row].total);
 
-    printf("%-15s#%s", "Fav. tag", stats.fav_tag);
+    printf("%-15s#%s", "Fav. tag", stats.tag_fav);
 
     printf("\n");
 }

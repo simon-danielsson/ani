@@ -48,18 +48,35 @@ typedef struct AniFile {
   size_t capacity;
 } AniFile;
 
-struct AniFileStats {
-  int total_completed;
-  int total_dropped;
-  int total_watching;
-  int total_hold;
-  int total_planned;
-  int total_n_ep_watched;
-  int total_n_entries;
-  time_t combined_watch_time;
+#define AniFileStats_KV_MAX_KEY_LEN 64
+#define AniFileStats_KV_MAX_VAL 1000
+
+typedef struct {
+  int value;
+  char key[AniFileStats_KV_MAX_KEY_LEN];
+} AniFileStats_KV;
+
+typedef struct {
+  int completed_n;
+  int dropped_n;
+  int watching_n;
+  int on_hold_n;
+  int plan_to_watch_n;
+
+  int ep_watched_n;
+  int entries_n;
+
   double average_score;
-  char *fav_tag;
-};
+
+  char *tag_fav;
+
+  time_t combined_watch_time;
+  time_t last_update;
+
+  size_t tags_kv_size;
+  AniFileStats_KV tags_kv[AniFileStats_KV_MAX_VAL];
+
+} AniFileStats;
 
 typedef struct AniEntrySearchResult {
   int entry_id;
@@ -77,7 +94,7 @@ char *AniEntryStatus_to_str(AniEntryStatus aes);
 
 // api.h
 
-void AniFile_get_stats(AniFile *af, struct AniFileStats *a);
+void AniFile_get_stats(AniFile *af, AniFileStats *a);
 
 char *AniEntryStatus_to_str(AniEntryStatus aes);
 AniEntryStatus str_to_AniEntryStatus(const char *s);
