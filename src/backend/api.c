@@ -8,8 +8,9 @@ char *field_icon(enum AniCurrentFieldState acfs) {
 }
 
 int AniEntry_qsort_by_progress(const void *a, const void *b) {
-    const AniEntry *x = *(const AniEntry *const *)a;
-    const AniEntry *y = *(const AniEntry *const *)b;
+    const AniEntry *x = (const AniEntry *)a;
+    const AniEntry *y = (const AniEntry *)b;
+
     if (!x || !y)
         return (x == y) ? 0 : (x ? -1 : 1);
     double x_progress = (double)x->ep_watched / (double)x->ep_total;
@@ -22,10 +23,12 @@ int AniEntry_qsort_by_progress(const void *a, const void *b) {
 }
 
 int AniEntry_qsort_by_released(const void *a, const void *b) {
-    const AniEntry *x = *(const AniEntry *const *)a;
-    const AniEntry *y = *(const AniEntry *const *)b;
+    const AniEntry *x = (const AniEntry *)a;
+    const AniEntry *y = (const AniEntry *)b;
+
     if (!x || !y)
-        return (x == y) ? 0 : (x ? -1 : 1);
+        return 0;
+
     if (x->released < y->released)
         return -1;
     if (x->released > y->released)
@@ -34,8 +37,9 @@ int AniEntry_qsort_by_released(const void *a, const void *b) {
 }
 
 int AniEntry_qsort_by_updated(const void *a, const void *b) {
-    const AniEntry *x = *(const AniEntry *const *)a;
-    const AniEntry *y = *(const AniEntry *const *)b;
+    const AniEntry *x = (const AniEntry *)a;
+    const AniEntry *y = (const AniEntry *)b;
+
     if (!x || !y)
         return (x == y) ? 0 : (x ? -1 : 1);
     if (x->last_updated < y->last_updated)
@@ -46,25 +50,40 @@ int AniEntry_qsort_by_updated(const void *a, const void *b) {
 }
 
 int AniEntry_qsort_by_score(const void *a, const void *b) {
-    const AniEntry *x = *(const AniEntry *const *)a;
-    const AniEntry *y = *(const AniEntry *const *)b;
+    const AniEntry *x = (const AniEntry *)a;
+    const AniEntry *y = (const AniEntry *)b;
+
     if (!x || !y)
         return (x == y) ? 0 : (x ? -1 : 1);
     return x->score - y->score;
 }
 
 int AniEntry_qsort_by_name(const void *a, const void *b) {
-    const AniEntry *x = *(const AniEntry *const *)a;
-    const AniEntry *y = *(const AniEntry *const *)b;
+    const AniEntry *x = (const AniEntry *)a;
+    const AniEntry *y = (const AniEntry *)b;
+
     if (!x || !y)
         return (x == y) ? 0 : (x ? -1 : 1);
     return strcmp(x->name, y->name);
 }
 
-void AniEntry_reverse_array(AniEntry **entries, size_t n) {
-    int l = 0, r = n - 1;
+// void AniEntry_reverse_array(AniEntry **entries, size_t n) {
+//     int l = 0, r = n - 1;
+//     while (l < r) {
+//         AniEntry *temp = entries[l];
+//         entries[l] = entries[r];
+//         entries[r] = temp;
+//         l++;
+//         r--;
+//     }
+// }
+void AniEntry_reverse_array(AniEntry *entries, size_t n) {
+    if (n <= 1)
+        return;
+
+    size_t l = 0, r = n - 1;
     while (l < r) {
-        AniEntry *temp = entries[l];
+        AniEntry temp = entries[l]; // Swap whole structs
         entries[l] = entries[r];
         entries[r] = temp;
         l++;
@@ -72,15 +91,14 @@ void AniEntry_reverse_array(AniEntry **entries, size_t n) {
     }
 }
 
-void AniFile_collect_entries_with_certain_status(AniFile *af,
-        AniEntry **entries,
+void AniFile_collect_entries_with_certain_status(AniFile *af, AniEntry *entries,
+        int *found_count,
         AniEntryStatus s) {
-    int entry_count = 0;
 
     for (size_t i = 0; i < af->size; i++) {
         if (af->entries[i].status == s) {
-            entries[entry_count] = &af->entries[i];
-            entry_count++;
+            entries[*found_count] = af->entries[i];
+            (*found_count)++;
         }
     }
 }
@@ -95,24 +113,20 @@ AniEntry *AniFile_find_entry_by_id(AniFile *af, int id) {
 }
 
 // returns an array of id's matching search term
-int *AniFile_search_for_entries(AniFile *af, const char *search_term,
-        size_t *out_count) {
-    if (!af || af->size == 0 || !search_term || !out_count)
-        return NULL;
+void AniFile_search_for_entries(AniFile *af, AniEntry *entries_buff,
+        int *found_count, const char *search_term) {
 
-    *out_count = 0;
+    if (!af || af->size == 0 || !search_term || !entries_buff)
+        return;
 
     // lowercase copy of search term
     char *term = strdup(search_term);
-    if (!term)
-        return NULL;
-    str_to_lowercase(term, strlen(term) + 1);
 
-    int *results = malloc(af->size * sizeof(int));
-    if (!results) {
-        free(term);
-        return NULL;
+    if (!term) {
+        return;
     }
+
+    str_to_lowercase(term, strlen(term) + 1);
 
     for (size_t i = 0; i < af->size; i++) {
         char buffer[2048] = {0};
@@ -134,20 +148,12 @@ int *AniFile_search_for_entries(AniFile *af, const char *search_term,
         str_to_lowercase(buffer, strlen(buffer) + 1);
 
         if (strstr(buffer, term)) {
-            results[*out_count] = af->entries[i].id;
-            (*out_count)++;
+            entries_buff[*found_count] = af->entries[i];
+            (*found_count)++;
         }
     }
 
     free(term);
-
-    if (*out_count == 0) {
-        free(results);
-        return NULL;
-    }
-
-    int *shrunk = realloc(results, *out_count * sizeof(int));
-    return shrunk ? shrunk : results;
 }
 
 bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,

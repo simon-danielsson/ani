@@ -90,14 +90,14 @@ bool AniFile_has_changed(const AniFile *snapshot, const AniFile *current);
 AniEntry *AniFile_find_random_plan_to_watch_entry(AniFile *af);
 AniEntry *AniFile_find_entry_by_id(AniFile *af, int id);
 
-// returns an array of id's matching search term
-int *AniFile_search_for_entries(AniFile *af, const char *search_term,
-                                size_t *out_count);
+// returns an array of entries matching search term
+void AniFile_search_for_entries(AniFile *af, AniEntry *entries_buff,
+                                int *found_count, const char *search_term);
 
 bool AniFile_remove_entry_by_id(AniFile *af, int id);
 
-void AniFile_collect_entries_with_certain_status(AniFile *af,
-                                                 AniEntry **entries,
+void AniFile_collect_entries_with_certain_status(AniFile *af, AniEntry *entries,
+                                                 int *found_count,
                                                  AniEntryStatus s);
 
 bool AniEntry_is_probably_a_new_entry(const AniEntry *new_entry,
@@ -114,5 +114,6 @@ int AniEntry_qsort_by_score(const void *x_void, const void *y_void);
 int AniEntry_qsort_by_updated(const void *a, const void *b);
 int AniEntry_qsort_by_released(const void *a, const void *b);
 int AniEntry_qsort_by_progress(const void *a, const void *b);
-void AniEntry_reverse_array(AniEntry **entries, size_t n);
+void AniEntry_reverse_array(AniEntry *entries, size_t n);
+
 #endif

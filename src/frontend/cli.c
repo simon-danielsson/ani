@@ -3,6 +3,7 @@
 #include "../static/help.h"
 #include "../utils.h"
 #include "frontend.h"
+#include <stdio.h>
 
 #define COL_SHOW_HEADER "\033[4;1m"
 char *ansi_clr(Color c) {
@@ -519,29 +520,36 @@ bool prompt_edit(AniEntry *e) {
 }
 
 void cmd_list(AniFile *af, PrgVars *pv) {
-    AniEntry **entries = calloc(af->size, sizeof *entries);
+    AniEntry *entries = calloc(af->size, sizeof *entries);
+    int found_count = 0;
 
     if (pv->params[0] != NULL) {
         switch (pv->params[0][0]) {
             case 'w':
-                AniFile_collect_entries_with_certain_status(af, entries, WATCHING);
+                AniFile_collect_entries_with_certain_status(af, entries, &found_count,
+                        WATCHING);
                 break;
             case 'c':
-                AniFile_collect_entries_with_certain_status(af, entries, COMPLETED);
+                AniFile_collect_entries_with_certain_status(af, entries, &found_count,
+                        COMPLETED);
                 break;
             case 'o':
-                AniFile_collect_entries_with_certain_status(af, entries, ON_HOLD);
+                AniFile_collect_entries_with_certain_status(af, entries, &found_count,
+                        ON_HOLD);
                 break;
             case 'd':
-                AniFile_collect_entries_with_certain_status(af, entries, DROPPED);
+                AniFile_collect_entries_with_certain_status(af, entries, &found_count,
+                        DROPPED);
                 break;
             case 'p':
-                AniFile_collect_entries_with_certain_status(af, entries, PLAN_TO_WATCH);
+                AniFile_collect_entries_with_certain_status(af, entries, &found_count,
+                        PLAN_TO_WATCH);
                 break;
         }
     } else {
-        for (size_t i = 0; i < af->size; ++i) {
-            entries[i] = &af->entries[i];
+        found_count = (int)af->size;
+        for (int i = 0; i < found_count; ++i) {
+            entries[i] = af->entries[i];
         }
     }
 
@@ -551,7 +559,6 @@ void cmd_list(AniFile *af, PrgVars *pv) {
     }
 
     bool reverse = false;
-
     if (pv->sort_flags_count != 0) {
         for (size_t i = 0; i < pv->sort_flags_count; i++) {
             if (*pv->sort_flags[i] == (ArgType)SF_REVERSE) {
@@ -583,12 +590,12 @@ void cmd_list(AniFile *af, PrgVars *pv) {
     }
 
     if (reverse) {
-        AniEntry_reverse_array(entries, af->size);
+        AniEntry_reverse_array(entries, found_count);
     }
 
-    for (size_t i = 0; i < af->size; i++) {
-        if (entries[i])
-            AniEntry_pretty_print(entries[i]);
+    for (int i = 0; i < found_count; i++) {
+        if (&entries[i])
+            AniEntry_pretty_print(&entries[i]);
     }
 
     free(entries);
@@ -706,22 +713,61 @@ void cmd_ep(AniFile *af, PrgVars *pv) {
 }
 
 void cmd_search(AniFile *af, PrgVars *pv) {
-    size_t count;
-    int *ids = AniFile_search_for_entries(af, pv->params[0], &count);
+    AniEntry *entries = calloc(af->size, sizeof(*entries));
 
-    if (!ids) {
+    int found_count = 0;
+    AniFile_search_for_entries(af, entries, &found_count, pv->params[0]);
+
+    if (found_count == 0) {
         printf("Could not find anything matching '%s%s%s'!\n", ansi_clr(YELLOW),
                 pv->params[0], ansi_clr(YELLOW));
+        free(entries);
         return;
     }
 
-    for (size_t i = 0; i < count; i++) {
-        int id = ids[i];
-        AniEntry *e = AniFile_find_entry_by_id(af, id);
-        COULD_NOT_FIND_ENTRY_BY_ID;
-        AniEntry_pretty_print(e);
+    bool reverse = false;
+    if (pv->sort_flags_count != 0) {
+        for (size_t i = 0; i < pv->sort_flags_count; i++) {
+            if (*pv->sort_flags[i] == (ArgType)SF_REVERSE) {
+                reverse = true;
+            }
+
+            switch (*pv->sort_flags[i]) {
+                case (ArgType)SF_NAME:
+                    qsort(entries, found_count, sizeof(entries[0]), AniEntry_qsort_by_name);
+                    break;
+                case (ArgType)SF_SCORE:
+                    qsort(entries, found_count, sizeof(entries[0]),
+                            AniEntry_qsort_by_score);
+                    break;
+                case (ArgType)SF_UPDATED:
+                    qsort(entries, found_count, sizeof(entries[0]),
+                            AniEntry_qsort_by_updated);
+                    break;
+                case (ArgType)SF_RELEASED:
+                    qsort(entries, found_count, sizeof(entries[0]),
+                            AniEntry_qsort_by_released);
+                    break;
+                case (ArgType)SF_PROGRESS:
+                    qsort(entries, found_count, sizeof(entries[0]),
+                            AniEntry_qsort_by_progress);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
-    free(ids);
+
+    if (reverse) {
+        AniEntry_reverse_array(entries, found_count);
+    }
+
+    for (int i = 0; i < found_count; i++) {
+        if (&entries[i] != NULL)
+            AniEntry_pretty_print(&entries[i]);
+    }
+
+    free(entries);
 }
 
 void cmd_info(AniFile *af, PrgVars *pv) {
