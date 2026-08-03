@@ -651,6 +651,10 @@ void cmd_list(AniFile *af, PrgVars *pv) {
 }
 
 void cmd_edit(AniFile *af, PrgVars *pv) {
+    if (!pv->params[0]) {
+        error("no id was provided");
+        return;
+    }
     AniEntry *e = AniFile_find_entry_by_id(af, atoi(pv->params[0]));
     COULD_NOT_FIND_ENTRY_BY_ID;
     int prompt_should_quit = false;
@@ -721,6 +725,10 @@ char **prompt_add(const char **q, int n_q) {
 }
 
 void cmd_rm(AniFile *af, PrgVars *pv) {
+    if (!pv->params[0]) {
+        error("no id was provided");
+        return;
+    }
     int id = atoi(pv->params[0]);
     AniEntry *e = AniFile_find_entry_by_id(af, id);
     COULD_NOT_FIND_ENTRY_BY_ID;
@@ -739,6 +747,10 @@ void cmd_rm(AniFile *af, PrgVars *pv) {
 }
 
 void cmd_ep(AniFile *af, PrgVars *pv) {
+    if (!pv->params[0]) {
+        error("no id was provided");
+        return;
+    }
     AniEntry *e = AniFile_find_entry_by_id(af, atoi(pv->params[0]));
     COULD_NOT_FIND_ENTRY_BY_ID;
 
@@ -823,6 +835,10 @@ void cmd_search(AniFile *af, PrgVars *pv) {
 }
 
 void cmd_info(AniFile *af, PrgVars *pv) {
+    if (!pv->params[0]) {
+        error("no id was provided");
+        return;
+    }
     AniEntry *e = AniFile_find_entry_by_id(af, atoi(pv->params[0]));
     COULD_NOT_FIND_ENTRY_BY_ID;
     AniEntry_pretty_print(e);
@@ -919,34 +935,7 @@ void cmd_add(AniFile *af, PrgVars *_) {
 #undef Q
 }
 
-// #define STATS_N_OF_STATUSES 5
-// #define STATS_STATSBAR_LEN 56
-// #define STATS_STATSBAR_C "█"
-//
-// void bar_repeat(const char *c, int count, Color col) {
-//     for (int i = 0; i < count; i++) {
-//         printf("%s%s%s", ansi_clr(col), c, ansi_clr(RESET));
-//     }
-// }
-//
-// void stats_print_statsbar(StatsBarField *fields) {
-//
-//     int total = 0;
-//     for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
-//         total += fields[i].total;
-//     }
-//     for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
-//         fields[i].scaled_total =
-//             round(fields[i].total * ((double)STATS_STATSBAR_LEN / total));
-//     }
-//     for (int i = 0; i < STATS_N_OF_STATUSES; i++) {
-//         bar_repeat(STATS_STATSBAR_C, fields[i].scaled_total,
-//         fields[i].color);
-//     }
-// }
-
 void cmd_stats(AniFile *af, PrgVars *pv) {
-
     AniFileStats stats = {0};
     AniFile_get_stats(af, &stats);
 
