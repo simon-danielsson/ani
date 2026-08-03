@@ -1123,7 +1123,7 @@ void cmd_stats(AniFile *af, PrgVars *pv) {
     }
     printf("│\n");
     char *footer = "└───────────────────┘└────────────────────────────┘\n";
-    printf("%s\n", footer);
+    printf("%s", footer);
 
     {
         int len_largest_key = 0;
