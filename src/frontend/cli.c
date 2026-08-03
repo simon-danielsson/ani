@@ -762,8 +762,11 @@ void cmd_ep(AniFile *af, PrgVars *pv) {
 }
 
 void cmd_search(AniFile *af, PrgVars *pv) {
+    if (!pv->params[0]) {
+        error("no search argument was provided");
+        return;
+    }
     AniEntry *entries = calloc(af->size, sizeof(*entries));
-
     int found_count = 0;
     AniFile_search_for_entries(af, entries, &found_count, pv->params[0]);
 
@@ -828,7 +831,8 @@ void cmd_info(AniFile *af, PrgVars *pv) {
 void cmd_rec(AniFile *af, PrgVars *_) {
     AniEntry *e = AniFile_find_random_plan_to_watch_entry(af);
     if (!e) {
-        printf("Could not find any recommendation for you, sorry!\n");
+        printf("Could not find any recommendation for you!\n");
+        return;
     }
     AniEntry_pretty_print(e);
 }

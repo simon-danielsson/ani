@@ -8,8 +8,13 @@ size_t get_fsize(FILE **f) {
     return fsize;
 }
 
+void error(const char *s) {
+    printf("Error: %s -- %s\n", s, MORE_INFO);
+    exit(EXIT_FAILURE);
+}
+
 void panic(const char *s) {
-    printf("Panic: %s\n", s);
+    printf("Panic: %s -- %s\n", s, MORE_INFO);
     exit(EXIT_FAILURE);
 }
 

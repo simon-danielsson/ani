@@ -99,7 +99,7 @@ void Arg_init_all(void) {
 
 bool Arg_parse(uint argc, char **argv) {
     if (argc < 2) {
-        printf("No arguments were provided -- %s\n", MORE_INFO);
+        error("no arguments were provided");
         return false;
     }
 

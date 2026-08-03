@@ -8,6 +8,7 @@
 
 size_t get_fsize(FILE **f);
 
+void error(const char *s);
 void panic(const char *s);
 
 size_t char_len_of_int(int i);

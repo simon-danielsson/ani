@@ -69,7 +69,7 @@ typedef enum {
 
 #define COULD_NOT_FIND_ENTRY_BY_ID                                             \
   if (!e) {                                                                    \
-    printf("Error: an entry with id '%d' could not be found -- %s",            \
+    printf("Error: an entry with id '%d' not found -- %s\n",                   \
            atoi(pv->params[0]), MORE_INFO);                                    \
     exit(EXIT_FAILURE);                                                        \
   }
