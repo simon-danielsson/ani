@@ -1125,79 +1125,65 @@ void cmd_stats(AniFile *af, PrgVars *pv) {
     char *footer = "└───────────────────┘└────────────────────────────┘\n";
     printf("%s\n", footer);
 
-    // StatsBarField fields[STATS_N_OF_STATUSES] = {
-    //     (StatsBarField){.color = GREEN,
-    //         .scaled_total = 0,
-    //         .total = stats.watching_n,
-    //         .stat = WATCHING},
-    //
-    //     (StatsBarField){.color = BLUE,
-    //         .scaled_total = 0,
-    //         .total = stats.completed_n,
-    //         .stat = COMPLETED},
-    //
-    //     (StatsBarField){.color = YELLOW,
-    //         .scaled_total = 0,
-    //         .total = stats.on_hold_n,
-    //         .stat = ON_HOLD},
-    //
-    //     (StatsBarField){.color = RED,
-    //         .scaled_total = 0,
-    //         .total = stats.dropped_n,
-    //         .stat = DROPPED},
-    //
-    //     (StatsBarField){.color = RESET,
-    //         .scaled_total = 0,
-    //         .total = stats.plan_to_watch_n,
-    //         .stat = PLAN_TO_WATCH},
-    // };
-    //
-    // printf("\n");
-    //
-    // int row = 0;
-    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-    //         fields[row].total);
-    //
-    // printf("%-15s%d", "Ep. watched", stats.ep_watched_n);
-    //
-    // printf("\n");
-    // row++;
-    //
-    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-    //         fields[row].total);
-    //
-    // printf("%-15s%.1f", "Days", time_t_to_days(stats.combined_watch_time));
-    //
-    // printf("\n");
-    // row++;
-    //
-    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-    //         fields[row].total);
-    //
-    // printf("%-15s%d", "Tot. entries", stats.entries_n);
-    //
-    // printf("\n");
-    // row++;
-    //
-    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-    //         fields[row].total);
-    //
-    // printf("%-15s%.2f", "Avg. score", stats.average_score);
-    //
-    // printf("\n");
-    // row++;
-    //
-    // printf("%s%-15s%s %-15d", ansi_clr(fields[row].color),
-    //         AniEntryStatus_to_str(fields[row].stat), ansi_clr(RESET),
-    //         fields[row].total);
-    //
-    // printf("%-15s#%s", "Fav. tag", stats.tag_fav);
-    //
-    // printf("\n");
+    {
+        int len_largest_key = 0;
+        int largest_value = 0;
+        size_t kvs_count = stats.tags_kv_size;
+
+        // sort by value and find largest key
+        {
+            qsort(&stats.tags_kv, kvs_count, sizeof(stats.tags_kv[0]),
+                    AniFileStats_KV_qsort_by_value);
+            for (size_t i = 0; i < kvs_count; i++) {
+                size_t len_tmp = strlen(stats.tags_kv[i].key);
+                if ((int)len_tmp > len_largest_key) {
+                    len_largest_key = len_tmp;
+                }
+                if (stats.tags_kv[i].value > largest_value) {
+                    largest_value = stats.tags_kv[i].value;
+                }
+            }
+        }
+
+        printf("┌──────────────────Tags summary───────────────────┐\n");
+
+        for (size_t i = 0; i < kvs_count; i++) {
+            int avail_space_for_hist = WIDTH * 2 - len_largest_key;
+            int hist_len = (int)round((double)stats.tags_kv[i].value *
+                    avail_space_for_hist / stats.entries_n);
+            hist_len = hist_len == 0 ? 1 : hist_len;
+            printf("│");
+            char *hist_char = "█";
+            int value_len = char_len_of_int(stats.tags_kv[i].value) + 1;
+            int space_until_key =
+                WIDTH - hist_len - value_len - 2 - strlen(stats.tags_kv[i].key);
+            while (hist_len > 0) {
+                if (hist_len == 1) {
+                    if (stats.tags_kv[i].value % 2 != 0 || stats.tags_kv[i].value < 5) {
+                        hist_char = "▍";
+                    }
+                    if (stats.tags_kv[i].value == 1) {
+                        hist_char = "▏";
+                    }
+                }
+                printf("%s", hist_char);
+                hist_len--;
+            }
+            printf(" %d", stats.tags_kv[i].value);
+            int start = space_until_key;
+            while (space_until_key > 0) {
+                if (i % 2 == 0 && space_until_key != 1 && space_until_key != start) {
+                    printf("┄");
+                } else {
+                    printf(" ");
+                }
+                space_until_key--;
+            }
+            printf("%s", stats.tags_kv[i].key);
+            printf("│\n");
+        }
+        printf("└─────────────────────────────────────────────────┘\n");
+    }
 }
 
 void flag_guide(AniFile *af, PrgVars *pv) {

@@ -36,6 +36,20 @@ int AniEntry_qsort_by_released(const void *a, const void *b) {
     return 0;
 }
 
+int AniFileStats_KV_qsort_by_value(const void *a, const void *b) {
+    const AniFileStats_KV *x = (const AniFileStats_KV *)a;
+    const AniFileStats_KV *y = (const AniFileStats_KV *)b;
+
+    if (!x || !y)
+        return 0;
+
+    if (x->value > y->value)
+        return -1;
+    if (x->value < y->value)
+        return 1;
+    return 0;
+}
+
 int AniEntry_qsort_by_updated(const void *a, const void *b) {
     const AniEntry *x = (const AniEntry *)a;
     const AniEntry *y = (const AniEntry *)b;

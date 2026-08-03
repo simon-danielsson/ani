@@ -84,6 +84,8 @@ typedef struct AniEntrySearchResult {
   char *text_fields_concat;
 } AniEntrySearchResult;
 
+int AniFileStats_KV_qsort_by_value(const void *a, const void *b);
+
 // io.h
 
 char **get_tags_from_field(char *s);
