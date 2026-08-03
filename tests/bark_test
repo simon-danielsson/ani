@@ -15,6 +15,8 @@ ani help long | ../run.py -- --help
 ani guide | ../run.py -- --guide
 # cli - search
 ani search | ../run.py -- --file ./test.ani search piece
+ani search sort progress | ../run.py -- --file ./test.ani search dream -p
+ani search sort rel. rev | ../run.py -- --file ./test.ani search one -y -r
 # cli - stats
 ani stats | ../run.py -- --file ./test.ani stats
 # cli - ls

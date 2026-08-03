@@ -1,13 +1,3 @@
-ani stats
-Library: [33m./test.ani[0m
-┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
-┌──────Entries──────┐┌────────────Info────────────┐
-│Total           [34m351[0m││Ep. watched        [34m5373/6364[0m│
-│Watching         [34m11[0m││Days watched            [34m93.3[0m│
-│Completed       [34m304[0m││Avg. score              [34m6.43[0m│
-│On hold           [34m2[0m││Fav. tag             [34m#action[0m│
-│Dropped          [34m17[0m││Unique tags               [34m25[0m│
-│Plan to watch    [34m17[0m││Last updated      [34m2026-07-26[0m│
-└───────────────────┘└────────────────────────────┘
-
+ani search sort progress
+Error: unknown command -- run 'ani -h' for more information
 
