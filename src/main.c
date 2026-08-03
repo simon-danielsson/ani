@@ -27,6 +27,8 @@ int main(int argc, char **argv) {
 
     if (pv.cmd) {
         pv.cmd(&af, &pv);
+    } else {
+        error("unknown command");
     }
 
     fclose(f);
