@@ -1,5 +1,5 @@
 nvim.log
-/build
+/bin
 .DS_Store
 *.o
 notes.md
