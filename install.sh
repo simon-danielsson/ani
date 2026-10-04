@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+# set -euo pipefail
 
 if [[ $EUID -ne 0 ]]; then
   exec sudo "$0" "$@"
