@@ -7,7 +7,6 @@
 #define SETFILE_NAME ".ani"
 
 int main(int argc, char **argv) {
-    _run_test(TEST);
     srand((unsigned)time(NULL));
 
     Arg_init_all();

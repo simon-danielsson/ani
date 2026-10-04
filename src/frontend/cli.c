@@ -1,6 +1,6 @@
+#include "../../static/guide_txt.h"
+#include "../../static/help_txt.h"
 #include "../backend/backend.h"
-#include "../static/guide.h"
-#include "../static/help.h"
 #include "../utils.h"
 #include "frontend.h"
 #include <stdio.h>
@@ -1199,13 +1199,14 @@ void flag_help(AniFile *af, PrgVars *pv) {
 }
 
 void flag_version(AniFile *af, PrgVars *pv) {
-    printf("========================================\n");
-    printf("%s %s (%.8s)\n", ENV_NAME, ENV_GITTAG, ENV_GITHASH);
-    printf("Anime progress tracker for the CLI.\n");
-    printf("%s\n", ENV_REPO);
-    printf("----------------------------------------\n");
-    printf("© 2026 %s - MIT License\n", ENV_AUTHOR);
-    printf("Contact: %s\n", ENV_CONTACT);
-    printf("========================================\n");
+    printf("not currently implemented\n");
+    // printf("========================================\n");
+    // printf("%s %s (%.8s)\n", ENV_NAME, ENV_GITTAG, ENV_GITHASH);
+    // printf("Anime progress tracker for the CLI.\n");
+    // printf("%s\n", ENV_REPO);
+    // printf("----------------------------------------\n");
+    // printf("© 2026 %s - MIT License\n", ENV_AUTHOR);
+    // printf("Contact: %s\n", ENV_CONTACT);
+    // printf("========================================\n");
     exit(EXIT_SUCCESS);
 }

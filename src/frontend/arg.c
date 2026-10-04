@@ -86,7 +86,7 @@ void Arg_init_all(void) {
     args[9] = _Arg_create(C_INFO, "info", NULL, cmd_info, true);
     args[10] = _Arg_create(C_REC, "rec", "recommend", cmd_rec, false);
     args[11] = _Arg_create(C_STATS, "stats", "summary", cmd_stats, false);
-    args[12] = _Arg_create(C_EP, "ep", "episode", cmd_ep, false);
+    args[12] = _Arg_create(C_EP, "ep", "episode", cmd_ep, true);
 
     // sorting flags
     args[13] = _Arg_create_sort_flag(SF_NAME, "-n");
@@ -141,7 +141,7 @@ bool Arg_parse(uint argc, char **argv) {
     return true;
 }
 
-PrgVars PrgVars_init() {
+PrgVars PrgVars_init(void) {
     PrgVars pv = {0};
     pv.cmd = NULL;
     memset(pv.filepath, 0, sizeof(char) * 128);
@@ -192,7 +192,7 @@ void PrgVars_debug_print(PrgVars *pv) {
 
     printf("filepath: %s\n", pv->filepath);
     char *par = *pv->params;
-    for (uint i = 0; par != NULL; i++) {
+    while (par != NULL) {
         printf("param: %s\n", par++);
     }
     for (size_t i = 0; i < pv->sort_flags_count; i++) {

@@ -4,10 +4,15 @@ If:
 CompileFlags:
   Add:
     - -xc
+    - -DTEST
     - -std=c99
-    - -Wno-c23-extensions
     - -Wextra
-    - -Wmissing-field-initializers
+    - -pedantic
+    - -Wsign-conversion
     - -Wno-unused-variable
     - -Wno-unused-but-set-variable
     - -Wno-unused-function
+
+Documentation:
+  CommentFormat: Markdown
+

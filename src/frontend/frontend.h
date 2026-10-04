@@ -34,11 +34,9 @@ typedef enum {
 #define ARG_COUNT 19
 #define ARG_MAX_PARAM 6
 
-typedef struct PrgVars PrgVars;
-
 typedef struct PrgVars {
   char filepath[128];
-  void (*cmd)(AniFile *af, PrgVars *pv);
+  void (*cmd)(AniFile *af, struct PrgVars *pv);
   char **params;
   ArgType *sort_flags[2];
   size_t sort_flags_count;
@@ -51,7 +49,7 @@ typedef struct Arg {
   bool has_sub; // true if arg needs subcommands/flags
   bool is_sort_flag;
   char *param[ARG_MAX_PARAM];
-  void (*cmd)(AniFile *af, PrgVars *pv);
+  void (*cmd)(AniFile *af, struct PrgVars *pv);
 } Arg;
 
 char *arg_as_str(ArgType at);
@@ -76,7 +74,7 @@ typedef enum {
 
 void Arg_init_all(void);
 bool Arg_parse(uint argc, char **argv);
-PrgVars PrgVars_init();
+PrgVars PrgVars_init(void);
 void PrgVars_setup(PrgVars *pv);
 void PrgVars_debug_print(PrgVars *pv);
 

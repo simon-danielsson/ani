@@ -5,7 +5,7 @@ size_t get_fsize(FILE **f) {
     fseek(*f, 0, SEEK_END);
     long fsize = ftell(*f);
     fseek(*f, 0, SEEK_SET);
-    return fsize;
+    return (size_t)fsize;
 }
 
 void error(const char *s) {
@@ -86,7 +86,7 @@ void trim_str(char *str) {
     while (end > start && isspace((unsigned char)*end)) {
         end--;
     }
-    size_t len = (end - start) + 1;
+    size_t len = (size_t)(end - (size_t)start) + 1;
     memmove(str, start, len);
     str[len] = '\0';
 }
